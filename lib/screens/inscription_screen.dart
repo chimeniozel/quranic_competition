@@ -1,0 +1,433 @@
+import 'package:flutter/material.dart';
+import 'package:iconsax/iconsax.dart';
+import 'package:intl/intl.dart';
+import 'package:quranic_competition/constants/colors.dart';
+import 'package:quranic_competition/models/inscription.dart';
+import 'package:quranic_competition/widgets/input_widget.dart';
+
+class InscriptionScreen extends StatefulWidget {
+  const InscriptionScreen({super.key});
+
+  @override
+  State<InscriptionScreen> createState() => _InscriptionScreenState();
+}
+
+class _InscriptionScreenState extends State<InscriptionScreen> {
+  final TextEditingController fullNameController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
+  final TextEditingController phoneNumberController = TextEditingController();
+  String selectedResudence = "داخل موريتانيا";
+  String howMuchYouMemorize = "القرآن كاملا";
+  String haveYouIhaza = "نعم";
+  String howMuchRiwayaYouHave = "رواية واحدة";
+  String haveYouParticipatedInACompetition = "نعم";
+  // String haveYouWonAPreviousCompetition = "نعم";
+  String haveYouEverWon1stTo2ndPlace = "نعم";
+  bool obscure = true;
+  DateTime _selectedDate = DateTime.now();
+
+  List<String> howMuchYouMemorizes = ["القرآن كاملا", "نصف", "أقل من نصف"];
+
+  void handleSelectedResudence(String? value) {
+    setState(() {
+      selectedResudence = value!;
+    });
+  }
+
+  void handleHowMuchYouMemorize(String? value) {
+    setState(() {
+      howMuchYouMemorize = value!;
+    });
+  }
+
+  void handleHaveYouIhaza(String? value) {
+    setState(() {
+      haveYouIhaza = value!;
+    });
+  }
+
+  void handleHowMuchRiwayaYouHave(String? value) {
+    setState(() {
+      howMuchRiwayaYouHave = value!;
+    });
+  }
+
+  void handleHaveYouParticipatedInACompetition(String? value) {
+    setState(() {
+      haveYouParticipatedInACompetition = value!;
+    });
+  }
+
+  void handleHaveYouEverWon1stTo2ndPlace(String? value) {
+    setState(() {
+      haveYouEverWon1stTo2ndPlace = value!;
+    });
+  }
+
+  Future<void> _selectDate(BuildContext context) async {
+    final DateTime? pickedDate = await showDatePicker(
+      initialEntryMode: DatePickerEntryMode.calendar,
+      context: context,
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(context).copyWith(canvasColor: Colors.white),
+          child: child!,
+        );
+      },
+      initialDate: DateTime.now(),
+      firstDate: DateTime(1900),
+      lastDate: DateTime(2100),
+    );
+
+    if (pickedDate != null) {
+      setState(() {
+        _selectedDate = pickedDate;
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              // Welcome message
+              Container(
+                margin: const EdgeInsets.only(
+                  top: 70.0,
+                ),
+                width: double.infinity,
+                child: const Text(
+                  "مرحباً! \nقم بالتسجيل للبدء",
+                  // textDirection: TextDirection.rtl,
+                  style: TextStyle(
+                    fontSize: 40,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 10.0),
+
+              // Name of user
+              InputWidget(
+                label: "الاسم الثلاثي",
+                controller: fullNameController,
+                hint: "الاسم الثلاثي",
+                icon: Iconsax.user,
+              ),
+              const SizedBox(height: 10.0),
+
+              // Phone number
+              Row(
+                children: [
+                  Expanded(
+                    child: InputWidget(
+                      label: "رقم الهاتف",
+                      controller: phoneNumberController,
+                      hint: "رقم الهاتف",
+                      icon: Iconsax.call,
+                      keyboardType: TextInputType.number,
+                    ),
+                  ),
+                  const SizedBox(
+                    width: 10.0,
+                  ),
+                  // Date of Birth
+                  Expanded(
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        foregroundColor: AppColors.primaryColor,
+                        backgroundColor: AppColors.whiteColor,
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        side: BorderSide(
+                          color: Colors.black.withOpacity(.3),
+                          width: 1,
+                        ),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 10.0, vertical: 13.0),
+                      ),
+                      onPressed: () => _selectDate(context),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          const Icon(
+                            Iconsax.calendar,
+                          ),
+                          const SizedBox(
+                            width: 10.0,
+                          ),
+                          Text(
+                            DateFormat().add_yMd().format(_selectedDate),
+                            style: const TextStyle(color: AppColors.blackColor),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(
+                height: 10.0,
+              ),
+
+              // مكان الإقامة الحالية
+              const Text("مكان الإقامة الحالية"),
+              Row(
+                children: [
+                  Expanded(
+                    child: ListTile(
+                      title: const Text('داخل موريتانيا'),
+                      leading: Radio<String>(
+                        value: 'داخل موريتانيا',
+                        groupValue: selectedResudence,
+                        onChanged: handleSelectedResudence,
+                      ),
+                    ),
+                  ),
+                  Expanded(
+                    child: ListTile(
+                      title: const Text('خارج موريتانيا'),
+                      leading: Radio<String>(
+                        value: 'خارج موريتانيا',
+                        groupValue: selectedResudence,
+                        onChanged: handleSelectedResudence,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 10.0),
+
+              // كم تحفظ من القرآن الكريم ؟
+              const Text("كم تحفظ من القرآن الكريم ؟"),
+              const SizedBox(
+                height: 10.0,
+              ),
+              Container(
+                width: MediaQuery.of(context).size.width,
+                margin: const EdgeInsets.only(bottom: 10.0),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: const BorderRadius.all(Radius.circular(10)),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.1),
+                      spreadRadius: 1,
+                      blurRadius: 1,
+                    ),
+                  ],
+                ),
+                child: DropdownButton<String>(
+                  items: howMuchYouMemorizes.map((String text) {
+                    return DropdownMenuItem<String>(
+                      value: text,
+                      child: Text(text.toString()),
+                    );
+                  }).toList(),
+                  onChanged: (String? value) {
+                    setState(() {
+                      howMuchYouMemorize = value!;
+                    });
+                  },
+                  hint: Text(
+                    'Select an address',
+                    style: TextStyle(
+                      color: Colors.black.withOpacity(.5),
+                      fontSize: 14.0,
+                    ),
+                  ),
+                  value: howMuchYouMemorize,
+                  isExpanded: true,
+                  style: const TextStyle(
+                    color: Colors.black,
+                    fontSize: 14.0,
+                  ),
+                  icon: const Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: Icon(Iconsax.arrow_down_14),
+                  ),
+                  underline: Container(),
+                  elevation: 0,
+                  dropdownColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                  focusColor: AppColors.whiteColor,
+                  borderRadius: BorderRadius.circular(8),
+                  autofocus: false,
+                ),
+              ),
+
+              const SizedBox(
+                height: 10.0,
+              ),
+              // هل حصلت على إجازة ؟
+              const Text("هل حصلت على إجازة ؟"),
+              Row(
+                children: [
+                  Expanded(
+                    child: ListTile(
+                      title: const Text('نعم'),
+                      leading: Radio<String>(
+                        value: 'نعم',
+                        groupValue: haveYouIhaza,
+                        onChanged: handleHaveYouIhaza,
+                      ),
+                    ),
+                  ),
+                  Expanded(
+                    child: ListTile(
+                      title: const Text('لا'),
+                      leading: Radio<String>(
+                        value: 'لا',
+                        groupValue: haveYouIhaza,
+                        onChanged: handleHaveYouIhaza,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(
+                height: 10.0,
+              ),
+              // كم رواية تقرأ بها ؟
+              const Text("كم رواية تقرأ بها ؟"),
+              Row(
+                children: [
+                  Expanded(
+                    child: ListTile(
+                      title: const Text('رواية واحدة'),
+                      leading: Radio<String>(
+                        value: 'رواية واحدة',
+                        groupValue: howMuchRiwayaYouHave,
+                        onChanged: handleHowMuchRiwayaYouHave,
+                      ),
+                    ),
+                  ),
+                  Expanded(
+                    child: ListTile(
+                      title: const Text('أكثر من رواية'),
+                      leading: Radio<String>(
+                        value: 'أكثر من رواية',
+                        groupValue: howMuchRiwayaYouHave,
+                        onChanged: handleHowMuchRiwayaYouHave,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(
+                height: 10.0,
+              ),
+              // هل سبق وأن شاركت في نسخة ماضية من مسابقة أهل القرآن الوتسابية ؟
+              const Text(
+                  "هل سبق وأن شاركت في نسخة ماضية من مسابقة أهل القرآن الوتسابية ؟"),
+              Row(
+                children: [
+                  Expanded(
+                    child: ListTile(
+                      title: const Text('نعم'),
+                      leading: Radio<String>(
+                        value: 'نعم',
+                        groupValue: haveYouParticipatedInACompetition,
+                        onChanged: handleHaveYouParticipatedInACompetition,
+                      ),
+                    ),
+                  ),
+                  Expanded(
+                    child: ListTile(
+                      title: const Text('لا'),
+                      leading: Radio<String>(
+                        value: 'لا',
+                        groupValue: haveYouParticipatedInACompetition,
+                        onChanged: handleHaveYouParticipatedInACompetition,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 10.0),
+              // هل سبق وأن حصلت على المراتب 1 إلى 2  في مسابقة أهل القرآن الوتسابية أو أي مسابقة أخرى ؟
+              const Text(
+                  "هل سبق وأن حصلت على المراتب 1 إلى 2  في مسابقة أهل القرآن الوتسابية أو أي مسابقة أخرى ؟"),
+              Row(
+                children: [
+                  Expanded(
+                    child: ListTile(
+                      title: const Text('نعم'),
+                      leading: Radio<String>(
+                        value: 'نعم',
+                        groupValue: haveYouEverWon1stTo2ndPlace,
+                        onChanged: handleHaveYouEverWon1stTo2ndPlace,
+                      ),
+                    ),
+                  ),
+                  Expanded(
+                    child: ListTile(
+                      title: const Text('لا'),
+                      leading: Radio<String>(
+                        value: 'لا',
+                        groupValue: haveYouEverWon1stTo2ndPlace,
+                        onChanged: handleHaveYouEverWon1stTo2ndPlace,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 10.0),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  foregroundColor: AppColors.whiteColor,
+                  backgroundColor: AppColors.primaryColor,
+                  elevation: 0,
+                  minimumSize: const Size(double.infinity, 40),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  side: BorderSide(
+                    color: Colors.black.withOpacity(.3),
+                    width: 1,
+                  ),
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 10.0, vertical: 13.0),
+                ),
+                onPressed: () async {
+                  Inscription inscription = Inscription(
+                    fullName: fullNameController.text,
+                    phoneNumber: phoneNumberController.text,
+                    birthDate: _selectedDate,
+                    residencePlace: selectedResudence,
+                    howMuchYouMemorize: howMuchYouMemorize,
+                    haveYouIhaza: haveYouIhaza,
+                    howMuchRiwayaYouHave: howMuchRiwayaYouHave,
+                    haveYouParticipatedInACompetition:
+                        haveYouParticipatedInACompetition,
+                    haveYouEverWon1stTo2ndPlace: haveYouEverWon1stTo2ndPlace,
+                    noteTajwid: {},
+                    noteHousnSawtt: {},
+                    noteIltizamRiwaya: {},
+                    noteOu4oubetSawtt: {},
+                    noteWaqfAndIbtidaa: {},
+                    result: {},
+                  );
+
+                  // Save user information to Firebase
+                  Inscription.sendToFirebase(inscription, context, "2024-2025")
+                      .whenComplete(
+                    () {},
+                  );
+                },
+                child: const Text("إرسال المعلومات"),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
