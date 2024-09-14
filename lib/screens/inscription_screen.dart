@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 import 'package:quranic_competition/constants/colors.dart';
 import 'package:quranic_competition/models/inscription.dart';
+import 'package:quranic_competition/providers/competion_provider.dart';
+import 'package:quranic_competition/services/inscription_service.dart';
 import 'package:quranic_competition/widgets/input_widget.dart';
 
 class InscriptionScreen extends StatefulWidget {
@@ -21,7 +24,6 @@ class _InscriptionScreenState extends State<InscriptionScreen> {
   String haveYouIhaza = "نعم";
   String howMuchRiwayaYouHave = "رواية واحدة";
   String haveYouParticipatedInACompetition = "نعم";
-  // String haveYouWonAPreviousCompetition = "نعم";
   String haveYouEverWon1stTo2ndPlace = "نعم";
   bool obscure = true;
   DateTime _selectedDate = DateTime.now();
@@ -89,6 +91,7 @@ class _InscriptionScreenState extends State<InscriptionScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(8.0),
@@ -416,8 +419,15 @@ class _InscriptionScreenState extends State<InscriptionScreen> {
                     result: {},
                   );
 
+                  String competitionVirsion = context
+                      .read<CompetitionProvider>()
+                      .competition!
+                      .competitionVirsion
+                      .toString();
+
                   // Save user information to Firebase
-                  Inscription.sendToFirebase(inscription, context, "2024-2025")
+                  InscriptionService.sendToFirebase(
+                          inscription, context, competitionVirsion)
                       .whenComplete(
                     () {},
                   );

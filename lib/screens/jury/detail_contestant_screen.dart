@@ -88,6 +88,7 @@ class _DetailContestantScreenState extends State<DetailContestantScreen> {
     AuthProvider authProvider =
         Provider.of<AuthProvider>(context, listen: false);
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       appBar: AppBar(
         title: Text("المتسابق رقم : ${inscription.idInscription}"),
       ),

@@ -7,6 +7,7 @@ import 'package:quranic_competition/auth/register_screen.dart';
 import 'package:quranic_competition/constants/colors.dart';
 import 'package:quranic_competition/firebase_options.dart';
 import 'package:quranic_competition/providers/auth_provider.dart';
+import 'package:quranic_competition/providers/competion_provider.dart';
 import 'package:quranic_competition/screens/home_screen.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:quranic_competition/screens/jury/jury_home_screen.dart';
@@ -26,6 +27,9 @@ class MyApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => AuthProvider()),
+        ChangeNotifierProvider(create: (_) => AuthProvider()),
+        ChangeNotifierProvider(
+            create: (_) => CompetitionProvider()..getCurrentCompetition()),
       ],
       child: MaterialApp(
         title: 'Quranic Competition App',
@@ -45,7 +49,11 @@ class MyApp extends StatelessWidget {
           GlobalCupertinoLocalizations.delegate,
           GlobalWidgetsLocalizations.delegate
         ],
-        home: const RegisterScreen(),
+        home: Consumer<CompetitionProvider>(
+            builder: (context, competitionProvider, child) {
+          competitionProvider.getCurrentCompetition();
+          return const RegisterScreen();
+        }),
       ),
     );
   }

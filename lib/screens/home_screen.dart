@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:quranic_competition/auth/register_screen.dart';
 import 'package:quranic_competition/constants/colors.dart';
 import 'package:quranic_competition/screens/inscription_screen.dart';
-import 'package:quranic_competition/widgets/row_button_widget.dart';
+import 'package:quranic_competition/widgets/custtom_button.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({
@@ -17,6 +17,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       appBar: AppBar(
         title: const Text(
           'مسابقة أهل القرآن الواتسابية',
@@ -47,7 +48,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           double.infinity,
                           70.0,
                         ),
-                        style: const TextStyle(
+                        textStyle: const TextStyle(
                           color: AppColors.whiteColor,
                         ),
                         onPressed: () {
@@ -70,7 +71,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           double.infinity,
                           70.0,
                         ),
-                        style: const TextStyle(
+                        textStyle: const TextStyle(
                           color: AppColors.whiteColor,
                         ),
                         onPressed: () {
@@ -98,7 +99,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           double.infinity,
                           70.0,
                         ),
-                        style: const TextStyle(
+                        textStyle: const TextStyle(
                           color: AppColors.whiteColor,
                         ),
                         onPressed: () {},
@@ -113,7 +114,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           double.infinity,
                           70.0,
                         ),
-                        style: const TextStyle(
+                        textStyle: const TextStyle(
                           color: AppColors.whiteColor,
                         ),
                         onPressed: () {},
@@ -133,7 +134,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           double.infinity,
                           70.0,
                         ),
-                        style: const TextStyle(
+                        textStyle: const TextStyle(
                           color: AppColors.whiteColor,
                         ),
                         onPressed: () {},
@@ -148,7 +149,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           double.infinity,
                           70.0,
                         ),
-                        style: const TextStyle(
+                        textStyle: const TextStyle(
                           color: AppColors.whiteColor,
                         ),
                         onPressed: () {},

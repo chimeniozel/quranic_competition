@@ -39,6 +39,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     AuthProvider authProvider =
         Provider.of<AuthProvider>(context, listen: false);
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       appBar: AppBar(
         title: const Text("صفحة التسجيل"),
       ),

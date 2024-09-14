@@ -1,17 +1,18 @@
 import 'package:flutter/material.dart';
-import 'package:quranic_competition/constants/colors.dart';
 
 class CusttomButton extends StatelessWidget {
   final String text;
   Size? minimumSize;
-  TextStyle? style;
+  TextStyle? textStyle;
   Color? backgroundColor;
+  BorderSide? borderSide;
   final void Function()? onPressed;
   CusttomButton(
       {super.key,
       required this.text,
       required this.onPressed,
-      this.style,
+      this.textStyle,
+      this.borderSide,
       this.backgroundColor,
       this.minimumSize});
 
@@ -26,11 +27,12 @@ class CusttomButton extends StatelessWidget {
         ),
         backgroundColor: backgroundColor,
         minimumSize: minimumSize,
+        side: borderSide,
       ),
       onPressed: onPressed,
       child: Text(
         text,
-        style: style,
+        style: textStyle,
       ),
     );
   }

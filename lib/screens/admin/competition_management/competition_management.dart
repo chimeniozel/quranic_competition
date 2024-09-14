@@ -1,7 +1,12 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:intl/intl.dart';
 import 'package:quranic_competition/constants/colors.dart';
+import 'package:quranic_competition/constants/utils.dart';
+import 'package:quranic_competition/models/competition.dart';
+import 'package:quranic_competition/screens/admin/competition_management/competition_details_screen.dart';
+import 'package:quranic_competition/services/competion_service.dart';
 import 'package:quranic_competition/widgets/input_widget.dart';
 
 class CompetitionManagement extends StatefulWidget {
@@ -12,11 +17,12 @@ class CompetitionManagement extends StatefulWidget {
 }
 
 class _CompetitionManagementState extends State<CompetitionManagement> {
-  TextEditingController competionVirsionController = TextEditingController();
+  TextEditingController competitionVirsionController = TextEditingController();
+  DateTime selectedStartDate = DateTime.now();
+  DateTime selectedEndDate = DateTime.now().add(const Duration(days: 1));
 
-  DateTime selectedDate = DateTime.now();
-
-  Future<void> _selectDate(BuildContext context) async {
+  // Date picker for start date
+  Future<void> _selectStartDate(BuildContext context) async {
     final DateTime? pickedDate = await showDatePicker(
       initialEntryMode: DatePickerEntryMode.calendar,
       context: context,
@@ -33,7 +39,70 @@ class _CompetitionManagementState extends State<CompetitionManagement> {
 
     if (pickedDate != null) {
       setState(() {
-        selectedDate = pickedDate;
+        selectedStartDate = pickedDate;
+      });
+    }
+  }
+
+  // Date picker for end date
+  Future<void> _selectEndDate(BuildContext context) async {
+    final DateTime? pickedDate = await showDatePicker(
+      initialEntryMode: DatePickerEntryMode.calendar,
+      context: context,
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(context).copyWith(canvasColor: Colors.white),
+          child: child!,
+        );
+      },
+      initialDate: selectedStartDate.add(const Duration(days: 1)),
+      firstDate: selectedStartDate,
+      lastDate: DateTime(2100),
+    );
+
+    if (pickedDate != null) {
+      setState(() {
+        selectedEndDate = pickedDate;
+      });
+    }
+  }
+
+  Future<void> _saveCompetition() async {
+    String competitionVersion = competitionVirsionController.text.trim();
+
+    if (competitionVersion.isNotEmpty) {
+      bool hasActiveCompetition =
+          await CompetitionService.hasActiveCompetition();
+
+      if (hasActiveCompetition) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content:
+                Text('لا يمكن إنشاء نسخة جديدة أثناء وجود نسخة نشطة حالياً'),
+            backgroundColor: Colors.red,
+          ),
+        );
+        return;
+      }
+
+      bool isActive = DateTime.now().isAfter(selectedStartDate) &&
+          DateTime.now().isBefore(selectedEndDate);
+
+      Competition competition = Competition(
+        competitionVirsion: competitionVersion,
+        startDate: selectedStartDate,
+        endDate: selectedEndDate,
+        isActive: isActive,
+      );
+
+      await FirebaseFirestore.instance
+          .collection('competitions')
+          .add(competition.toMap());
+
+      competitionVirsionController.clear();
+      setState(() {
+        selectedStartDate = DateTime.now();
+        selectedEndDate = DateTime.now().add(const Duration(days: 1));
       });
     }
   }
@@ -41,6 +110,7 @@ class _CompetitionManagementState extends State<CompetitionManagement> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       appBar: AppBar(
         title: const Text('إدارة المسابقة'),
       ),
@@ -51,148 +121,243 @@ class _CompetitionManagementState extends State<CompetitionManagement> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text('قم بإضافة نسخة جديد'),
-            const SizedBox(
-              height: 10.0,
-            ),
+            const SizedBox(height: 10.0),
             Row(
               children: [
                 Expanded(
-                  flex: 2,
-                  child: InputWidget(
-                      label: "اسم النسخة",
-                      controller: competionVirsionController,
-                      hint: "اسم النسخة"),
-                ),
-                const SizedBox(
-                  width: 5.0,
-                ),
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    foregroundColor: AppColors.primaryColor,
-                    backgroundColor: AppColors.whiteColor,
-                    elevation: 0,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    side: BorderSide(
-                      color: Colors.black.withOpacity(.3),
-                      width: 1,
-                    ),
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 10.0, vertical: 13.0),
-                  ),
-                  onPressed: () => _selectDate(context),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
+                  flex: 1,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Icon(
-                        Iconsax.calendar,
-                      ),
+                      const Text("اسم النسخة"),
                       const SizedBox(
-                        width: 10.0,
+                        height: 5,
                       ),
-                      Text(
-                        DateFormat().add_yM().format(selectedDate),
-                        style: const TextStyle(color: AppColors.blackColor),
+                      InputWidget(
+                        label: "",
+                        controller: competitionVirsionController,
+                        hint: "اسم النسخة",
                       ),
                     ],
                   ),
                 ),
-                const SizedBox(
-                  width: 5.0,
-                ),
+                const SizedBox(width: 5.0),
                 Expanded(
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primaryColor,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10.0),
-                        ),
-                        minimumSize: const Size(double.infinity, 45.0)),
-                    onPressed: () {},
-                    child: const Text(
-                      'حفظ',
-                      style: TextStyle(
-                        color: AppColors.whiteColor,
+                  child: Column(
+                    children: [
+                      const Text("تاريخ البداية"),
+                      const SizedBox(
+                        height: 5,
                       ),
-                    ),
+                      ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          foregroundColor: AppColors.primaryColor,
+                          backgroundColor: AppColors.whiteColor,
+                          elevation: 0,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          side: BorderSide(
+                            color: Colors.black.withOpacity(.3),
+                            width: 1,
+                          ),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 10.0, vertical: 13.0),
+                        ),
+                        onPressed: () => _selectStartDate(context),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            const Icon(Iconsax.calendar),
+                            const SizedBox(width: 10.0),
+                            Text(
+                              DateFormat('d/M/y').format(selectedStartDate),
+                              style:
+                                  const TextStyle(color: AppColors.blackColor),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 5.0),
+                Expanded(
+                  child: Column(
+                    children: [
+                      const Text("تاريخ النهاية"),
+                      const SizedBox(
+                        height: 5,
+                      ),
+                      ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          foregroundColor: AppColors.primaryColor,
+                          backgroundColor: AppColors.whiteColor,
+                          elevation: 0,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          side: BorderSide(
+                            color: Colors.black.withOpacity(.3),
+                            width: 1,
+                          ),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 10.0, vertical: 13.0),
+                        ),
+                        onPressed: () => _selectEndDate(context),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            const Icon(Iconsax.calendar),
+                            const SizedBox(width: 10.0),
+                            Text(
+                              DateFormat('d/M/y').format(selectedEndDate),
+                              style:
+                                  const TextStyle(color: AppColors.blackColor),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ],
             ),
-            const SizedBox(
-              height: 10.0,
-            ),
-            Flexible(
-              child: ListView.builder(
-                itemCount: 22,
-                itemBuilder: (context, index) => Container(
-                  margin: const EdgeInsets.only(bottom: 5.0),
-                  decoration: const BoxDecoration(
-                    color: AppColors.whiteColor,
-                    borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                    boxShadow: [
-                      BoxShadow(
-                        offset: Offset(0.0, 2.0),
-                        blurRadius: 10.0,
-                        color: Colors.black12,
-                      ),
-                    ],
-                  ),
-                  child: Column(
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          const Text("النسخة الأولى"),
-                          Container(
-                            padding: const EdgeInsets.all(8.0),
-                            decoration: const BoxDecoration(
-                              color: AppColors.whiteColor,
-                            ),
-                            child: Row(
-                              children: [
-                                TextButton(
-                                  style: TextButton.styleFrom(
-                                      backgroundColor: AppColors.greenColor,
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius:
-                                            BorderRadius.circular(10.0),
-                                      )),
-                                  onPressed: () {},
-                                  child: const Text(
-                                    "تفعيل",
-                                    style: TextStyle(
-                                      color: AppColors.whiteColor,
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(
-                                  width: 5.0,
-                                ),
-                                TextButton(
-                                  style: TextButton.styleFrom(
-                                    backgroundColor: AppColors.pinkColor,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(10.0),
-                                    ),
-                                  ),
-                                  onPressed: () {},
-                                  child: const Text(
-                                    "تعطيل",
-                                    style: TextStyle(
-                                      color: AppColors.whiteColor,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
+            const SizedBox(height: 5.0),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primaryColor,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10.0),
                 ),
+                minimumSize: const Size(double.infinity, 45.0),
+              ),
+              onPressed: _saveCompetition,
+              child: const Text(
+                'حفظ',
+                style: TextStyle(color: AppColors.whiteColor),
+              ),
+            ),
+            const SizedBox(height: 10.0),
+            const Text('المسابقات الحالية'),
+            const SizedBox(height: 10.0),
+            Expanded(
+              child: StreamBuilder<QuerySnapshot>(
+                stream: FirebaseFirestore.instance
+                    .collection('competitions')
+                    .orderBy("isActive", descending: true)
+                    .snapshots(),
+                builder: (context, snapshot) {
+                  if (!snapshot.hasData) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+
+                  var competitions = snapshot.data!.docs;
+
+                  if (competitions.isEmpty) {
+                    return const Center(child: Text('لا توجد مسابقات حالياً'));
+                  }
+
+                  return ListView.builder(
+                    itemCount: competitions.length,
+                    itemBuilder: (context, index) {
+                      Competition competition = Competition.fromMap(
+                          competitions[index].data() as Map<String, dynamic>);
+                      var competitionId = competitions[index].id;
+                      var startDate = competition.startDate;
+                      var endDate = competition.endDate;
+
+                      // Check if the competition end date has passed
+                      if (endDate != null && DateTime.now().isAfter(endDate)) {
+                        // Update the competition to be inactive if endDate has passed
+                        FirebaseFirestore.instance
+                            .collection('competitions')
+                            .doc(competitionId)
+                            .update({'isActive': false});
+                        competition.setActive = false;
+                      }
+
+                      return GestureDetector(
+                        onTap: () {
+                          // Navigation to Competition Details
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => CompetitionDetailsScreen(
+                                competitionId: competitionId,
+                              ),
+                            ),
+                          );
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.only(
+                            right: 8.0,
+                          ),
+                          margin: const EdgeInsets.only(bottom: 5.0),
+                          decoration: const BoxDecoration(
+                            color: AppColors.whiteColor,
+                            borderRadius:
+                                BorderRadius.all(Radius.circular(10.0)),
+                            boxShadow: [
+                              BoxShadow(
+                                offset: Offset(0.0, 2.0),
+                                blurRadius: 10.0,
+                                color: Colors.black12,
+                              ),
+                            ],
+                          ),
+                          child: Column(
+                            children: [
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Expanded(
+                                    child: Text(competition.competitionVirsion
+                                        .toString()),
+                                  ),
+                                  Expanded(
+                                    child: Text(
+                                      '${Utils.arDateFormat(startDate!)} - ${Utils.arDateFormat(endDate!)}',
+                                    ),
+                                  ),
+                                  competition.isActive!
+                                      ? Container(
+                                          padding: const EdgeInsets.all(8.0),
+                                          child: ElevatedButton(
+                                            style: ElevatedButton.styleFrom(
+                                              backgroundColor:
+                                                  AppColors.primaryColor,
+                                              shape: RoundedRectangleBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(10.0),
+                                              ),
+                                            ),
+                                            onPressed: () {
+                                              CompetitionService
+                                                  .extendCompetition(context,
+                                                      competitionId, endDate);
+                                            },
+                                            child: const Text(
+                                              'تمديد',
+                                              style: TextStyle(
+                                                color: AppColors.whiteColor,
+                                              ),
+                                            ),
+                                          ),
+                                        )
+                                      : Container(
+                                          height: 60.0,
+                                        ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
+                  );
+                },
               ),
             ),
           ],

@@ -7,6 +7,7 @@ import 'package:quranic_competition/constants/colors.dart';
 import 'package:quranic_competition/models/users.dart';
 import 'package:quranic_competition/providers/auth_provider.dart';
 import 'package:quranic_competition/screens/admin/admin_home_screen.dart';
+import 'package:quranic_competition/screens/admin/competition_management/competition_management.dart';
 import 'package:quranic_competition/screens/home_screen.dart';
 import 'package:quranic_competition/screens/jury/jury_home_screen.dart';
 import 'package:quranic_competition/widgets/input_widget.dart';
@@ -37,6 +38,7 @@ class _LoginScreenState extends State<LoginScreen> {
     AuthProvider authProvider =
         Provider.of<AuthProvider>(context, listen: false);
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       appBar: AppBar(
         title: const Text("تسجيل الدخول"),
       ),
@@ -120,7 +122,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => const AdminHomeScreen(),
+                          builder: (context) => const CompetitionManagement(),
                         ),
                       );
                     }
