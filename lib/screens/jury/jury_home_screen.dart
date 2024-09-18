@@ -114,7 +114,7 @@ class _JuryHomeScreenState extends State<JuryHomeScreen> {
                 stream: InscriptionService.streamContestants(
                     competitionProvider!.competition!.competitionVirsion
                         .toString(),
-                    selectedType.toString()),
+                    selectedType.toString(),),
                 builder: (context, snapshot) {
                   if (snapshot.hasError) {
                     return Text(

@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:quranic_competition/models/competition.dart';
+import 'package:quranic_competition/models/users.dart';
 
 class CompetitionService {
   // Reference to the competitions collection in Firestore
@@ -24,7 +25,6 @@ class CompetitionService {
       return null;
     }
   }
-
 
 // Method to get competition from Firebase
   static Future<Competition?> getCompetition(String competitionId) async {
@@ -142,5 +142,26 @@ class CompetitionService {
         );
       },
     );
+  }
+
+  static Future<List<Users>> getJuryUsers() async {
+    try {
+      QuerySnapshot<Map<String, dynamic>> querySnapshot =
+          await FirebaseFirestore.instance.collection("users")
+          .where('role', isEqualTo: "عضو لجنة التحكيم").get();
+
+      List<Users> juryUsers = [];
+      for (var doc in querySnapshot.docs) {
+        Map<String, dynamic> userData = doc.data();
+        Users user = Users.fromMap(userData);
+        juryUsers.add(user);
+      }
+
+      return juryUsers;
+    } on FirebaseException catch (e) {
+      print("Error fetching jury users: $e");
+      return [];
+    }
+
   }
 }

@@ -8,9 +8,7 @@ import 'package:quranic_competition/constants/colors.dart';
 import 'package:quranic_competition/models/inscription.dart';
 
 class InscriptionService {
-
-
- static Future<bool> sendToFirebase(
+  static Future<bool> sendToFirebase(
       Inscription inscription, BuildContext context, String version) async {
     CollectionReference inscriptions =
         FirebaseFirestore.instance.collection('inscriptions');
@@ -117,6 +115,29 @@ class InscriptionService {
     QuerySnapshot querySnapshot = await inscriptionCollection
         .orderBy("رقم التسجيل", descending: false)
         .get();
+
+    List<Inscription> inscriptions = [];
+
+    for (var doc in querySnapshot.docs) {
+      inscriptions.add(Inscription.fromDocumentSnapshot(doc));
+    }
+
+    return inscriptions;
+  }
+
+  // Function to fetch constraints by jury
+  static Future<List<Inscription>> fetchContestantsByJury(
+      String version, String cometionType, String juryName) async {
+    var inscriptionCollection = FirebaseFirestore.instance
+        .collection('inscriptions')
+        .doc(version)
+        .collection(cometionType)
+        .where("التجويد.$juryName", isEqualTo: 10);
+    QuerySnapshot querySnapshot = await inscriptionCollection
+        // .orderBy("رقم التسجيل", descending: false)
+        .get();
+
+    print("==================================== ${querySnapshot.docs.length}");
 
     List<Inscription> inscriptions = [];
 
@@ -275,5 +296,4 @@ class InscriptionService {
       );
     }
   }
- 
 }
