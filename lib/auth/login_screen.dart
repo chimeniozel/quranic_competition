@@ -6,9 +6,7 @@ import 'package:quranic_competition/auth/register_screen.dart';
 import 'package:quranic_competition/constants/colors.dart';
 import 'package:quranic_competition/models/users.dart';
 import 'package:quranic_competition/providers/auth_provider.dart';
-import 'package:quranic_competition/screens/admin/admin_home_screen.dart';
 import 'package:quranic_competition/screens/admin/competition_management/competition_management.dart';
-import 'package:quranic_competition/screens/home_screen.dart';
 import 'package:quranic_competition/screens/jury/jury_home_screen.dart';
 import 'package:quranic_competition/widgets/input_widget.dart';
 

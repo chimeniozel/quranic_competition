@@ -3,7 +3,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:quranic_competition/constants/colors.dart';
 import 'package:quranic_competition/models/users.dart';
-import 'package:quranic_competition/screens/home_screen.dart';
 import 'package:quranic_competition/services/auth_service.dart';
 
 class AuthProvider extends ChangeNotifier {

@@ -4,6 +4,7 @@ import 'package:quranic_competition/constants/utils.dart';
 import 'package:quranic_competition/models/competition.dart';
 import 'package:quranic_competition/models/inscription.dart';
 import 'package:quranic_competition/models/users.dart';
+import 'package:quranic_competition/screens/admin/competition_management/upload_archive.dart';
 import 'package:quranic_competition/services/competion_service.dart';
 import 'package:quranic_competition/services/inscription_service.dart';
 
@@ -433,6 +434,60 @@ class _CompetitionDetailsScreenState extends State<CompetitionDetailsScreen> {
                       ),
                     ),
                   ),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.greenColor,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10.0),
+                            ),
+                          ),
+                          onPressed: () {
+                            // Navigate to the upload archive screen
+
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => UploadArchive(
+                                  competition: competition,
+                                  competitionVirsion:
+                                      competition.competitionVirsion!,
+                                ),
+                              ),
+                            );
+                          },
+                          child: const Text(
+                            "أرشيف المسابقة",
+                            style: TextStyle(
+                              color: AppColors.whiteColor,
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(
+                        width: 5.0,
+                      ),
+                      Expanded(
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.greenColor,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10.0),
+                            ),
+                          ),
+                          onPressed: () {},
+                          child: const Text(
+                            "نتائج المسابقة",
+                            style: TextStyle(
+                              color: AppColors.whiteColor,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ],
               );
             } else {
@@ -443,50 +498,63 @@ class _CompetitionDetailsScreenState extends State<CompetitionDetailsScreen> {
           },
         ),
       ),
-      bottomNavigationBar: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Row(
-          children: [
-            Expanded(
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.greenColor,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10.0),
-                  ),
-                ),
-                onPressed: () {},
-                child: const Text(
-                  "أرشيف المسابقة",
-                  style: TextStyle(
-                    color: AppColors.whiteColor,
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(
-              width: 5.0,
-            ),
-            Expanded(
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.greenColor,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10.0),
-                  ),
-                ),
-                onPressed: () {},
-                child: const Text(
-                  "نتائج المسابقة",
-                  style: TextStyle(
-                    color: AppColors.whiteColor,
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
+      // bottomNavigationBar: Padding(
+      //   padding: const EdgeInsets.all(8.0),
+      //   child: Row(
+      //     children: [
+      //       Expanded(
+      //         child: ElevatedButton(
+      //           style: ElevatedButton.styleFrom(
+      //             backgroundColor: AppColors.greenColor,
+      //             shape: RoundedRectangleBorder(
+      //               borderRadius: BorderRadius.circular(10.0),
+      //             ),
+      //           ),
+      //           onPressed: () {
+      //             // Navigate to the upload archive screen
+
+      //             Navigator.push(
+      //               context,
+      //               MaterialPageRoute(
+      //                 builder: (context) => UploadArchive(
+      //                   competition: widget.competitionId,
+      //                   competitionVirsion: competition.competitionVirsion,
+      //                 ),
+      //                 transitionDuration: Duration(seconds: 1),
+      //               ),
+      //             );
+      //           },
+      //           child: const Text(
+      //             "أرشيف المسابقة",
+      //             style: TextStyle(
+      //               color: AppColors.whiteColor,
+      //             ),
+      //           ),
+      //         ),
+      //       ),
+      //       const SizedBox(
+      //         width: 5.0,
+      //       ),
+      //       Expanded(
+      //         child: ElevatedButton(
+      //           style: ElevatedButton.styleFrom(
+      //             backgroundColor: AppColors.greenColor,
+      //             shape: RoundedRectangleBorder(
+      //               borderRadius: BorderRadius.circular(10.0),
+      //             ),
+      //           ),
+      //           onPressed: () {},
+      //           child: const Text(
+      //             "نتائج المسابقة",
+      //             style: TextStyle(
+      //               color: AppColors.whiteColor,
+      //             ),
+      //           ),
+      //         ),
+      //       ),
+      //     ],
+      //   ),
+      // ),
     );
   }
 }

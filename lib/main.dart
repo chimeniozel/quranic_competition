@@ -2,15 +2,12 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
-import 'package:quranic_competition/auth/login_screen.dart';
 import 'package:quranic_competition/auth/register_screen.dart';
 import 'package:quranic_competition/constants/colors.dart';
 import 'package:quranic_competition/firebase_options.dart';
 import 'package:quranic_competition/providers/auth_provider.dart';
 import 'package:quranic_competition/providers/competion_provider.dart';
-import 'package:quranic_competition/screens/home_screen.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:quranic_competition/screens/jury/jury_home_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

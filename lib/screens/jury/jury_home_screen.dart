@@ -6,7 +6,6 @@ import 'package:quranic_competition/models/inscription.dart';
 import 'package:quranic_competition/providers/auth_provider.dart';
 import 'package:quranic_competition/providers/competion_provider.dart';
 import 'package:quranic_competition/screens/jury/detail_contestant_screen.dart';
-import 'package:quranic_competition/screens/jury/list_of_contestants.dart';
 import 'package:quranic_competition/services/auth_service.dart';
 import 'package:quranic_competition/services/inscription_service.dart';
 import 'package:quranic_competition/widgets/custtom_button.dart';
