@@ -97,7 +97,14 @@ class _CompetitionManagementState extends State<CompetitionManagement> {
 
       await FirebaseFirestore.instance
           .collection('competitions')
-          .add(competition.toMap());
+          .add(competition.toMap()).then(
+            (value)async{
+await FirebaseFirestore.instance
+          .collection('competitions').doc(value.id).update(
+            {'competitionId' : value.id,}
+          );
+            }
+          );
 
       competitionVirsionController.clear();
       setState(() {

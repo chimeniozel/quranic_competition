@@ -26,6 +26,41 @@ class CompetitionService {
     }
   }
 
+  static Future<void> updateCompetition(BuildContext context,Competition competition) async {
+    // Update the existing competition document in Firestore
+    if (competition.archiveEntry!.imagesURL != null ) {
+      await FirebaseFirestore.instance
+        .collection('competitions')
+        .doc(competition.competitionId) // Reference to the specific competition document
+        .update({
+      'archiveEntry.imageURL': FieldValue.arrayUnion(competition.archiveEntry!.imagesURL!),
+    });
+    } else if (competition.archiveEntry!.videosURL != null){
+      await FirebaseFirestore.instance
+        .collection('competitions')
+        .doc(competition.competitionId) // Reference to the specific competition document
+        .update({
+      'archiveEntry.imageURL': FieldValue.arrayUnion(competition.archiveEntry!.videosURL!),
+    });
+    }
+
+    else {
+      await FirebaseFirestore.instance
+        .collection('competitions')
+        .doc(competition.competitionId) // Reference to the specific competition document
+        .update(competition.toMap());
+    }
+    
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('تم تحديث المسابقة بنجاح'),
+        backgroundColor: Colors.green,
+      ),
+    );
+}
+
+
 // Method to get competition from Firebase
   static Future<Competition?> getCompetition(String competitionId) async {
     try {
