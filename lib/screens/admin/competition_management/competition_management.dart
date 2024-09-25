@@ -4,6 +4,7 @@ import 'package:iconsax/iconsax.dart';
 import 'package:intl/intl.dart';
 import 'package:quranic_competition/constants/colors.dart';
 import 'package:quranic_competition/constants/utils.dart';
+import 'package:quranic_competition/models/archive_entry.dart';
 import 'package:quranic_competition/models/competition.dart';
 import 'package:quranic_competition/screens/admin/competition_management/competition_details_screen.dart';
 import 'package:quranic_competition/services/competion_service.dart';
@@ -93,18 +94,22 @@ class _CompetitionManagementState extends State<CompetitionManagement> {
         startDate: selectedStartDate,
         endDate: selectedEndDate,
         isActive: isActive,
+        competitionTypes: ["child_inscription", "adult_inscription"],
+        archiveEntry: ArchiveEntry(
+            title: "", description: "", imagesURL: [], videosURL: []),
       );
 
       await FirebaseFirestore.instance
           .collection('competitions')
-          .add(competition.toMap()).then(
-            (value)async{
-await FirebaseFirestore.instance
-          .collection('competitions').doc(value.id).update(
-            {'competitionId' : value.id,}
-          );
-            }
-          );
+          .add(competition.toMap())
+          .then((value) async {
+        await FirebaseFirestore.instance
+            .collection('competitions')
+            .doc(value.id)
+            .update({
+          'competitionId': value.id,
+        });
+      });
 
       competitionVirsionController.clear();
       setState(() {

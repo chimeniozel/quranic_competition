@@ -19,7 +19,7 @@ class CompetitionProvider with ChangeNotifier {
 
   void getCurrentCompetition() async {
     Competition? competition = await CompetitionService.getCurrentCompetition();
-    setCompetition(competition!);
+    setCompetition(competition);
     notifyListeners();
   }
 

@@ -7,9 +7,9 @@ class ArchiveEntry {
   final List<String>? videosURL; // optional
 
   ArchiveEntry({
-    required this.title,
-    required this.description,
-    required this.imagesURL,
+    this.title,
+    this.description,
+    this.imagesURL,
     this.videosURL,
   });
 
@@ -18,8 +18,8 @@ class ArchiveEntry {
     return {
       'title': title,
       'description': description,
-      'imagesURL': imagesURL,
-      'videosURL': videosURL,
+      'imagesURL': FieldValue.arrayUnion(imagesURL!),
+      'videosURL': FieldValue.arrayUnion(videosURL!),
     };
   }
 
@@ -29,7 +29,8 @@ class ArchiveEntry {
       title: map['title'] as String?,
       description: map['description'] as String?,
       imagesURL: List<String>.from(map['imagesURL'] ?? []),
-      videosURL: map['videosURL'] != null ? List<String>.from(map['videosURL']) : null,
+      videosURL:
+          map['videosURL'] != null ? List<String>.from(map['videosURL']) : null,
     );
   }
 

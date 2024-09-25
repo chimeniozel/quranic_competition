@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:quranic_competition/models/archive_entry.dart';
 import 'package:quranic_competition/models/competition.dart';
 import 'package:quranic_competition/models/users.dart';
 
@@ -26,31 +27,18 @@ class CompetitionService {
     }
   }
 
-  static Future<void> updateCompetition(BuildContext context,Competition competition) async {
+  static Future<void> updateImagesURL(
+      BuildContext context, Competition competition) async {
     // Update the existing competition document in Firestore
-    if (competition.archiveEntry!.imagesURL != null ) {
-      await FirebaseFirestore.instance
-        .collection('competitions')
-        .doc(competition.competitionId) // Reference to the specific competition document
-        .update({
-      'archiveEntry.imageURL': FieldValue.arrayUnion(competition.archiveEntry!.imagesURL!),
-    });
-    } else if (competition.archiveEntry!.videosURL != null){
-      await FirebaseFirestore.instance
-        .collection('competitions')
-        .doc(competition.competitionId) // Reference to the specific competition document
-        .update({
-      'archiveEntry.imageURL': FieldValue.arrayUnion(competition.archiveEntry!.videosURL!),
-    });
-    }
-
-    else {
-      await FirebaseFirestore.instance
-        .collection('competitions')
-        .doc(competition.competitionId) // Reference to the specific competition document
-        .update(competition.toMap());
-    }
     
+      await FirebaseFirestore.instance
+          .collection('competitions')
+          .doc(competition
+              .competitionId) // Reference to the specific competition document
+          .update({
+        'archiveEntry.imagesURL':
+            FieldValue.arrayUnion(competition.archiveEntry!.imagesURL!),
+      });
 
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
@@ -58,7 +46,29 @@ class CompetitionService {
         backgroundColor: Colors.green,
       ),
     );
-}
+  }
+
+
+static Future<void> updateVideosURL(
+      BuildContext context, Competition competition) async {
+    // Update the existing competition document in Firestore
+    
+      await FirebaseFirestore.instance
+          .collection('competitions')
+          .doc(competition
+              .competitionId) // Reference to the specific competition document
+          .update({
+        'archiveEntry.videosURL':
+            FieldValue.arrayUnion(competition.archiveEntry!.videosURL!),
+      });
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('تم تحديث المسابقة بنجاح'),
+        backgroundColor: Colors.green,
+      ),
+    );
+  }
 
 
 // Method to get competition from Firebase
@@ -182,8 +192,10 @@ class CompetitionService {
   static Future<List<Users>> getJuryUsers() async {
     try {
       QuerySnapshot<Map<String, dynamic>> querySnapshot =
-          await FirebaseFirestore.instance.collection("users")
-          .where('role', isEqualTo: "عضو لجنة التحكيم").get();
+          await FirebaseFirestore.instance
+              .collection("users")
+              .where('role', isEqualTo: "عضو لجنة التحكيم")
+              .get();
 
       List<Users> juryUsers = [];
       for (var doc in querySnapshot.docs) {
@@ -197,6 +209,55 @@ class CompetitionService {
       print("Error fetching jury users: $e");
       return [];
     }
+  }
 
+  // get images archives
+  static Future<List<String>> getImagesArchives(String competitionId) async {
+    try {
+      DocumentSnapshot<Map<String, dynamic>> doc = await FirebaseFirestore
+          .instance
+          .collection("competitions")
+          .doc(competitionId)
+          .get();
+
+      List<String> archives = [];
+      if (doc.exists) {
+        Competition competition = Competition.fromMap(doc.data());
+        List<String>? imagesURL = competition.archiveEntry?.imagesURL;
+
+        if (imagesURL != null) {
+          archives.addAll(imagesURL);
+        }
+      }
+      return archives;
+    } on FirebaseException catch (e) {
+      print("Error fetching archives: $e");
+      return [];
+    }
+  }
+
+  // get videos archives
+  static Future<List<String>> getVideosArchives(String competitionId) async {
+    try {
+      DocumentSnapshot<Map<String, dynamic>> doc = await FirebaseFirestore
+          .instance
+          .collection("competitions")
+          .doc(competitionId)
+          .get();
+
+      List<String> archives = [];
+      if (doc.exists) {
+        Competition competition = Competition.fromMap(doc.data());
+        List<String>? videosURL = competition.archiveEntry?.videosURL;
+
+        if (videosURL != null) {
+          archives.addAll(videosURL);
+        }
+      }
+      return archives;
+    } on FirebaseException catch (e) {
+      print("Error fetching archives: $e");
+      return [];
+    }
   }
 }

@@ -18,13 +18,13 @@ class Competition {
     List? competitionTypes,
     ArchiveEntry? archiveEntry,
   })  : _competitionId = competitionId,
-  _competitionVirsion = competitionVirsion,
+        _competitionVirsion = competitionVirsion,
         _startDate = startDate,
         _endDate = endDate,
         _isActive = isActive,
         _competitionTypes = competitionTypes,
         _archiveEntry = archiveEntry;
-  
+
   String? get competitionId => _competitionId;
   String? get competitionVirsion => _competitionVirsion;
   DateTime? get startDate => _startDate;
@@ -70,18 +70,18 @@ class Competition {
       'endDate': endDate,
       'isActive': isActive,
       'competitionTypes': competitionTypes,
-      'archiveEntry' : archiveEntry,
+      'archiveEntry': archiveEntry?.toMap(),
     };
   }
 
   // from Map
-  Competition.fromMap(Map<String, dynamic> map) {
-    _competitionId = map['competitionId'];
-    _competitionVirsion = map['competitionVirsion'];
-    _startDate = (map['startDate'] as Timestamp?)?.toDate();
-    _endDate = (map['endDate'] as Timestamp?)?.toDate();
-    _isActive = map['isActive'];
-    _competitionTypes = map['competitionTypes'];
-    _archiveEntry = map['archiveEntry'];
+  Competition.fromMap(Map<String, dynamic>? map) {
+    _competitionId = map?['competitionId'];
+    _competitionVirsion = map?['competitionVirsion'];
+    _startDate = (map?['startDate'] as Timestamp?)?.toDate();
+    _endDate = (map?['endDate'] as Timestamp?)?.toDate();
+    _isActive = map?['isActive'];
+    _competitionTypes = map?['competitionTypes'];
+    _archiveEntry = ArchiveEntry.fromMap(map?['archiveEntry']);
   }
 }
