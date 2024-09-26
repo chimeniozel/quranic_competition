@@ -296,7 +296,7 @@ class _CompetitionManagementState extends State<CompetitionManagement> {
                             context,
                             MaterialPageRoute(
                               builder: (context) => CompetitionDetailsScreen(
-                                competitionId: competitionId,
+                                competition: competition,
                               ),
                             ),
                           );

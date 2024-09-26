@@ -1,6 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:quranic_competition/models/archive_entry.dart';
 import 'package:quranic_competition/models/competition.dart';
 import 'package:quranic_competition/models/users.dart';
 
@@ -212,52 +211,99 @@ static Future<void> updateVideosURL(
   }
 
   // get images archives
-  static Future<List<String>> getImagesArchives(String competitionId) async {
-    try {
-      DocumentSnapshot<Map<String, dynamic>> doc = await FirebaseFirestore
-          .instance
-          .collection("competitions")
-          .doc(competitionId)
-          .get();
+  // static Future<List<String>> getImagesArchives(String competitionId) async {
+  //   try {
+  //     DocumentSnapshot<Map<String, dynamic>> doc = await FirebaseFirestore
+  //         .instance
+  //         .collection("competitions")
+  //         .doc(competitionId)
+  //         .get();
 
-      List<String> archives = [];
-      if (doc.exists) {
-        Competition competition = Competition.fromMap(doc.data());
-        List<String>? imagesURL = competition.archiveEntry?.imagesURL;
+  //     List<String> archives = [];
+  //     if (doc.exists) {
+  //       Competition competition = Competition.fromMap(doc.data());
+  //       List<String>? imagesURL = competition.archiveEntry?.imagesURL;
 
-        if (imagesURL != null) {
-          archives.addAll(imagesURL);
+  //       if (imagesURL != null) {
+  //         archives.addAll(imagesURL);
+  //       }
+  //     }
+  //     return archives;
+  //   } on FirebaseException catch (e) {
+  //     print("Error fetching archives: $e");
+  //     return [];
+  //   }
+  // }
+  // get images archives as a stream
+static Stream<List<String>> getImagesArchives(String competitionId) {
+  return FirebaseFirestore.instance
+      .collection("competitions")
+      .doc(competitionId)
+      .snapshots()
+      .map((DocumentSnapshot<Map<String, dynamic>> snapshot) {
+        List<String> archives = [];
+        if (snapshot.exists) {
+          Competition competition = Competition.fromMap(snapshot.data());
+          List<String>? imagesURL = competition.archiveEntry?.imagesURL;
+
+          if (imagesURL != null) {
+            archives.addAll(imagesURL);
+          }
         }
-      }
-      return archives;
-    } on FirebaseException catch (e) {
-      print("Error fetching archives: $e");
-      return [];
-    }
-  }
+        return archives;
+      }).handleError((error) {
+        print("Error fetching archives: $error");
+        return [];
+      });
+}
+
 
   // get videos archives
-  static Future<List<String>> getVideosArchives(String competitionId) async {
-    try {
-      DocumentSnapshot<Map<String, dynamic>> doc = await FirebaseFirestore
-          .instance
-          .collection("competitions")
-          .doc(competitionId)
-          .get();
+  // static Future<List<String>> getVideosArchives(String competitionId) async {
+  //   try {
+  //     DocumentSnapshot<Map<String, dynamic>> doc = await FirebaseFirestore
+  //         .instance
+  //         .collection("competitions")
+  //         .doc(competitionId)
+  //         .get();
 
-      List<String> archives = [];
-      if (doc.exists) {
-        Competition competition = Competition.fromMap(doc.data());
-        List<String>? videosURL = competition.archiveEntry?.videosURL;
+  //     List<String> archives = [];
+  //     if (doc.exists) {
+  //       Competition competition = Competition.fromMap(doc.data());
+  //       List<String>? videosURL = competition.archiveEntry?.videosURL;
 
-        if (videosURL != null) {
-          archives.addAll(videosURL);
+  //       if (videosURL != null) {
+  //         archives.addAll(videosURL);
+  //       }
+  //     }
+  //     return archives;
+  //   } on FirebaseException catch (e) {
+  //     print("Error fetching archives: $e");
+  //     return [];
+  //   }
+  // }
+
+  // get videos archives as a stream
+static Stream<List<String>> getVideosArchives(String competitionId) {
+  return FirebaseFirestore.instance
+      .collection("competitions")
+      .doc(competitionId)
+      .snapshots()
+      .map((DocumentSnapshot<Map<String, dynamic>> snapshot) {
+        List<String> archives = [];
+        if (snapshot.exists) {
+          Competition competition = Competition.fromMap(snapshot.data());
+          List<String>? videosURL = competition.archiveEntry?.videosURL;
+
+          if (videosURL != null) {
+            archives.addAll(videosURL);
+          }
         }
-      }
-      return archives;
-    } on FirebaseException catch (e) {
-      print("Error fetching archives: $e");
-      return [];
-    }
-  }
+        return archives;
+      }).handleError((error) {
+        print("Error fetching archives: $error");
+        return [];
+      });
+}
+
 }

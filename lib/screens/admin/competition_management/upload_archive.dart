@@ -8,6 +8,7 @@ import 'package:quranic_competition/constants/colors.dart';
 import 'package:quranic_competition/models/archive_entry.dart';
 import 'package:quranic_competition/models/competition.dart';
 import 'package:quranic_competition/services/competion_service.dart';
+import 'package:quranic_competition/widgets/video_widget.dart';
 import 'package:video_player/video_player.dart';
 import 'package:flick_video_player/flick_video_player.dart';
 
@@ -31,12 +32,10 @@ class UploadArchiveState extends State<UploadArchive> {
 
   // Select multiple images
   Future<void> _selectImages() async {
-    final List<XFile>? selectedImages = await _picker.pickMultiImage();
-    if (selectedImages != null) {
-      setState(() {
-        _selectedImages.addAll(selectedImages);
-      });
-    }
+    final List<XFile> selectedImages = await _picker.pickMultiImage();
+    setState(() {
+      _selectedImages.addAll(selectedImages);
+    });
   }
 
   // Select multiple videos
@@ -133,15 +132,6 @@ class UploadArchiveState extends State<UploadArchive> {
     );
   }
 
-  Future<List<String>> videoArchives = Future.value([]);
-
-  @override
-  void initState() {
-    super.initState();
-    videoArchives = CompetitionService.getVideosArchives(
-        widget.competition.competitionId.toString());
-  }
-
   @override
   void dispose() {
     // Dispose FlickManagers
@@ -154,134 +144,15 @@ class UploadArchiveState extends State<UploadArchive> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('أرشيف المسابقة')),
+      appBar: AppBar(
+        title: const Text('إضافة أرشيف للمسابقة'),
+      ),
       body: Padding(
         padding: const EdgeInsets.all(10.0),
         child: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Container(
-                margin: const EdgeInsets.only(bottom: 10.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text("أرشيف الصور"),
-                    FutureBuilder(
-                      future: CompetitionService.getImagesArchives(
-                          widget.competition.competitionId.toString()),
-                      builder: (context, snapshot) {
-                        if (snapshot.connectionState ==
-                            ConnectionState.waiting) {
-                          return const Center(
-                              child:
-                                  CircularProgressIndicator()); // Show loading indicator while waiting
-                        } else if (snapshot.hasError) {
-                          return Center(
-                              child: Text(
-                                  'Error: ${snapshot.error}')); // Show error if any
-                        } else if (!snapshot.hasData ||
-                            (snapshot.data as List).isEmpty) {
-                          return const Center(
-                              child: Text(
-                                  'No archives available')); // Handle empty data case
-                        }
-
-                        List<String>? archives = snapshot
-                            .data; // Ensure correct type for your archives
-
-                        return GridView.builder(
-                          shrinkWrap: true,
-                          physics: const NeverScrollableScrollPhysics(),
-                          gridDelegate:
-                              const SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 2,
-                            crossAxisSpacing: 8,
-                            mainAxisSpacing: 8,
-                          ),
-                          itemCount: archives!.length,
-                          itemBuilder: (context, index) {
-                            var archive = archives[
-                                index]; // Assuming archive contains image paths or URLs
-
-                            return Container(
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(10.0),
-                                color: Colors.white,
-                                boxShadow: [
-                                  BoxShadow(
-                                    offset: const Offset(2.0, 2.0),
-                                    color: Colors.black.withOpacity(.1),
-                                    blurRadius: 2,
-                                  ),
-                                ],
-                              ),
-                              child: ClipRRect(
-                                borderRadius: BorderRadius.circular(10.0),
-                                child: Image.network(
-                                  archive, // Replace with the correct field for the image URL
-                                  fit: BoxFit.cover,
-                                  errorBuilder: (context, error, stackTrace) {
-                                    return const Center(
-                                        child: Text('Error loading image'));
-                                  },
-                                ),
-                              ),
-                            );
-                          },
-                        );
-                      },
-                    ),
-                    const SizedBox(
-                      height: 10.0,
-                    ),
-                    const Text("أرشيف الفيديو"),
-                    const SizedBox(
-                      height: 10.0,
-                    ),
-                    FutureBuilder<List<String>>(
-                      future: videoArchives,
-                      builder: (context, snapshot) {
-                        if (snapshot.connectionState ==
-                            ConnectionState.waiting) {
-                          return const Center(
-                            child: CircularProgressIndicator(),
-                          ); // Show loading indicator
-                        } else if (snapshot.hasError) {
-                          return Center(
-                            child: Text('Error: ${snapshot.error}'),
-                          ); // Handle error
-                        } else if (!snapshot.hasData ||
-                            snapshot.data!.isEmpty) {
-                          return const Center(
-                              child: Text(
-                                  'No video archives available')); // Handle empty case
-                        }
-
-                        List<String> archives = snapshot.data!;
-
-                        return GridView.builder(
-                          shrinkWrap: true,
-                          physics: const NeverScrollableScrollPhysics(),
-                          gridDelegate:
-                              const SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 1,
-                            crossAxisSpacing: 8,
-                            mainAxisSpacing: 8,
-                          ),
-                          itemCount: archives.length,
-                          itemBuilder: (context, index) {
-                            var videoUrl = archives[index];
-
-                            // Create a stateful widget to manage the video controller and its state
-                            return VideoItem(videoUrl: videoUrl);
-                          },
-                        );
-                      },
-                    ),
-                  ],
-                ),
-              ),
               const Text("إضافة صور"),
               const SizedBox(height: 10.0),
               // Display selected images
@@ -351,37 +222,9 @@ class UploadArchiveState extends State<UploadArchive> {
                   children: List.generate(
                     _flickManagers.length,
                     (index) {
-                      FlickManager flickManager = _flickManagers[index];
-                      return flickManager.flickVideoManager!.isVideoInitialized
-                          ? Column(
-                              children: [
-                                Container(
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(10.0),
-                                    color: Colors.white,
-                                    boxShadow: [
-                                      BoxShadow(
-                                        offset: const Offset(2.0, 2.0),
-                                        color: Colors.black.withOpacity(.1),
-                                        blurRadius: 2,
-                                      ),
-                                    ],
-                                  ),
-                                  width: double.infinity,
-                                  child: FlickVideoPlayer(
-                                    wakelockEnabled: true,
-                                    wakelockEnabledFullscreen: true,
-                                    flickManager: flickManager,
-                                    flickVideoWithControls:
-                                        const FlickVideoWithControls(
-                                      controls: FlickPortraitControls(),
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(height: 20.0),
-                              ],
-                            )
-                          : const SizedBox.shrink();
+                      // FlickManager flickManager = _flickManagers[index];
+                      return VideoWidget(
+                          videoSource: _selectedVideos[index].path);
                     },
                   ),
                 ),
@@ -390,8 +233,11 @@ class UploadArchiveState extends State<UploadArchive> {
                 child: const Text('اختر فيديوهات'),
               ),
               if (_selectedVideos.isEmpty)
-                const Center(
-                  child: Text("لم يتم اختيار فيديوهات بعد"),
+                SizedBox(
+                  height: MediaQuery.of(context).size.height * 0.5,
+                  child: const Center(
+                    child: Text("لم يتم اختيار فيديوهات بعد"),
+                  ),
                 ),
             ],
           ),
@@ -443,128 +289,6 @@ class UploadArchiveState extends State<UploadArchive> {
                 ),
         ),
       ),
-    );
-  }
-}
-
-class VideoItem extends StatefulWidget {
-  final String videoUrl;
-
-  const VideoItem({super.key, required this.videoUrl});
-
-  @override
-  VideoItemState createState() => VideoItemState();
-}
-
-class VideoItemState extends State<VideoItem> {
-  late FlickManager flickManager;
-  bool isFullScreen = false;
-  bool _isDisposed = false; // Track if the controller has been disposed
-
-  @override
-  void initState() {
-    super.initState();
-    flickManager = FlickManager(
-      videoPlayerController: VideoPlayerController.network(widget.videoUrl),
-    );
-  }
-
-  // @override
-  // void dispose() {
-  //   _isDisposed = true; // Mark the controller as disposed
-  //   // Restore orientation when exiting the page
-  //   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
-  //   flickManager.dispose();
-  //   super.dispose();
-  // }
-
-  // Toggle fullscreen mode
-  void toggleFullScreen() {
-    if (!_isDisposed) {
-      setState(() {
-        isFullScreen = !isFullScreen;
-        if (isFullScreen) {
-          // Set landscape mode for fullscreen
-          SystemChrome.setPreferredOrientations([
-            DeviceOrientation.landscapeRight,
-            DeviceOrientation.landscapeLeft,
-          ]);
-          SystemChrome.setEnabledSystemUIMode(
-              SystemUiMode.leanBack); // Hide system bars
-        } else {
-          // Set portrait mode when exiting fullscreen
-          SystemChrome.setPreferredOrientations([
-            DeviceOrientation.portraitUp,
-          ]);
-          SystemChrome.setEnabledSystemUIMode(
-              SystemUiMode.edgeToEdge); // Show system bars
-        }
-      });
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return WillPopScope(
-      onWillPop: () async {
-        if (isFullScreen) {
-          toggleFullScreen(); // Exit full screen when back button is pressed
-          return false; // Prevent the app from closing
-        }
-        return true; // Allow app to close if not in full screen
-      },
-      child: _isDisposed
-          ? const SizedBox.shrink() // Avoid using the disposed controller
-          : Stack(
-              children: [
-                Container(
-                  width: double.infinity,
-                  height:
-                      isFullScreen ? MediaQuery.of(context).size.height : 200,
-                  margin: const EdgeInsets.only(
-                    bottom: 5.0,
-                  ),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(10.0),
-                    color: Colors.white,
-                    boxShadow: [
-                      BoxShadow(
-                        offset: const Offset(2.0, 2.0),
-                        color: Colors.black.withOpacity(.3),
-                        blurRadius: 2,
-                        blurStyle: BlurStyle.normal,
-                      ),
-                    ],
-                  ),
-                  child: GestureDetector(
-                    onDoubleTap:
-                        toggleFullScreen, // Double-tap to toggle fullscreen
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(10.0),
-                      child: FlickVideoPlayer(
-                        flickManager: flickManager,
-                        flickVideoWithControls: FlickVideoWithControls(
-                          controls: FlickPortraitControls(),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-                if (isFullScreen)
-                  Positioned(
-                    top: 20.0,
-                    left: 10.0,
-                    child: IconButton(
-                      icon: const Icon(
-                        Icons.arrow_back,
-                        color: Colors.white,
-                      ),
-                      onPressed:
-                          toggleFullScreen, // Exit fullscreen on back arrow press
-                    ),
-                  ),
-              ],
-            ),
     );
   }
 }

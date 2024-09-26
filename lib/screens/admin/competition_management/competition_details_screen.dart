@@ -1,16 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:quranic_competition/constants/colors.dart';
 import 'package:quranic_competition/constants/utils.dart';
 import 'package:quranic_competition/models/competition.dart';
 import 'package:quranic_competition/models/inscription.dart';
 import 'package:quranic_competition/models/users.dart';
+import 'package:quranic_competition/screens/admin/competition_management/competion_archive.dart';
 import 'package:quranic_competition/screens/admin/competition_management/upload_archive.dart';
 import 'package:quranic_competition/services/competion_service.dart';
 import 'package:quranic_competition/services/inscription_service.dart';
 
 class CompetitionDetailsScreen extends StatefulWidget {
-  final String competitionId;
-  const CompetitionDetailsScreen({super.key, required this.competitionId});
+  final Competition competition;
+  const CompetitionDetailsScreen({super.key, required this.competition});
 
   @override
   State<CompetitionDetailsScreen> createState() =>
@@ -43,16 +45,29 @@ class _CompetitionDetailsScreenState extends State<CompetitionDetailsScreen> {
       appBar: AppBar(
         title: const Text('تفاصيل المسابقة'),
         actions: [
+          const Text("أضف أرشيف"),
           IconButton(
-            icon: const Icon(Icons.search),
-            onPressed: () {},
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => UploadArchive(
+                    competition: widget.competition,
+                    competitionVirsion:
+                        widget.competition.competitionVirsion.toString(),
+                  ),
+                ),
+              );
+            },
+            icon: const Icon(Iconsax.add_circle),
           ),
         ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(10.0),
         child: FutureBuilder<Competition?>(
-          future: CompetitionService.getCompetition(widget.competitionId),
+          future: CompetitionService.getCompetition(
+              widget.competition.competitionId.toString()),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return const Center(
@@ -450,10 +465,8 @@ class _CompetitionDetailsScreenState extends State<CompetitionDetailsScreen> {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => UploadArchive(
+                                builder: (context) => CompetionArchive(
                                   competition: competition,
-                                  competitionVirsion:
-                                      competition.competitionVirsion!,
                                 ),
                               ),
                             );
@@ -498,63 +511,6 @@ class _CompetitionDetailsScreenState extends State<CompetitionDetailsScreen> {
           },
         ),
       ),
-      // bottomNavigationBar: Padding(
-      //   padding: const EdgeInsets.all(8.0),
-      //   child: Row(
-      //     children: [
-      //       Expanded(
-      //         child: ElevatedButton(
-      //           style: ElevatedButton.styleFrom(
-      //             backgroundColor: AppColors.greenColor,
-      //             shape: RoundedRectangleBorder(
-      //               borderRadius: BorderRadius.circular(10.0),
-      //             ),
-      //           ),
-      //           onPressed: () {
-      //             // Navigate to the upload archive screen
-
-      //             Navigator.push(
-      //               context,
-      //               MaterialPageRoute(
-      //                 builder: (context) => UploadArchive(
-      //                   competition: widget.competitionId,
-      //                   competitionVirsion: competition.competitionVirsion,
-      //                 ),
-      //                 transitionDuration: Duration(seconds: 1),
-      //               ),
-      //             );
-      //           },
-      //           child: const Text(
-      //             "أرشيف المسابقة",
-      //             style: TextStyle(
-      //               color: AppColors.whiteColor,
-      //             ),
-      //           ),
-      //         ),
-      //       ),
-      //       const SizedBox(
-      //         width: 5.0,
-      //       ),
-      //       Expanded(
-      //         child: ElevatedButton(
-      //           style: ElevatedButton.styleFrom(
-      //             backgroundColor: AppColors.greenColor,
-      //             shape: RoundedRectangleBorder(
-      //               borderRadius: BorderRadius.circular(10.0),
-      //             ),
-      //           ),
-      //           onPressed: () {},
-      //           child: const Text(
-      //             "نتائج المسابقة",
-      //             style: TextStyle(
-      //               color: AppColors.whiteColor,
-      //             ),
-      //           ),
-      //         ),
-      //       ),
-      //     ],
-      //   ),
-      // ),
     );
   }
 }
