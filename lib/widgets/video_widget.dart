@@ -38,7 +38,7 @@ class VideoWidgetState extends State<VideoWidget> {
                 // وقف الفيديو فورًا بعد التهيئة
                 setState(() {});
                 flickManager.flickControlManager!.pause();
-              }),
+              },),
       );
     }
   }

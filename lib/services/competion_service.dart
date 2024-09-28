@@ -1,5 +1,9 @@
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:excel/excel.dart';
 import 'package:flutter/material.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:quranic_competition/models/competition.dart';
 import 'package:quranic_competition/models/users.dart';
 
@@ -29,15 +33,15 @@ class CompetitionService {
   static Future<void> updateImagesURL(
       BuildContext context, Competition competition) async {
     // Update the existing competition document in Firestore
-    
-      await FirebaseFirestore.instance
-          .collection('competitions')
-          .doc(competition
-              .competitionId) // Reference to the specific competition document
-          .update({
-        'archiveEntry.imagesURL':
-            FieldValue.arrayUnion(competition.archiveEntry!.imagesURL!),
-      });
+
+    await FirebaseFirestore.instance
+        .collection('competitions')
+        .doc(competition
+            .competitionId) // Reference to the specific competition document
+        .update({
+      'archiveEntry.imagesURL':
+          FieldValue.arrayUnion(competition.archiveEntry!.imagesURL!),
+    });
 
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
@@ -47,19 +51,18 @@ class CompetitionService {
     );
   }
 
-
-static Future<void> updateVideosURL(
+  static Future<void> updateVideosURL(
       BuildContext context, Competition competition) async {
     // Update the existing competition document in Firestore
-    
-      await FirebaseFirestore.instance
-          .collection('competitions')
-          .doc(competition
-              .competitionId) // Reference to the specific competition document
-          .update({
-        'archiveEntry.videosURL':
-            FieldValue.arrayUnion(competition.archiveEntry!.videosURL!),
-      });
+
+    await FirebaseFirestore.instance
+        .collection('competitions')
+        .doc(competition
+            .competitionId) // Reference to the specific competition document
+        .update({
+      'archiveEntry.videosURL':
+          FieldValue.arrayUnion(competition.archiveEntry!.videosURL!),
+    });
 
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
@@ -68,7 +71,6 @@ static Future<void> updateVideosURL(
       ),
     );
   }
-
 
 // Method to get competition from Firebase
   static Future<Competition?> getCompetition(String competitionId) async {
@@ -210,100 +212,72 @@ static Future<void> updateVideosURL(
     }
   }
 
-  // get images archives
-  // static Future<List<String>> getImagesArchives(String competitionId) async {
-  //   try {
-  //     DocumentSnapshot<Map<String, dynamic>> doc = await FirebaseFirestore
-  //         .instance
-  //         .collection("competitions")
-  //         .doc(competitionId)
-  //         .get();
-
-  //     List<String> archives = [];
-  //     if (doc.exists) {
-  //       Competition competition = Competition.fromMap(doc.data());
-  //       List<String>? imagesURL = competition.archiveEntry?.imagesURL;
-
-  //       if (imagesURL != null) {
-  //         archives.addAll(imagesURL);
-  //       }
-  //     }
-  //     return archives;
-  //   } on FirebaseException catch (e) {
-  //     print("Error fetching archives: $e");
-  //     return [];
-  //   }
-  // }
   // get images archives as a stream
-static Stream<List<String>> getImagesArchives(String competitionId) {
-  return FirebaseFirestore.instance
-      .collection("competitions")
-      .doc(competitionId)
-      .snapshots()
-      .map((DocumentSnapshot<Map<String, dynamic>> snapshot) {
-        List<String> archives = [];
-        if (snapshot.exists) {
-          Competition competition = Competition.fromMap(snapshot.data());
-          List<String>? imagesURL = competition.archiveEntry?.imagesURL;
+  static Stream<List<String>> getImagesArchives(String competitionId) {
+    return FirebaseFirestore.instance
+        .collection("competitions")
+        .doc(competitionId)
+        .snapshots()
+        .map((DocumentSnapshot<Map<String, dynamic>> snapshot) {
+      List<String> archives = [];
+      if (snapshot.exists) {
+        Competition competition = Competition.fromMap(snapshot.data());
+        List<String>? imagesURL = competition.archiveEntry?.imagesURL;
 
-          if (imagesURL != null) {
-            archives.addAll(imagesURL);
-          }
+        if (imagesURL != null) {
+          archives.addAll(imagesURL);
         }
-        return archives;
-      }).handleError((error) {
-        print("Error fetching archives: $error");
-        return [];
-      });
-}
-
-
-  // get videos archives
-  // static Future<List<String>> getVideosArchives(String competitionId) async {
-  //   try {
-  //     DocumentSnapshot<Map<String, dynamic>> doc = await FirebaseFirestore
-  //         .instance
-  //         .collection("competitions")
-  //         .doc(competitionId)
-  //         .get();
-
-  //     List<String> archives = [];
-  //     if (doc.exists) {
-  //       Competition competition = Competition.fromMap(doc.data());
-  //       List<String>? videosURL = competition.archiveEntry?.videosURL;
-
-  //       if (videosURL != null) {
-  //         archives.addAll(videosURL);
-  //       }
-  //     }
-  //     return archives;
-  //   } on FirebaseException catch (e) {
-  //     print("Error fetching archives: $e");
-  //     return [];
-  //   }
-  // }
+      }
+      return archives;
+    }).handleError((error) {
+      print("Error fetching archives: $error");
+      return [];
+    });
+  }
 
   // get videos archives as a stream
-static Stream<List<String>> getVideosArchives(String competitionId) {
-  return FirebaseFirestore.instance
-      .collection("competitions")
-      .doc(competitionId)
-      .snapshots()
-      .map((DocumentSnapshot<Map<String, dynamic>> snapshot) {
-        List<String> archives = [];
-        if (snapshot.exists) {
-          Competition competition = Competition.fromMap(snapshot.data());
-          List<String>? videosURL = competition.archiveEntry?.videosURL;
+  static Stream<List<String>> getVideosArchives(String competitionId) {
+    return FirebaseFirestore.instance
+        .collection("competitions")
+        .doc(competitionId)
+        .snapshots()
+        .map((DocumentSnapshot<Map<String, dynamic>> snapshot) {
+      List<String> archives = [];
+      if (snapshot.exists) {
+        Competition competition = Competition.fromMap(snapshot.data());
+        List<String>? videosURL = competition.archiveEntry?.videosURL;
 
-          if (videosURL != null) {
-            archives.addAll(videosURL);
-          }
+        if (videosURL != null) {
+          archives.addAll(videosURL);
         }
-        return archives;
-      }).handleError((error) {
-        print("Error fetching archives: $error");
-        return [];
-      });
-}
+      }
+      return archives;
+    }).handleError((error) {
+      print("Error fetching archives: $error");
+      return [];
+    });
+  }
 
+  // read excel file
+  void readExcelFile() async {
+  // احصل على مسار الملف (يمكن أن يكون ملفًا محليًا أو من مجلد التنزيلات)
+  Directory directory = await getApplicationDocumentsDirectory();
+  String path = '${directory.path}/test.xlsx';  // قم بتغيير المسار بناءً على موقع ملفك
+
+  // قراءة الملف
+  var file = File(path);
+  var bytes = file.readAsBytesSync();
+  var excel = Excel.decodeBytes(bytes);
+
+  // طباعة البيانات
+  for (var table in excel.tables.keys) {
+    print('Sheet: $table');
+    print('Max rows: ${excel.tables[table]!.maxRows}');
+    print('Max cols: ${excel.tables[table]!.maxColumns}');
+
+    for (var row in excel.tables[table]!.rows) {
+      print('$row');
+    }
+  }
+}
 }

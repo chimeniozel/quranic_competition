@@ -22,6 +22,4 @@ class CompetitionProvider with ChangeNotifier {
     setCompetition(competition);
     notifyListeners();
   }
-
-  
 }

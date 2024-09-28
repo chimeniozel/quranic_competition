@@ -30,6 +30,8 @@ class _InscriptionScreenState extends State<InscriptionScreen> {
 
   List<String> howMuchYouMemorizes = ["القرآن كاملا", "نصف", "أقل من نصف"];
 
+  bool isLoading = false;
+
   void handleSelectedResudence(String? value) {
     setState(() {
       selectedResudence = value!;
@@ -400,6 +402,9 @@ class _InscriptionScreenState extends State<InscriptionScreen> {
                       horizontal: 10.0, vertical: 13.0),
                 ),
                 onPressed: () async {
+                  setState(() {
+                    isLoading = true;
+                  });
                   Inscription inscription = Inscription(
                     fullName: fullNameController.text,
                     phoneNumber: phoneNumberController.text,
@@ -429,10 +434,21 @@ class _InscriptionScreenState extends State<InscriptionScreen> {
                   InscriptionService.sendToFirebase(
                           inscription, context, competitionVirsion)
                       .whenComplete(
-                    () {},
+                    () {
+                      fullNameController.clear();
+                      phoneNumberController.clear();
+                      _selectedDate = DateTime.now();
+                      setState(() {
+                        isLoading = false;
+                      });
+                    },
                   );
                 },
-                child: const Text("إرسال المعلومات"),
+                child: isLoading
+                    ? CircularProgressIndicator(
+                        color: AppColors.whiteColor,
+                      )
+                    : const Text("إرسال المعلومات"),
               ),
             ],
           ),

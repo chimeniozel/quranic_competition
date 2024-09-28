@@ -5,6 +5,7 @@ import 'package:excel/excel.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:quranic_competition/constants/colors.dart';
+import 'package:quranic_competition/models/competition.dart';
 import 'package:quranic_competition/models/inscription.dart';
 
 class InscriptionService {
@@ -107,18 +108,32 @@ class InscriptionService {
 
   // Function to fetch constraints
   static Future<List<Inscription>> fetchContestants(
-      String version, String cometionType) async {
-    CollectionReference inscriptionCollection = FirebaseFirestore.instance
+      Competition competition) async {
+    // CollectionReference inscriptionCollection = FirebaseFirestore.instance
+    //     .collection('inscriptions')
+    //     .doc(competition.competitionVirsion)
+    //     .collection(competition.competitionTypes![0]);
+    QuerySnapshot childSnapshot = await FirebaseFirestore.instance
         .collection('inscriptions')
-        .doc(version)
-        .collection(cometionType);
-    QuerySnapshot querySnapshot = await inscriptionCollection
+        .doc(competition.competitionVirsion)
+        .collection(competition.competitionTypes![0])
+        .orderBy("رقم التسجيل", descending: false)
+        .get();
+
+    QuerySnapshot adultSnapshot = await FirebaseFirestore.instance
+        .collection('inscriptions')
+        .doc(competition.competitionVirsion)
+        .collection(competition.competitionTypes![1])
         .orderBy("رقم التسجيل", descending: false)
         .get();
 
     List<Inscription> inscriptions = [];
 
-    for (var doc in querySnapshot.docs) {
+    for (var doc in childSnapshot.docs) {
+      inscriptions.add(Inscription.fromDocumentSnapshot(doc));
+    }
+
+    for (var doc in adultSnapshot.docs) {
       inscriptions.add(Inscription.fromDocumentSnapshot(doc));
     }
 
@@ -127,12 +142,12 @@ class InscriptionService {
 
   // Function to fetch constraints by jury
   static Future<List<Inscription>> fetchContestantsByJury(
-      String version, String cometionType, String juryName) async {
+      Competition competition, String competitionType, String juryName) async {
     var inscriptionCollection = FirebaseFirestore.instance
         .collection('inscriptions')
-        .doc(version)
-        .collection(cometionType)
-        .where("التجويد.$juryName", isEqualTo: 10);
+        .doc(competition.competitionVirsion)
+        .collection(competitionType)
+        .where("التجويد.$juryName", isNotEqualTo: 10000000);
     QuerySnapshot querySnapshot = await inscriptionCollection
         // .orderBy("رقم التسجيل", descending: false)
         .get();
@@ -151,7 +166,7 @@ class InscriptionService {
   static Future<void> exportDataAsXlsx(
       List<Map<String, dynamic>> dataList,
       String fullName,
-      String competionVersion,
+      Competition competition,
       String competionType,
       BuildContext context) async {
     var excel = Excel.createExcel();
@@ -231,7 +246,7 @@ class InscriptionService {
 
         // Reference to Firebase Storage
         Reference storageRef = FirebaseStorage.instance.ref().child(
-            "تصحيح لجنة التحكيم/$competionVersion/الشيخ $fullName/$fileName");
+            "${competition.competitionVirsion}/تصحيح لجنة التحكيم/الشيخ $fullName/$fileName");
 
         // Upload the file (this will automatically replace the old file if it exists)
         UploadTask uploadTask =
