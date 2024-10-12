@@ -4,11 +4,9 @@ import 'package:quranic_competition/constants/colors.dart';
 import 'package:quranic_competition/constants/utils.dart';
 import 'package:quranic_competition/models/competition.dart';
 import 'package:quranic_competition/models/inscription.dart';
-import 'package:quranic_competition/models/users.dart';
 import 'package:quranic_competition/screens/admin/competition_management/competion_archive.dart';
 import 'package:quranic_competition/screens/admin/competition_management/competition_result.dart';
 import 'package:quranic_competition/screens/admin/competition_management/jury_results.dart';
-import 'package:quranic_competition/screens/admin/competition_management/upload_archive.dart';
 import 'package:quranic_competition/services/competion_service.dart';
 import 'package:quranic_competition/services/inscription_service.dart';
 
@@ -36,29 +34,6 @@ class _CompetitionDetailsScreenState extends State<CompetitionDetailsScreen> {
           ),
         ),
         actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => UploadArchive(
-                    competition: widget.competition,
-                    competitionVirsion:
-                        widget.competition.competitionVirsion.toString(),
-                  ),
-                ),
-              );
-            },
-            child: const Column(
-              children: [
-                Icon(Iconsax.add_circle),
-                Text(
-                  "أرشيف",
-                  style: TextStyle(fontSize: 14.0),
-                ),
-              ],
-            ),
-          ),
           //
           TextButton(
             onPressed: () {
@@ -136,7 +111,7 @@ class _CompetitionDetailsScreenState extends State<CompetitionDetailsScreen> {
                   Expanded(
                     child: FutureBuilder<List<Inscription>>(
                       future: InscriptionService.fetchContestants(
-                        competition,
+                        competition,"التصفيات الأولى"
                       ),
                       builder: (context, snapshotInscription) {
                         if (snapshotInscription.connectionState ==

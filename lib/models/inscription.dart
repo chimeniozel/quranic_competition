@@ -1,5 +1,5 @@
-
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:quranic_competition/models/note_result.dart';
 
 class Inscription {
   int? _idInscription;
@@ -12,11 +12,7 @@ class Inscription {
   String? _howMuchRiwayaYouHave;
   String? _haveYouParticipatedInACompetition;
   String? _haveYouEverWon1stTo2ndPlace;
-  Map<String, dynamic>? _noteTajwid;
-  Map<String, dynamic>? _noteHousnSawtt;
-  Map<String, dynamic>? _noteOu4oubetSawtt;
-  Map<String, dynamic>? _noteWaqfAndIbtidaa;
-  Map<String, dynamic>? _noteIltizamRiwaya;
+  List<dynamic>? _tashihMachaikhs;
   Map<String, dynamic>? _result;
 
   Inscription({
@@ -30,11 +26,7 @@ class Inscription {
     String? howMuchRiwayaYouHave,
     String? haveYouParticipatedInACompetition,
     String? haveYouEverWon1stTo2ndPlace,
-    Map<String, dynamic>? noteTajwid,
-    Map<String, dynamic>? noteHousnSawtt,
-    Map<String, dynamic>? noteOu4oubetSawtt,
-    Map<String, dynamic>? noteWaqfAndIbtidaa,
-    Map<String, dynamic>? noteIltizamRiwaya,
+    List<dynamic>? tashihMachaikhs,
     Map<String, dynamic>? result,
   })  : _idInscription = idInscription,
         _fullName = fullName,
@@ -46,11 +38,7 @@ class Inscription {
         _howMuchRiwayaYouHave = howMuchRiwayaYouHave,
         _haveYouParticipatedInACompetition = haveYouParticipatedInACompetition,
         _haveYouEverWon1stTo2ndPlace = haveYouEverWon1stTo2ndPlace,
-        _noteTajwid = noteTajwid,
-        _noteHousnSawtt = noteHousnSawtt,
-        _noteOu4oubetSawtt = noteOu4oubetSawtt,
-        _noteWaqfAndIbtidaa = noteWaqfAndIbtidaa,
-        _noteIltizamRiwaya = noteIltizamRiwaya,
+        _tashihMachaikhs = tashihMachaikhs,
         _result = result;
 
   // Getters
@@ -65,11 +53,7 @@ class Inscription {
   String? get haveYouParticipatedInACompetition =>
       _haveYouParticipatedInACompetition;
   String? get haveYouEverWon1stTo2ndPlace => _haveYouEverWon1stTo2ndPlace;
-  Map<String, dynamic>? get noteTajwid => _noteTajwid;
-  Map<String, dynamic>? get noteHousnSawtt => _noteHousnSawtt;
-  Map<String, dynamic>? get noteOu4oubetSawtt => _noteOu4oubetSawtt;
-  Map<String, dynamic>? get noteWaqfAndIbtidaa => _noteWaqfAndIbtidaa;
-  Map<String, dynamic>? get noteIltizamRiwaya => _noteIltizamRiwaya;
+  List<dynamic>? get tashihMachaikhs => _tashihMachaikhs;
   Map<String, dynamic>? get result => _result;
 
   // Setters
@@ -113,24 +97,8 @@ class Inscription {
     _haveYouEverWon1stTo2ndPlace = value;
   }
 
-  set noteTajwid(Map<String, dynamic>? value) {
-    _noteTajwid = value;
-  }
-
-  set noteHousnSawtt(Map<String, dynamic>? value) {
-    _noteHousnSawtt = value;
-  }
-
-  set noteOu4oubetSawtt(Map<String, dynamic>? value) {
-    _noteOu4oubetSawtt = value;
-  }
-
-  set noteWaqfAndIbtidaa(Map<String, dynamic>? value) {
-    _noteWaqfAndIbtidaa = value;
-  }
-
-  set noteIltizamRiwaya(Map<String, dynamic>? value) {
-    _noteIltizamRiwaya = value;
+  set tashihMachaikhs(List<dynamic>? value) {
+    _tashihMachaikhs = value;
   }
 
   set result(Map<String, dynamic>? value) {
@@ -151,11 +119,7 @@ class Inscription {
           _haveYouParticipatedInACompetition,
       "هل سبق وأن حصلت على المراتب 1 إلى 2  في مسابقة أهل القرآن الوتسابية أو أي مسابقة أخرى":
           _haveYouEverWon1stTo2ndPlace,
-      "التجويد": _noteTajwid,
-      "حسن الصوت": _noteHousnSawtt,
-      "عذوبة الصوت": _noteOu4oubetSawtt,
-      "الوقف والإبتداء": _noteWaqfAndIbtidaa,
-      "الإلتزام بالرواية": _noteIltizamRiwaya,
+      "tashihMachaikhs": _tashihMachaikhs,
       "المجموع": _result,
     };
   }
@@ -165,7 +129,7 @@ class Inscription {
       idInscription: map["رقم التسجيل"] as int?,
       fullName: map["الاسم الثلاثي"] as String?,
       phoneNumber: map["رقم الهاتف"] as String?,
-      birthDate: DateTime.parse(map["تاريخ الميلاد"] as String),
+      birthDate: DateTime.parse(map["تاريخ الميلاد"]),
       residencePlace: map["مكان الإقامة الحالية"] as String?,
       howMuchYouMemorize: map["كم تحفظ من القرآن الكريم"] as String?,
       haveYouIhaza: map["هل حصلت على إجازة"] as String?,
@@ -176,12 +140,8 @@ class Inscription {
       haveYouEverWon1stTo2ndPlace:
           map["هل سبق وأن حصلت على المراتب 1 إلى 2  في مسابقة أهل القرآن الوتسابية أو أي مسابقة أخرى"]
               as String?,
-      noteTajwid: map["التجويد"] as Map<String, dynamic>?,
-      noteHousnSawtt: map["حسن الصوت"] as Map<String, dynamic>?,
-      noteOu4oubetSawtt: map["عذوبة الصوت"] as Map<String, dynamic>?,
-      noteWaqfAndIbtidaa: map["الوقف والإبتداء"] as Map<String, dynamic>?,
-      noteIltizamRiwaya: map["الإلتزام بالرواية"] as Map<String, dynamic>?,
-      result: map["المجموع"] as Map<String, dynamic>?,
+      tashihMachaikhs: map["tashihMachaikhs"],
+      result: map[""] as Map<String, dynamic>?,
     );
   }
 
@@ -206,5 +166,4 @@ class Inscription {
 
     return newId;
   }
-
-  }
+}

@@ -2,17 +2,20 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:quranic_competition/constants/colors.dart';
 import 'package:quranic_competition/models/inscription.dart';
+import 'package:quranic_competition/models/note_result.dart';
 import 'package:quranic_competition/providers/auth_provider.dart';
 import 'package:quranic_competition/services/auth_service.dart';
 import 'package:quranic_competition/widgets/input_widget.dart';
 
 class DetailContestantScreen extends StatefulWidget {
-  final Inscription inscription;
+  final Inscription? inscription;
+  final NoteResult? noteResult;
   final String competitionType;
   final String competitionVersion;
   const DetailContestantScreen({
     super.key,
     required this.inscription,
+    required this.noteResult,
     required this.competitionType,
     required this.competitionVersion,
   });
@@ -36,61 +39,34 @@ class _DetailContestantScreenState extends State<DetailContestantScreen> {
         Provider.of<AuthProvider>(context, listen: false);
 
     if (widget.competitionType == "adult_inscription" &&
-        widget.inscription.noteTajwid![authProvider.currentUser!.fullName] !=
-            null &&
-        widget.inscription
-                .noteHousnSawtt![authProvider.currentUser!.fullName] !=
-            null &&
-        widget.inscription
-                .noteIltizamRiwaya![authProvider.currentUser!.fullName] !=
-            null) {
-      noteTajwidController.text = widget
-          .inscription.noteTajwid![authProvider.currentUser!.fullName]
-          .toString();
-      noteHousnSawttController.text = widget
-          .inscription.noteHousnSawtt![authProvider.currentUser!.fullName]
-          .toString();
-      noteIltizamRiwayaController.text = widget
-          .inscription.noteIltizamRiwaya![authProvider.currentUser!.fullName]
-          .toString();
+        widget.noteResult?.notes?.noteTajwid != null &&
+        widget.noteResult?.notes?.noteHousnSawtt != null &&
+        widget.noteResult?.notes?.noteIltizamRiwaya != null) {
+      noteTajwidController.text = widget.noteResult!.notes!.noteTajwid!.toString();
+      noteHousnSawttController.text = widget.noteResult!.notes!.noteHousnSawtt!.toString();
+      noteIltizamRiwayaController.text =
+          widget.noteResult!.notes!.noteIltizamRiwaya!.toString();
     }
-    if (widget.competitionType != "adult_inscription" &&
-        widget.inscription.noteTajwid![authProvider.currentUser!.fullName] !=
-            null &&
-        widget.inscription
-                .noteHousnSawtt![authProvider.currentUser!.fullName] !=
-            null &&
-        widget.inscription
-                .noteOu4oubetSawtt![authProvider.currentUser!.fullName] !=
-            null &&
-        widget.inscription
-                .noteWaqfAndIbtidaa![authProvider.currentUser!.fullName] !=
-            null) {
-      noteTajwidController.text = widget
-          .inscription.noteTajwid![authProvider.currentUser!.fullName]
-          .toString();
-      noteHousnSawttController.text = widget
-          .inscription.noteHousnSawtt![authProvider.currentUser!.fullName]
-          .toString();
-      noteOu4oubetSawttController.text = widget
-          .inscription.noteOu4oubetSawtt![authProvider.currentUser!.fullName]
-          .toString();
-      noteWaqfAndIbtidaaController.text = widget
-          .inscription.noteWaqfAndIbtidaa![authProvider.currentUser!.fullName]
-          .toString();
+    if (widget.competitionType != "adult_inscription") {
+      noteTajwidController.text = widget.noteResult!.notes!.noteTajwid!.toString();
+      noteHousnSawttController.text = widget.noteResult!.notes!.noteHousnSawtt!.toString();
+      noteOu4oubetSawttController.text =
+          widget.noteResult!.notes!.noteOu4oubetSawtt!.toString();
+      noteWaqfAndIbtidaaController.text =
+          widget.noteResult!.notes!.noteWaqfAndIbtidaa!.toString();
     }
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    Inscription inscription = widget.inscription;
+    NoteResult? noteResult = widget.noteResult!;
     AuthProvider authProvider =
         Provider.of<AuthProvider>(context, listen: false);
     return Scaffold(
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
-        title: Text("المتسابق رقم : ${inscription.idInscription}"),
+        title: Text("المتسابق رقم : ${widget.inscription!.idInscription}"),
       ),
       body: Padding(
         padding: const EdgeInsets.all(8.0),
@@ -154,25 +130,35 @@ class _DetailContestantScreenState extends State<DetailContestantScreen> {
                   String fullName = authProvider.currentUser!.fullName;
 
                   if (widget.competitionType == "adult_inscription") {
-                    inscription.noteTajwid![fullName] =
-                        int.parse(noteTajwidController.text);
-                    inscription.noteHousnSawtt![fullName] =
-                        int.parse(noteHousnSawttController.text);
-                    inscription.noteIltizamRiwaya![fullName] =
-                        int.parse(noteIltizamRiwayaController.text);
-                    AuthService.updateContestant(context, fullName, inscription,
-                        widget.competitionVersion, widget.competitionType);
+                    noteResult.notes?.noteTajwid =
+                        double.parse(noteTajwidController.text);
+                    noteResult.notes?.noteHousnSawtt =
+                        double.parse(noteHousnSawttController.text);
+                    noteResult.notes?.noteIltizamRiwaya =
+                        double.parse(noteIltizamRiwayaController.text);
+                    AuthService.updateContestant(
+                        context,
+                        fullName,
+                        noteResult,
+                        widget.inscription!,
+                        widget.competitionVersion,
+                        widget.competitionType , "التصفيات الأولى");
                   } else {
-                    inscription.noteTajwid![fullName] =
-                        int.parse(noteTajwidController.text);
-                    inscription.noteHousnSawtt![fullName] =
-                        int.parse(noteHousnSawttController.text);
-                    inscription.noteOu4oubetSawtt![fullName] =
-                        int.parse(noteOu4oubetSawttController.text);
-                    inscription.noteWaqfAndIbtidaa![fullName] =
-                        int.parse(noteWaqfAndIbtidaaController.text);
-                    AuthService.updateContestant(context, fullName, inscription,
-                        widget.competitionVersion, widget.competitionType);
+                    noteResult.notes?.noteTajwid =
+                        double.parse(noteTajwidController.text);
+                    noteResult.notes?.noteHousnSawtt =
+                        double.parse(noteHousnSawttController.text);
+                    noteResult.notes?.noteOu4oubetSawtt =
+                        double.parse(noteOu4oubetSawttController.text);
+                    noteResult.notes?.noteWaqfAndIbtidaa =
+                        double.parse(noteWaqfAndIbtidaaController.text);
+                    AuthService.updateContestant(
+                        context,
+                        fullName,
+                        noteResult,
+                        widget.inscription!,
+                        widget.competitionVersion,
+                        widget.competitionType, "التصفيات الأولى");
                   }
                   setState(() {
                     isLoading = false;

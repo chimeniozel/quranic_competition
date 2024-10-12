@@ -154,7 +154,7 @@ class _JuryResultsState extends State<JuryResults> {
                 ? Flexible(
                     child: FutureBuilder<List<Inscription>>(
                       future: InscriptionService.fetchContestantsByJury(
-                          competition, selectedType!, selectedUsers!.fullName),
+                          competition, selectedType!, selectedUsers!.fullName, "التصفيات الأولى"),
                       builder: (context, snapshotInscription) {
                         if (snapshotInscription.connectionState ==
                             ConnectionState.waiting) {

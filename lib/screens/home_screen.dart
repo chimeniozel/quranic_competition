@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:quranic_competition/auth/register_screen.dart';
+import 'package:provider/provider.dart';
 import 'package:quranic_competition/constants/colors.dart';
+import 'package:quranic_competition/providers/competion_provider.dart';
+import 'package:quranic_competition/screens/competition_results_client.dart';
+import 'package:quranic_competition/screens/competitions_screen.dart';
 import 'package:quranic_competition/screens/inscription_screen.dart';
-import 'package:quranic_competition/widgets/custtom_button.dart';
+import 'package:quranic_competition/widgets/custtom_card.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({
@@ -16,6 +19,8 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
+    CompetitionProvider competitionProvider =
+        Provider.of<CompetitionProvider>(context, listen: false);
     return Scaffold(
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
@@ -26,12 +31,12 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       body: Stack(
         children: [
-          Positioned.fill(
-            child: Image.asset(
-              "assets/images/logo/logo.png",
-              fit: BoxFit.cover,
-            ),
-          ),
+          // Positioned.fill(
+          //   child: Image.asset(
+          //     "assets/images/logo/logo.png",
+          //     fit: BoxFit.cover,
+          //   ),
+          // ),
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: Column(
@@ -41,17 +46,92 @@ class _HomeScreenState extends State<HomeScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Expanded(
-                      child: CusttomButton(
+                      child: CusttomCard(
                         text: "التسجيل في المسابقة",
-                        backgroundColor: AppColors.primaryColor,
-                        minimumSize: const Size(
-                          double.infinity,
-                          70.0,
-                        ),
-                        textStyle: const TextStyle(
-                          color: AppColors.whiteColor,
-                        ),
-                        onPressed: () {
+                        imageAsset: "assets/images/logo/logo.png",
+                        onTap: () {
+                          if (competitionProvider.competition != null) {
+                            // Navigate to the inscription screen
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const InscriptionScreen(),
+                              ),
+                            );
+                          } else {
+                            final failureSnackBar = SnackBar(
+                              content:
+                                  const Text("لا توجد مسابقة نشطة حاليا !"),
+                              action: SnackBarAction(
+                                label: 'تراجع',
+                                onPressed: () {},
+                              ),
+                              backgroundColor: AppColors.yellowColor,
+                            );
+                            ScaffoldMessenger.of(context)
+                                .showSnackBar(failureSnackBar);
+                          }
+                        },
+                      ),
+                    ),
+                    const SizedBox(width: 8.0),
+                    Expanded(
+                      child: CusttomCard(
+                        text: "أرشيف المسابقات",
+                        imageAsset: "assets/images/archive.png",
+                        onTap: () {
+                          // Navigate to the inscription screen
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const CompetitionsScreen(),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16.0),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Expanded(
+                      child: CusttomCard(
+                        text: "نتائج المسابقة",
+                        imageAsset: "assets/images/notes_competition.png",
+                        onTap: () {
+                          if (competitionProvider.competition != null) {
+                            // Navigate to the inscription screen
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    const CompetitionResultsClient(),
+                              ),
+                            );
+                          } else {
+                            final failureSnackBar = SnackBar(
+                              content:
+                                  const Text("لا توجد مسابقة نشطة حاليا !"),
+                              action: SnackBarAction(
+                                label: 'تراجع',
+                                onPressed: () {},
+                              ),
+                              backgroundColor: AppColors.yellowColor,
+                            );
+                            ScaffoldMessenger.of(context)
+                                .showSnackBar(failureSnackBar);
+                          }
+                        },
+                      ),
+                    ),
+                    const SizedBox(width: 8.0),
+                    Expanded(
+                      child: CusttomCard(
+                        text: "أحكام التجويد",
+                        imageAsset: "assets/images/tejweed.png",
+                        onTap: () {
                           // Navigate to the inscription screen
                           Navigator.push(
                             context,
@@ -62,97 +142,42 @@ class _HomeScreenState extends State<HomeScreen> {
                         },
                       ),
                     ),
-                    const SizedBox(width: 16.0),
+                  ],
+                ),
+                const SizedBox(height: 16.0),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
                     Expanded(
-                      child: CusttomButton(
-                        text: "أرشيف المسابقة",
-                        backgroundColor: AppColors.primaryColor,
-                        minimumSize: const Size(
-                          double.infinity,
-                          70.0,
-                        ),
-                        textStyle: const TextStyle(
-                          color: AppColors.whiteColor,
-                        ),
-                        onPressed: () {
-                          // Navigate to the competition schedule screen
+                      child: CusttomCard(
+                        text: "فوائد قرآنية",
+                        imageAsset: "assets/images/فوائد قرآنية.jpeg",
+                        onTap: () {
+                          // Navigate to the inscription screen
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => const RegisterScreen(),
+                              builder: (context) => const InscriptionScreen(),
                             ),
                           );
                         },
                       ),
                     ),
-                  ],
-                ),
-                const SizedBox(height: 16.0),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
+                    const SizedBox(width: 8.0),
                     Expanded(
-                      child: CusttomButton(
-                        text: "نتائج المسابقة",
-                        backgroundColor: AppColors.primaryColor,
-                        minimumSize: const Size(
-                          double.infinity,
-                          70.0,
-                        ),
-                        textStyle: const TextStyle(
-                          color: AppColors.whiteColor,
-                        ),
-                        onPressed: () {},
-                      ),
-                    ),
-                    const SizedBox(width: 16.0),
-                    Expanded(
-                      child: CusttomButton(
-                        text: "أحكام التجويد",
-                        backgroundColor: AppColors.primaryColor,
-                        minimumSize: const Size(
-                          double.infinity,
-                          70.0,
-                        ),
-                        textStyle: const TextStyle(
-                          color: AppColors.whiteColor,
-                        ),
-                        onPressed: () {},
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16.0),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Expanded(
-                      child: CusttomButton(
-                        text: "فوائد قرآنية",
-                        backgroundColor: AppColors.primaryColor,
-                        minimumSize: const Size(
-                          double.infinity,
-                          70.0,
-                        ),
-                        textStyle: const TextStyle(
-                          color: AppColors.whiteColor,
-                        ),
-                        onPressed: () {},
-                      ),
-                    ),
-                    const SizedBox(width: 16.0),
-                    Expanded(
-                      child: CusttomButton(
+                      child: CusttomCard(
                         text: "أسئلة وأجوبة في القرآن",
-                        backgroundColor: AppColors.primaryColor,
-                        minimumSize: const Size(
-                          double.infinity,
-                          70.0,
-                        ),
-                        textStyle: const TextStyle(
-                          color: AppColors.whiteColor,
-                        ),
-                        onPressed: () {},
+                        imageAsset:
+                            "assets/images/أسئلة_وأجوبة_عن_القرآن_الكريم.jpg",
+                        onTap: () {
+                          // Navigate to the inscription screen
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const InscriptionScreen(),
+                            ),
+                          );
+                        },
                       ),
                     ),
                   ],

@@ -3,8 +3,9 @@ import 'package:quranic_competition/models/competition.dart';
 import 'package:quranic_competition/services/competion_service.dart';
 
 class CompetitionProvider with ChangeNotifier {
-  Competition? _competition = Competition();
-
+  Competition? _competition;
+  bool _isLoading = false;
+  bool get isLoading => _isLoading;
   Competition? get competition => _competition;
 
   void setCompetition(Competition? competition) {
@@ -17,9 +18,17 @@ class CompetitionProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  void getCurrentCompetition() async {
-    Competition? competition = await CompetitionService.getCurrentCompetition();
-    setCompetition(competition);
+  Future<void> getCurrentCompetition() async {
+    _isLoading = true;
+    notifyListeners();
+    try {
+      Competition? competition =
+          await CompetitionService.getCurrentCompetition();
+      setCompetition(competition);
+    } catch (e) {
+      print(e);
+    }
+    _isLoading = false;
     notifyListeners();
   }
 }

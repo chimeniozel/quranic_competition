@@ -110,18 +110,20 @@ class _LoginScreenState extends State<LoginScreen> {
                   Users? currentUser = data["currentUser"];
                   if (loggedIn && currentUser != null) {
                     if (currentUser.role == "عضو لجنة التحكيم") {
-                      Navigator.pushReplacement(
+                      Navigator.pushAndRemoveUntil(
                         context,
                         MaterialPageRoute(
                           builder: (context) => const JuryHomeScreen(),
                         ),
+                        (route) => false,
                       );
                     } else {
-                      Navigator.pushReplacement(
+                      Navigator.pushAndRemoveUntil(
                         context,
                         MaterialPageRoute(
                           builder: (context) => const CompetitionManagement(),
                         ),
+                        (route) => false,
                       );
                     }
                   } else {

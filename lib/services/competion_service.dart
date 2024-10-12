@@ -5,6 +5,7 @@ import 'package:excel/excel.dart';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:quranic_competition/models/competition.dart';
+import 'package:quranic_competition/models/result_model.dart';
 import 'package:quranic_competition/models/users.dart';
 
 class CompetitionService {
@@ -260,24 +261,57 @@ class CompetitionService {
 
   // read excel file
   void readExcelFile() async {
-  // احصل على مسار الملف (يمكن أن يكون ملفًا محليًا أو من مجلد التنزيلات)
-  Directory directory = await getApplicationDocumentsDirectory();
-  String path = '${directory.path}/test.xlsx';  // قم بتغيير المسار بناءً على موقع ملفك
+    // احصل على مسار الملف (يمكن أن يكون ملفًا محليًا أو من مجلد التنزيلات)
+    Directory directory = await getApplicationDocumentsDirectory();
+    String path =
+        '${directory.path}/test.xlsx'; // قم بتغيير المسار بناءً على موقع ملفك
 
-  // قراءة الملف
-  var file = File(path);
-  var bytes = file.readAsBytesSync();
-  var excel = Excel.decodeBytes(bytes);
+    // قراءة الملف
+    var file = File(path);
+    var bytes = file.readAsBytesSync();
+    var excel = Excel.decodeBytes(bytes);
 
-  // طباعة البيانات
-  for (var table in excel.tables.keys) {
-    print('Sheet: $table');
-    print('Max rows: ${excel.tables[table]!.maxRows}');
-    print('Max cols: ${excel.tables[table]!.maxColumns}');
+    // طباعة البيانات
+    for (var table in excel.tables.keys) {
+      print('Sheet: $table');
+      print('Max rows: ${excel.tables[table]!.maxRows}');
+      print('Max cols: ${excel.tables[table]!.maxColumns}');
 
-    for (var row in excel.tables[table]!.rows) {
-      print('$row');
+      for (var row in excel.tables[table]!.rows) {
+        print('$row');
+      }
     }
   }
-}
+
+  static Future<List<ResultModel>> getResults(
+      String competitionPhase, String competitionVersion, String query) async {
+    try {
+      QuerySnapshot<Map<String, dynamic>> querySnapshot =
+          await FirebaseFirestore.instance
+              .collection("results")
+              .doc(competitionVersion)
+              .collection(competitionPhase)
+              .orderBy("المعدل العالم", descending: true)
+              .get();
+
+      List<ResultModel> results = [];
+      for (var doc in querySnapshot.docs) {
+        Map<String, dynamic> resultData = doc.data();
+        ResultModel result = ResultModel.fromMap(resultData);
+
+        if (query != "") {
+          if (result.idUser == query) {
+            results.add(result);
+          }
+        } else {
+          results.add(result);
+        }
+      }
+
+      return results;
+    } on FirebaseException catch (e) {
+      print("Error fetching results: $e");
+      return [];
+    }
+  }
 }

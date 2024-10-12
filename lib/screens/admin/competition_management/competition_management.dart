@@ -6,6 +6,8 @@ import 'package:quranic_competition/constants/colors.dart';
 import 'package:quranic_competition/constants/utils.dart';
 import 'package:quranic_competition/models/archive_entry.dart';
 import 'package:quranic_competition/models/competition.dart';
+import 'package:quranic_competition/providers/auth_provider.dart';
+import 'package:quranic_competition/screens/admin/file_prototype_screen.dart';
 import 'package:quranic_competition/screens/admin/competition_management/competition_details_screen.dart';
 import 'package:quranic_competition/services/competion_service.dart';
 import 'package:quranic_competition/widgets/input_widget.dart';
@@ -125,6 +127,54 @@ class _CompetitionManagementState extends State<CompetitionManagement> {
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
         title: const Text('إدارة المسابقة'),
+        actions: const [
+          IconButton(
+            icon: Icon(Iconsax.logout),
+            onPressed: AuthProvider.logoutUser,
+          ),
+        ],
+      ),
+      drawer: Drawer(
+        child: Column(
+          children: [
+            Container(
+              height: 200,
+              padding: const EdgeInsets.all(5.0),
+              decoration: const BoxDecoration(),
+              child: Image.asset('assets/images/logo/logo.png'),
+            ),
+            GestureDetector(
+              onTap: () {
+                // navigate to the file prototype screen
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const FilePrototypeScreen(),
+                  ),
+                );
+              },
+              child: Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(10.0),
+                margin: const EdgeInsets.symmetric(horizontal: 5.0),
+                decoration: const BoxDecoration(
+                  color: AppColors.whiteColor,
+                  borderRadius: BorderRadius.all(
+                    Radius.circular(10.0),
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      offset: Offset(0.0, 2.0),
+                      blurRadius: 10.0,
+                      color: Colors.black12,
+                    ),
+                  ],
+                ),
+                child: const Text("نماذج الملفات"),
+              ),
+            ),
+          ],
+        ),
       ),
       body: Padding(
         padding: const EdgeInsets.all(8.0),

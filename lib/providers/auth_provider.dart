@@ -4,11 +4,16 @@ import 'package:flutter/material.dart';
 import 'package:quranic_competition/constants/colors.dart';
 import 'package:quranic_competition/models/users.dart';
 import 'package:quranic_competition/services/auth_service.dart';
+import 'package:quranic_competition/services/competion_service.dart';
 
 class AuthProvider extends ChangeNotifier {
   FirebaseFirestore firebaseFirestore = FirebaseFirestore.instance;
 
   Users? _currentUser;
+  bool _isLoading = false;
+  bool get isLoading => _isLoading;
+  List<Users>? _users;
+  List<Users>? get users => _users;
   Users? get currentUser => _currentUser;
 
   Future<void> verifyPhoneNumber(String phoneNumber) async {
@@ -141,7 +146,6 @@ class AuthProvider extends ChangeNotifier {
     Users? existUser;
     var users = await usersRef.doc(user.phoneNumber).get();
     if (users.exists) {
-      // Navigate to the home screen
       existUser = Users.fromMap(users.data()!);
       setCurrentUser(user.phoneNumber);
       loggedIn = true;
@@ -157,6 +161,24 @@ class AuthProvider extends ChangeNotifier {
   // get users information
   Future<void> setCurrentUser(String phoneNumber) async {
     _currentUser = await AuthService.getCurrentUser(phoneNumber);
+    notifyListeners();
+  }
+
+  // Déconnecter l'utilisateur
+  static Future<void> logoutUser() async {
+    await FirebaseAuth.instance.signOut();
+  }
+
+  Future<void> getUsers() async {
+    _isLoading = true;
+    notifyListeners();
+    try {
+      _users = await CompetitionService.getJuryUsers();
+      notifyListeners();
+    } catch (e) {
+      print(e);
+    }
+    _isLoading = false;
     notifyListeners();
   }
 }

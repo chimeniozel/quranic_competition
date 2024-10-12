@@ -5,6 +5,8 @@ import 'package:provider/provider.dart';
 import 'package:quranic_competition/auth/register_screen.dart';
 import 'package:quranic_competition/constants/colors.dart';
 import 'package:quranic_competition/firebase_options.dart';
+import 'package:quranic_competition/providers/auth_provider.dart'
+    as auth_provider;
 import 'package:quranic_competition/providers/auth_provider.dart';
 import 'package:quranic_competition/providers/competion_provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -23,8 +25,8 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (_) => AuthProvider()),
-        ChangeNotifierProvider(create: (_) => AuthProvider()),
+        ChangeNotifierProvider(
+            create: (_) => auth_provider.AuthProvider()..getUsers()),
         ChangeNotifierProvider(
             create: (_) => CompetitionProvider()..getCurrentCompetition()),
       ],
@@ -39,16 +41,24 @@ class MyApp extends StatelessWidget {
           useMaterial3: true,
         ),
         locale: const Locale("ar", "AR"),
-        supportedLocales: const [Locale("ar", "AR")],
+        supportedLocales: const [
+          Locale("ar", "AR"),
+        ],
         localizationsDelegates: const [
           AppLocalizations.delegate,
           GlobalMaterialLocalizations.delegate,
           GlobalCupertinoLocalizations.delegate,
           GlobalWidgetsLocalizations.delegate
         ],
-        home: Consumer<CompetitionProvider>(
-            builder: (context, competitionProvider, child) {
-          competitionProvider.getCurrentCompetition();
+        home: Consumer2<CompetitionProvider, AuthProvider>(
+            builder: (context, competitionProvider, authProvider, child) {
+          if (competitionProvider.isLoading || authProvider.isLoading) {
+            return const Scaffold(
+              body: Center(
+                child: CircularProgressIndicator(),
+              ),
+            );
+          }
           return const RegisterScreen();
         }),
       ),

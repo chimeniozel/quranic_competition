@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:quranic_competition/constants/colors.dart';
 import 'package:quranic_competition/models/inscription.dart';
+import 'package:quranic_competition/models/note_result.dart';
 import 'package:quranic_competition/models/users.dart';
 import 'package:quranic_competition/providers/auth_provider.dart';
 
@@ -25,42 +26,65 @@ class AuthService {
   static Future<void> updateContestant(
       BuildContext context,
       String fullName,
+      NoteResult noteResult,
       Inscription inscription,
       String competitionVersion,
-      String competitionType) async {
+      String competitionType,
+      String competitionPhase) async {
     try {
-      var usersRef = firebaseFirestore.collection("users");
+      firebaseFirestore.collection("users");
       var cometitionTypeRef = firebaseFirestore
           .collection("inscriptions")
           .doc(competitionVersion)
+          .collection(competitionPhase)
+          .doc(competitionPhase)
           .collection(competitionType)
           .doc(inscription.phoneNumber);
 
-      if (competitionType == "adult_inscription") {
-        var result = inscription.noteTajwid![fullName] +
-            inscription.noteHousnSawtt![fullName] +
-            inscription.noteIltizamRiwaya![fullName];
+      noteResult.cheikhName = fullName;
+      List<Users>? users =
+          Provider.of<AuthProvider>(context, listen: false).users;
+      int userIndex = 0;
+      for (var i = 0; i < users!.length; i++) {
+        if (users[i].fullName == fullName) {
+          userIndex = i;
+          break;
+        }
+      }
+      DocumentSnapshot<Map<String, dynamic>> doc =
+          await cometitionTypeRef.get();
 
+      List<dynamic> myList = doc['tashihMachaikhs'];
+      print("=================\n ${myList[userIndex]}");
+
+      if (competitionType == "adult_inscription") {
+        var result = noteResult.notes!.noteTajwid! +
+            noteResult.notes!.noteHousnSawtt! +
+            noteResult.notes!.noteIltizamRiwaya!;
+        noteResult = NoteResult(
+          cheikhName: fullName,
+          notes: noteResult.notes!,
+        );
+        myList[userIndex] = noteResult.toMapAdult(); // Update the element
+        print(
+            "===========================================\n ${myList[userIndex]}");
         await cometitionTypeRef.update({
-          "التجويد.$fullName": inscription.noteTajwid![fullName],
-          "حسن الصوت.$fullName": inscription.noteHousnSawtt![fullName],
-          "الإلتزام بالرواية.$fullName":
-              inscription.noteIltizamRiwaya![fullName],
-          "المجموع.$fullName": result,
+          "tashihMachaikhs": myList,
         });
       } else {
-        var result = inscription.noteTajwid![fullName] +
-            inscription.noteHousnSawtt![fullName] +
-            inscription.noteOu4oubetSawtt![fullName] +
-            inscription.noteWaqfAndIbtidaa![fullName];
-
+        var result = noteResult.notes!.noteTajwid! +
+            noteResult.notes!.noteHousnSawtt! +
+            noteResult.notes!.noteOu4oubetSawtt! +
+            noteResult.notes!.noteWaqfAndIbtidaa!;
+        noteResult = NoteResult(
+          cheikhName: fullName,
+          notes: noteResult.notes!,
+        );
+        myList[userIndex] = noteResult.toMapChild(); // Update the element
+        print(
+            "===========================================\n ${myList[userIndex]}");
         await cometitionTypeRef.update({
-          "التجويد.$fullName": inscription.noteTajwid![fullName],
-          "حسن الصوت.$fullName": inscription.noteHousnSawtt![fullName],
-          "عذوبة الصوت.$fullName": inscription.noteOu4oubetSawtt![fullName],
-          "الوقف والإبتداء.$fullName":
-              inscription.noteWaqfAndIbtidaa![fullName],
-          "المجموع.$fullName": result,
+          "tashihMachaikhs": myList,
         });
       }
 
@@ -96,11 +120,13 @@ class AuthService {
 
   // check if all constraints have notes and return result and list of constraints
 
-  static Future<Map<String, dynamic>> checkAllNotes(
-      String version, String cometionType, String fullName) async {
+  static Future<Map<String, dynamic>> checkAllNotes(String version,
+      String cometionType, String fullName, String competitionPhase) async {
     CollectionReference inscriptionCollection = FirebaseFirestore.instance
         .collection('inscriptions')
         .doc(version)
+        .collection(competitionPhase)
+        .doc(competitionPhase)
         .collection(cometionType);
 
     QuerySnapshot querySnapshot = await inscriptionCollection
@@ -108,38 +134,54 @@ class AuthService {
         .get();
 
     List<Inscription> inscriptions = [];
+    List<Inscription> notedInscriptions = [];
     List<Map<String, dynamic>> dataList = [];
-    bool result = true;
 
     // Parse each document into an Inscription object and a map
     for (var doc in querySnapshot.docs) {
       Inscription inscription = Inscription.fromDocumentSnapshot(doc);
       inscriptions.add(inscription);
-
       if (cometionType == "adult_inscription") {
-        if (inscription.noteTajwid![fullName] == null ||
-            inscription.noteHousnSawtt![fullName] == null ||
-            inscription.noteIltizamRiwaya![fullName] == null) {
-          result = false; // If any of the constraints are not met
-          break;
+        for (var note in inscription.tashihMachaikhs!) {
+          NoteResult noteResult = NoteResult.fromMapAdult(note);
+          if (noteResult.cheikhName == fullName &&
+              noteResult.notes!.noteTajwid != 0 &&
+              noteResult.notes!.noteHousnSawtt != 0 &&
+              noteResult.notes!.noteIltizamRiwaya != 0) {
+            dataList.add(noteResult.toMapAdult()!);
+            notedInscriptions.add(inscription);
+          }
         }
       } else {
-        if (inscription.noteTajwid![fullName] == null ||
-            inscription.noteHousnSawtt![fullName] == null ||
-            inscription.noteOu4oubetSawtt![fullName] == null ||
-            inscription.noteWaqfAndIbtidaa![fullName] == null) {
-          result = false; // If any of the constraints are not met
-          break;
+        for (var note in inscription.tashihMachaikhs!) {
+          NoteResult noteResult = NoteResult.fromMapChild(note);
+          if (noteResult.cheikhName == fullName &&
+              noteResult.notes!.noteTajwid != 0 &&
+              noteResult.notes!.noteHousnSawtt != 0 &&
+              noteResult.notes!.noteOu4oubetSawtt != 0 &&
+              noteResult.notes!.noteWaqfAndIbtidaa != 0) {
+            dataList.add(noteResult.toMapChild()!);
+            notedInscriptions.add(inscription);
+          }
         }
       }
-
-      dataList
-          .add(inscription.toMap()); // Add to list if all constraints are met
     }
 
-    return {
-      "result": result,
-      "dataList": result ? dataList : <Map<String, dynamic>>[],
-    };
+    if (inscriptions.length == dataList.length) {
+      return {
+        "isNoted": true,
+        "notedInscriptions" : notedInscriptions,
+        "dataList": dataList,
+      };
+    } else {
+      return {
+        "isNoted": false,
+        "notedInscriptions" : <List<Inscription>>[],
+        "dataList": <Map<String, dynamic>>[],
+      };
+    }
+
+    // dataList
+    //     .add(inscription.toMap()); // Add to list if all constraints are met
   }
 }

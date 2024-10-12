@@ -1,8 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:quranic_competition/constants/colors.dart';
 import 'package:quranic_competition/models/competition.dart';
 import 'package:quranic_competition/screens/admin/competition_management/review_competion.dart';
+import 'package:quranic_competition/screens/admin/competition_management/upload_archive.dart';
 import 'package:quranic_competition/services/competion_service.dart';
 import 'package:quranic_competition/widgets/video_widget.dart';
 
@@ -19,7 +21,35 @@ class _CompetionArchiveState extends State<CompetionArchive> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('أرشيف المسابقة'),
+        toolbarHeight: 60,
+        title: Text(
+          widget.competition.competitionVirsion.toString(),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => UploadArchive(
+                    competition: widget.competition,
+                    competitionVirsion:
+                        widget.competition.competitionVirsion.toString(),
+                  ),
+                ),
+              );
+            },
+            child: const Column(
+              children: [
+                Icon(Iconsax.add_circle),
+                Text(
+                  "أرشيف",
+                  style: TextStyle(fontSize: 14.0),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(8.0),
@@ -58,7 +88,7 @@ class _CompetionArchiveState extends State<CompetionArchive> {
                     physics: const NeverScrollableScrollPhysics(),
                     gridDelegate:
                         const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
+                      crossAxisCount: 3,
                       crossAxisSpacing: 8,
                       mainAxisSpacing: 8,
                     ),
@@ -66,7 +96,6 @@ class _CompetionArchiveState extends State<CompetionArchive> {
                     itemBuilder: (context, index) {
                       var archive = archives[
                           index]; // Assuming archive contains image paths or URLs
-
                       return GestureDetector(
                         onTap: () {
                           // Navigator to Image View
@@ -102,6 +131,25 @@ class _CompetionArchiveState extends State<CompetionArchive> {
                               errorBuilder: (context, error, stackTrace) {
                                 return const Center(
                                     child: Text('Error loading image'));
+                              },
+                              frameBuilder: (context, child, frame,
+                                  wasSynchronouslyLoaded) {
+                                if (wasSynchronouslyLoaded) {
+                                  return child; // If the image is loaded instantly, display the image.
+                                }
+                                return frame == null
+                                    ? const SizedBox(
+                                        height: 70,
+                                        width: 70,
+                                        child: Center(
+                                          child: CircularProgressIndicator(
+                                            color: AppColors
+                                                .primaryColor, // Customize color as needed
+                                            strokeWidth: 2.0,
+                                          ),
+                                        ),
+                                      ) // Display a CircularProgressIndicator while the image is loading.
+                                    : child; // Once the image is loaded, display the image.
                               },
                             ),
                           ),

@@ -7,10 +7,11 @@ import 'package:flutter/material.dart';
 import 'package:quranic_competition/constants/colors.dart';
 import 'package:quranic_competition/models/competition.dart';
 import 'package:quranic_competition/models/inscription.dart';
+import 'package:quranic_competition/models/note_result.dart';
 
 class InscriptionService {
-  static Future<bool> sendToFirebase(
-      Inscription inscription, BuildContext context, String version) async {
+  static Future<bool> sendToFirebase(Inscription inscription,
+      BuildContext context, String version, String competitionPhase) async {
     CollectionReference inscriptions =
         FirebaseFirestore.instance.collection('inscriptions');
     String competitionType;
@@ -47,6 +48,8 @@ class InscriptionService {
       } else {
         await inscriptions
             .doc(version)
+            .collection(competitionPhase)
+            .doc(competitionPhase)
             .collection(competitionType)
             .doc(inscription.phoneNumber)
             .set(inscription.toMap())
@@ -88,10 +91,12 @@ class InscriptionService {
 
   // Fetch all contestants from firestore db
   static Stream<List<Inscription>> streamContestants(
-      String version, String cometionType) {
+      String version, String cometionType, String competitionPhase) {
     CollectionReference inscriptionCollection = FirebaseFirestore.instance
         .collection('inscriptions')
         .doc(version)
+        .collection(competitionPhase)
+        .doc(competitionPhase)
         .collection(cometionType);
 
     return inscriptionCollection
@@ -100,6 +105,8 @@ class InscriptionService {
         .map((QuerySnapshot querySnapshot) {
       List<Inscription> inscriptions = [];
       for (var doc in querySnapshot.docs) {
+        // Inscription ins = Inscription.fromDocumentSnapshot(doc);
+        print("================================\n ${doc.get("رقم الهاتف")}");
         inscriptions.add(Inscription.fromDocumentSnapshot(doc));
       }
       return inscriptions;
@@ -108,7 +115,7 @@ class InscriptionService {
 
   // Function to fetch constraints
   static Future<List<Inscription>> fetchContestants(
-      Competition competition) async {
+      Competition competition, String competitionPhase) async {
     // CollectionReference inscriptionCollection = FirebaseFirestore.instance
     //     .collection('inscriptions')
     //     .doc(competition.competitionVirsion)
@@ -116,6 +123,8 @@ class InscriptionService {
     QuerySnapshot childSnapshot = await FirebaseFirestore.instance
         .collection('inscriptions')
         .doc(competition.competitionVirsion)
+        .collection(competitionPhase)
+        .doc(competitionPhase)
         .collection(competition.competitionTypes![0])
         .orderBy("رقم التسجيل", descending: false)
         .get();
@@ -123,6 +132,8 @@ class InscriptionService {
     QuerySnapshot adultSnapshot = await FirebaseFirestore.instance
         .collection('inscriptions')
         .doc(competition.competitionVirsion)
+        .collection(competitionPhase)
+        .doc(competitionPhase)
         .collection(competition.competitionTypes![1])
         .orderBy("رقم التسجيل", descending: false)
         .get();
@@ -142,10 +153,15 @@ class InscriptionService {
 
   // Function to fetch constraints by jury
   static Future<List<Inscription>> fetchContestantsByJury(
-      Competition competition, String competitionType, String juryName) async {
+      Competition competition,
+      String competitionType,
+      String juryName,
+      String competitionPhase) async {
     var inscriptionCollection = FirebaseFirestore.instance
         .collection('inscriptions')
         .doc(competition.competitionVirsion)
+        .collection(competitionPhase)
+        .doc(competitionPhase)
         .collection(competitionType)
         .where("التجويد.$juryName", isNotEqualTo: 10000000);
     QuerySnapshot querySnapshot = await inscriptionCollection
@@ -164,13 +180,14 @@ class InscriptionService {
   }
 
   static Future<void> exportDataAsXlsx(
+      List<Inscription> notedInscriptions,
       List<Map<String, dynamic>> dataList,
       String fullName,
       Competition competition,
       String competionType,
       BuildContext context) async {
     var excel = Excel.createExcel();
-
+    NoteResult? noteResult;
     Sheet sheetObject = excel['Sheet1'];
 
     // Create header row
@@ -201,33 +218,57 @@ class InscriptionService {
       sheetObject.appendRow(cellHeaders);
 
       // Add data rows
-      for (var data in dataList) {
-        Inscription inscription = Inscription.fromMap(data);
-        List<CellValue> cells = [];
+      for (Inscription inscription in notedInscriptions) {
+        for (var data in dataList) {
+          if (DateTime.now().year - inscription.birthDate!.year < 18) {
+            noteResult = NoteResult.fromMapChild(data);
+          } else {
+            noteResult = NoteResult.fromMapAdult(data);
+          }
+          List<CellValue> cells = [];
+          // for (var element in inscription.tashihMachaikhs!) {
+          //   if (element[fullName] == fullName) {
+          //     if (DateTime.now().year - inscription.birthDate!.year < 18) {
+          //       noteResult = NoteResult.fromMapChild(element);
+          //     } else {
+          //       noteResult = NoteResult.fromMapAdult(element);
+          //     }
+          //   }
+          // }
 
-        // Add number of subscribers
-        cells.add(TextCellValue(inscription.idInscription!.toString()));
-        // Add Note Tajwid
-        cells.add(TextCellValue(inscription.noteTajwid![fullName].toString()));
-        // Add Housn al Sawtt
-        cells.add(
-            TextCellValue(inscription.noteHousnSawtt![fullName].toString()));
-        if (competionType == "child_inscription") {
-          // Add Ou4oubet al Sawtt
-          cells.add(TextCellValue(
-              inscription.noteOu4oubetSawtt![fullName].toString()));
-          // Add Waqf And al Ibtidaa
-          cells.add(TextCellValue(
-              inscription.noteWaqfAndIbtidaa![fullName].toString()));
-        } else {
-          // Add Iltizam bi Riwaya
-          cells.add(TextCellValue(
-              inscription.noteIltizamRiwaya![fullName].toString()));
+          // Add number of subscribers
+          cells.add(TextCellValue(inscription.idInscription!.toString()));
+          // Add Note Tajwid
+          cells.add(TextCellValue(noteResult.notes!.noteTajwid!.toString()));
+          // Add Housn al Sawtt
+          cells
+              .add(TextCellValue(noteResult.notes!.noteHousnSawtt!.toString()));
+          if (competionType == "child_inscription") {
+            // Add Ou4oubet al Sawtt
+            cells.add(
+                TextCellValue(noteResult.notes!.noteOu4oubetSawtt!.toString()));
+            // Add Waqf And al Ibtidaa
+            cells.add(TextCellValue(
+                noteResult.notes!.noteWaqfAndIbtidaa!.toString()));
+            // Add Total
+            double total = noteResult.notes!.noteTajwid! +
+                noteResult.notes!.noteHousnSawtt! +
+                noteResult.notes!.noteOu4oubetSawtt! +
+                noteResult.notes!.noteWaqfAndIbtidaa!;
+            cells.add(TextCellValue(total.toString()));
+          } else {
+            // Add Iltizam bi Riwaya
+            cells.add(
+                TextCellValue(noteResult.notes!.noteIltizamRiwaya!.toString()));
+            // Add Total
+            double total = noteResult.notes!.noteTajwid! +
+                noteResult.notes!.noteHousnSawtt! +
+                noteResult.notes!.noteIltizamRiwaya!;
+            cells.add(TextCellValue(total.toString()));
+          }
+
+          sheetObject.appendRow(cells);
         }
-        // Add Total
-        cells.add(TextCellValue(inscription.result![fullName].toString()));
-
-        sheetObject.appendRow(cells);
       }
     }
 

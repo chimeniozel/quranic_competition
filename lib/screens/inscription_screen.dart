@@ -4,6 +4,8 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:quranic_competition/constants/colors.dart';
 import 'package:quranic_competition/models/inscription.dart';
+import 'package:quranic_competition/models/note_result.dart';
+import 'package:quranic_competition/providers/auth_provider.dart';
 import 'package:quranic_competition/providers/competion_provider.dart';
 import 'package:quranic_competition/services/inscription_service.dart';
 import 'package:quranic_competition/widgets/input_widget.dart';
@@ -94,6 +96,17 @@ class _InscriptionScreenState extends State<InscriptionScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       resizeToAvoidBottomInset: false,
+      appBar: AppBar(
+        toolbarHeight: 70,
+        title: const Text(
+          "مرحباً! \nقم بالتسجيل للبدء",
+          // textDirection: TextDirection.rtl,
+          style: TextStyle(
+            fontSize: 32,
+          ),
+        ),
+        elevation: 0,
+      ),
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(8.0),
@@ -101,22 +114,6 @@ class _InscriptionScreenState extends State<InscriptionScreen> {
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
-              // Welcome message
-              Container(
-                margin: const EdgeInsets.only(
-                  top: 70.0,
-                ),
-                width: double.infinity,
-                child: const Text(
-                  "مرحباً! \nقم بالتسجيل للبدء",
-                  // textDirection: TextDirection.rtl,
-                  style: TextStyle(
-                    fontSize: 40,
-                  ),
-                ),
-              ),
-              const SizedBox(height: 10.0),
-
               // Name of user
               InputWidget(
                 label: "الاسم الثلاثي",
@@ -402,9 +399,45 @@ class _InscriptionScreenState extends State<InscriptionScreen> {
                       horizontal: 10.0, vertical: 13.0),
                 ),
                 onPressed: () async {
+                  List<Map<String, dynamic>> tashihMachaikhs = [];
                   setState(() {
                     isLoading = true;
                   });
+                  if (DateTime.now().year - _selectedDate.year < 18) {
+                    for (var user
+                        in Provider.of<AuthProvider>(context, listen: false)
+                            .users!) {
+                      NoteModel notes = NoteModel(
+                        noteHousnSawtt: 0,
+                        noteIltizamRiwaya: 0,
+                        noteOu4oubetSawtt: 0,
+                        noteTajwid: 0,
+                        noteWaqfAndIbtidaa: 0,
+                      );
+                      NoteResult noteResult = NoteResult(
+                        cheikhName: user.fullName,
+                        notes: notes,
+                      );
+                      tashihMachaikhs.add(noteResult.toMapChild()!);
+                    }
+                  } else {
+                    for (var user
+                        in Provider.of<AuthProvider>(context, listen: false)
+                            .users!) {
+                      NoteModel notes = NoteModel(
+                        noteHousnSawtt: 0,
+                        noteIltizamRiwaya: 0,
+                        noteOu4oubetSawtt: 0,
+                        noteTajwid: 0,
+                        noteWaqfAndIbtidaa: 0,
+                      );
+                      NoteResult noteResult = NoteResult(
+                        cheikhName: user.fullName,
+                        notes: notes,
+                      );
+                      tashihMachaikhs.add(noteResult.toMapAdult()!);
+                    }
+                  }
                   Inscription inscription = Inscription(
                     fullName: fullNameController.text,
                     phoneNumber: phoneNumberController.text,
@@ -416,11 +449,7 @@ class _InscriptionScreenState extends State<InscriptionScreen> {
                     haveYouParticipatedInACompetition:
                         haveYouParticipatedInACompetition,
                     haveYouEverWon1stTo2ndPlace: haveYouEverWon1stTo2ndPlace,
-                    noteTajwid: {},
-                    noteHousnSawtt: {},
-                    noteIltizamRiwaya: {},
-                    noteOu4oubetSawtt: {},
-                    noteWaqfAndIbtidaa: {},
+                    tashihMachaikhs: tashihMachaikhs,
                     result: {},
                   );
 
@@ -431,12 +460,12 @@ class _InscriptionScreenState extends State<InscriptionScreen> {
                       .toString();
 
                   // Save user information to Firebase
-                  InscriptionService.sendToFirebase(
-                          inscription, context, competitionVirsion)
+                  InscriptionService.sendToFirebase(inscription, context,
+                          competitionVirsion, "التصفيات الأولى")
                       .whenComplete(
                     () {
-                      fullNameController.clear();
-                      phoneNumberController.clear();
+                      // fullNameController.clear();
+                      // phoneNumberController.clear();
                       _selectedDate = DateTime.now();
                       setState(() {
                         isLoading = false;
@@ -445,7 +474,7 @@ class _InscriptionScreenState extends State<InscriptionScreen> {
                   );
                 },
                 child: isLoading
-                    ? CircularProgressIndicator(
+                    ? const CircularProgressIndicator(
                         color: AppColors.whiteColor,
                       )
                     : const Text("إرسال المعلومات"),
