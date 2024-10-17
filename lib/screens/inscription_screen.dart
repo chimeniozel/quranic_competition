@@ -28,7 +28,7 @@ class _InscriptionScreenState extends State<InscriptionScreen> {
   String haveYouParticipatedInACompetition = "نعم";
   String haveYouEverWon1stTo2ndPlace = "نعم";
   bool obscure = true;
-  DateTime _selectedDate = DateTime.now();
+  DateTime _selectedDate = DateTime(DateTime.now().year - 5);
 
   List<String> howMuchYouMemorizes = ["القرآن كاملا", "نصف", "أقل من نصف"];
 
@@ -80,9 +80,9 @@ class _InscriptionScreenState extends State<InscriptionScreen> {
           child: child!,
         );
       },
-      initialDate: DateTime.now(),
+      initialDate: DateTime(DateTime.now().year - 5),
       firstDate: DateTime(1900),
-      lastDate: DateTime(2100),
+      lastDate: DateTime(DateTime.now().year - 5),
     );
 
     if (pickedDate != null) {
