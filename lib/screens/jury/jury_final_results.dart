@@ -155,7 +155,8 @@ class _JuryFinalResultsState extends State<JuryFinalResults> {
                             bool isAdult = DateTime.now().year -
                                     inscription.birthDate!.year <
                                 18;
-                            inscription.tashihMachaikhs?.forEach((result) {
+                            inscription.tashihMachaikhs?.finalRound
+                                ?.forEach((result) {
                               if (isAdult) {
                                 noteResult = NoteResult.fromMapChild(result);
                                 if (noteResult!.cheikhName ==
@@ -184,6 +185,7 @@ class _JuryFinalResultsState extends State<JuryFinalResults> {
                                       competitionVersion: competitionProvider
                                           .competition!.competitionVirsion
                                           .toString(),
+                                      competitionRound: "التصفيات النهائية",
                                     ),
                                   ),
                                 );
@@ -323,18 +325,29 @@ class _JuryFinalResultsState extends State<JuryFinalResults> {
                                       ],
                                     ),
                                   ),
-                                  if ((isAdult &&
-                                          cheickh!.notes!.noteTajwid != 0 &&
-                                          cheickh!.notes!.noteHousnSawtt != 0 &&
-                                          cheickh!.notes!.noteIltizamRiwaya !=
-                                              0) ||
-                                      (!isAdult &&
-                                          cheickh!.notes!.noteTajwid != 0 &&
-                                          cheickh!.notes!.noteHousnSawtt != 0 &&
-                                          cheickh!.notes!.noteOu4oubetSawtt !=
-                                              0 &&
-                                          cheickh!.notes!.noteWaqfAndIbtidaa !=
-                                              0))
+                                  if (isAdult && cheickh!.isCorrected!)
+                                    const Positioned(
+                                      top: 10,
+                                      right: 10,
+                                      child: Row(
+                                        children: [
+                                          Text(
+                                            "تم التصحيح",
+                                            style: TextStyle(
+                                              color: AppColors.greenColor,
+                                            ),
+                                          ),
+                                          SizedBox(
+                                            width: 5.0,
+                                          ),
+                                          Icon(
+                                            Iconsax.verify5,
+                                            color: AppColors.greenColor,
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  if (!isAdult && cheickh!.isCorrected!)
                                     const Positioned(
                                       top: 10,
                                       right: 10,
@@ -397,7 +410,8 @@ class _JuryFinalResultsState extends State<JuryFinalResults> {
                         authProvider.currentUser!.fullName,
                         competitionProvider.competition!,
                         selectedType.toString(),
-                        context);
+                        context,
+                        "التصفيات النهائية");
                   } else {
                     // Snackbar for failure
                     final successSnackBar = SnackBar(

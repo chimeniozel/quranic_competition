@@ -39,6 +39,16 @@ class _JuryHomeScreenState extends State<JuryHomeScreen> {
                     : AppBar(
                         title: const Text("التصفيات الأولى"),
                         automaticallyImplyLeading: false,
+                        leading: IconButton(
+                          tooltip: "تسجيل الخروج",
+                          icon: const Icon(
+                            Iconsax.logout,
+                            color: AppColors.pinkColor,
+                          ),
+                          onPressed: () {
+                            AuthProvider.logoutUser(context);
+                          },
+                        ),
                         actions: [
                           IconButton(
                             onPressed: () {
@@ -213,7 +223,7 @@ class _JuryHomeScreenState extends State<JuryHomeScreen> {
                                       bool isAdult = DateTime.now().year -
                                               inscription.birthDate!.year <
                                           18;
-                                      inscription.tashihMachaikhs
+                                      inscription.tashihMachaikhs?.firstRound
                                           ?.forEach((result) {
                                         if (isAdult) {
                                           noteResult =
@@ -252,6 +262,8 @@ class _JuryHomeScreenState extends State<JuryHomeScreen> {
                                                         .competition!
                                                         .competitionVirsion
                                                         .toString(),
+                                                competitionRound:
+                                                    "التصفيات الأولى",
                                               ),
                                             ),
                                           );
@@ -291,7 +303,7 @@ class _JuryHomeScreenState extends State<JuryHomeScreen> {
                                                     MainAxisAlignment.center,
                                                 children: [
                                                   Text(
-                                                      "المتسابق رقم : ${inscription.idInscription}"),
+                                                      "المتسابق رقم : ${inscription.idInscription} "),
                                                   const SizedBox(
                                                     height: 10.0,
                                                   ),
@@ -406,27 +418,33 @@ class _JuryHomeScreenState extends State<JuryHomeScreen> {
                                                 ],
                                               ),
                                             ),
-                                            if ((isAdult &&
-                                                    cheickh!.notes!
-                                                            .noteTajwid !=
-                                                        0 &&
-                                                    cheickh!.notes!.noteHousnSawtt !=
-                                                        0 &&
-                                                    cheickh!.notes!
-                                                            .noteIltizamRiwaya !=
-                                                        0) ||
-                                                (!isAdult &&
-                                                    cheickh!.notes!
-                                                            .noteTajwid !=
-                                                        0 &&
-                                                    cheickh!.notes!.noteHousnSawtt !=
-                                                        0 &&
-                                                    cheickh!.notes!
-                                                            .noteOu4oubetSawtt !=
-                                                        0 &&
-                                                    cheickh!.notes!
-                                                            .noteWaqfAndIbtidaa !=
-                                                        0))
+                                            if (isAdult &&
+                                                cheickh!.isCorrected!)
+                                              const Positioned(
+                                                top: 10,
+                                                right: 10,
+                                                child: Row(
+                                                  children: [
+                                                    Text(
+                                                      "تم التصحيح",
+                                                      style: TextStyle(
+                                                        color: AppColors
+                                                            .greenColor,
+                                                      ),
+                                                    ),
+                                                    SizedBox(
+                                                      width: 5.0,
+                                                    ),
+                                                    Icon(
+                                                      Iconsax.verify5,
+                                                      color:
+                                                          AppColors.greenColor,
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            if (!isAdult &&
+                                                cheickh!.isCorrected!)
                                               const Positioned(
                                                 top: 10,
                                                 right: 10,
@@ -481,18 +499,20 @@ class _JuryHomeScreenState extends State<JuryHomeScreen> {
                                 authProvider.currentUser!.fullName,
                                 "التصفيات الأولى");
                             bool isNoted = returnData["isNoted"];
-                            List<Inscription> notedInscriptions = returnData["notedInscriptions"];
+                            List<Inscription> notedInscriptions =
+                                returnData["notedInscriptions"];
                             List<Map<String, dynamic>> dataList =
                                 returnData["dataList"];
                             if (isNoted && dataList.isNotEmpty) {
-                            // Send notes to the admin
-                            InscriptionService.exportDataAsXlsx(
-                              notedInscriptions,
-                                dataList,
-                                authProvider.currentUser!.fullName,
-                                competitionProvider.competition!,
-                                selectedType.toString(),
-                                context);
+                              // Send notes to the admin
+                              InscriptionService.exportDataAsXlsx(
+                                  notedInscriptions,
+                                  dataList,
+                                  authProvider.currentUser!.fullName,
+                                  competitionProvider.competition!,
+                                  selectedType.toString(),
+                                  context,
+                                  "التصفيات الأولى");
                             } else {
                               // Snackbar for failure
                               final successSnackBar = SnackBar(

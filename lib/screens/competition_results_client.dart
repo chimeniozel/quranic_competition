@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:provider/provider.dart';
 import 'package:quranic_competition/constants/colors.dart';
-import 'package:quranic_competition/models/result_model.dart';
+import 'package:quranic_competition/models/inscription.dart';
 import 'package:quranic_competition/providers/competion_provider.dart';
 import 'package:quranic_competition/services/competion_service.dart';
 
@@ -15,8 +15,13 @@ class CompetitionResultsClient extends StatefulWidget {
 }
 
 class _CompetitionResultsClientState extends State<CompetitionResultsClient> {
-  final List<String> competitionPhases = ["نتائج التصفيات", "النتائج النهائية"];
-  String? selectedPhase;
+  final List<String> competitionPhases = [
+    "التصفيات الأولى",
+    "التصفيات النهائية"
+  ];
+  String selectedType = "adult_inscription";
+  String? selectedRound = "التصفيات الأولى";
+  bool isPassedFirstRound = false;
 
   String query = "";
   @override
@@ -49,10 +54,10 @@ class _CompetitionResultsClientState extends State<CompetitionResultsClient> {
                 ],
               ),
               child: DropdownButton(
-                hint: const Text("اختر مرحلة"),
+                // hint: const Text("اختر مرحلة"),
                 isExpanded: true,
                 underline: Container(),
-                value: selectedPhase,
+                value: selectedRound,
                 items: competitionPhases
                     .map(
                       (String phase) => DropdownMenuItem(
@@ -63,7 +68,12 @@ class _CompetitionResultsClientState extends State<CompetitionResultsClient> {
                     .toList(),
                 onChanged: (String? phase) {
                   setState(() {
-                    selectedPhase = phase;
+                    selectedRound = phase;
+                    if (phase == "التصفيات الأولى") {
+                      isPassedFirstRound = false;
+                    } else {
+                      isPassedFirstRound = true;
+                    }
                   });
                 },
               ),
@@ -71,9 +81,88 @@ class _CompetitionResultsClientState extends State<CompetitionResultsClient> {
             const SizedBox(
               height: 5.0,
             ),
-            if (selectedPhase != null)
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Expanded(
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10.0),
+                        side: BorderSide(
+                          color: selectedType == "adult_inscription"
+                              ? AppColors.primaryColor
+                              : AppColors.blackColor.withOpacity(.1),
+                          width: 1,
+                        ),
+                      ),
+                      backgroundColor: selectedType == "adult_inscription"
+                          ? AppColors.primaryColor
+                          : AppColors.whiteColor,
+                      minimumSize: const Size(
+                        double.infinity,
+                        50.0,
+                      ),
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        selectedType = "adult_inscription";
+                      });
+                    },
+                    child: Text(
+                      "المتسابقين الكبار",
+                      style: TextStyle(
+                        color: selectedType == "adult_inscription"
+                            ? AppColors.whiteColor
+                            : AppColors.blackColor,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(
+                  width: 5.0,
+                ),
+                Expanded(
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10.0),
+                        side: BorderSide(
+                          color: selectedType == "child_inscription"
+                              ? AppColors.primaryColor
+                              : AppColors.blackColor.withOpacity(.1),
+                          width: 1,
+                        ),
+                      ),
+                      backgroundColor: selectedType == "child_inscription"
+                          ? AppColors.primaryColor
+                          : AppColors.whiteColor,
+                      minimumSize: const Size(double.infinity, 50.0),
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        selectedType = "child_inscription";
+                      });
+                    },
+                    child: Text(
+                      "المتسابقين الصغار",
+                      style: TextStyle(
+                        color: selectedType == "child_inscription"
+                            ? AppColors.whiteColor
+                            : AppColors.blackColor,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(
+              height: 15.0,
+            ),
+            if (selectedRound != null)
               Flexible(
                 child: TextFormField(
+                  keyboardType: TextInputType.number,
                   decoration: InputDecoration(
                     contentPadding: const EdgeInsets.all(10.0),
                     labelText: 'البحث عن متسابق',
@@ -119,30 +208,30 @@ class _CompetitionResultsClientState extends State<CompetitionResultsClient> {
               height: 5.0,
             ),
             Expanded(
-              child: FutureBuilder<List<ResultModel>>(
+              child: FutureBuilder<List<Inscription>>(
                 future: CompetitionService.getResults(
-                    selectedPhase.toString(),
-                    competitionProvider.competition!.competitionVirsion
-                        .toString(),
-                    query),
+                  competitionVersion: competitionProvider
+                      .competition!.competitionVirsion
+                      .toString(),
+                  competitionType: selectedType,
+                  competitionRound: selectedRound!,
+                  isPassedFirstRound: isPassedFirstRound,
+                  query: query,
+                ),
                 builder: (context, snapshotInscription) {
                   if (snapshotInscription.connectionState ==
                       ConnectionState.waiting) {
-                    return const Center(
-                      child: CircularProgressIndicator(),
-                    );
+                    return const Center(child: CircularProgressIndicator());
                   }
                   if (snapshotInscription.hasData &&
                       snapshotInscription.data!.isNotEmpty) {
                     return ListView.builder(
                       itemCount: snapshotInscription.data!.length,
                       itemBuilder: (context, index) {
-                        ResultModel resultModel =
+                        Inscription inscription =
                             snapshotInscription.data![index];
                         return Container(
-                          padding: const EdgeInsets.all(
-                            8.0,
-                          ),
+                          padding: const EdgeInsets.all(8.0),
                           margin: const EdgeInsets.only(bottom: 5.0),
                           decoration: const BoxDecoration(
                             color: AppColors.whiteColor,
@@ -165,10 +254,9 @@ class _CompetitionResultsClientState extends State<CompetitionResultsClient> {
                                     const Text(
                                       "رقم التسجيل",
                                       style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                      ),
+                                          fontWeight: FontWeight.bold),
                                     ),
-                                    Text("${resultModel.idUser}"),
+                                    Text("${inscription.idInscription}"),
                                   ],
                                 ),
                               ),
@@ -178,10 +266,9 @@ class _CompetitionResultsClientState extends State<CompetitionResultsClient> {
                                     const Text(
                                       "الإسم الثلاثي",
                                       style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                      ),
+                                          fontWeight: FontWeight.bold),
                                     ),
-                                    Text("${resultModel.fullName}"),
+                                    Text("${inscription.fullName}"),
                                   ],
                                 ),
                               ),
@@ -191,10 +278,10 @@ class _CompetitionResultsClientState extends State<CompetitionResultsClient> {
                                     const Text(
                                       "المعدل العام",
                                       style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                      ),
+                                          fontWeight: FontWeight.bold),
                                     ),
-                                    Text("${resultModel.generalMoyenne}"),
+                                    Text(inscription.resultFirstRound!
+                                        .toStringAsFixed(2)),
                                   ],
                                 ),
                               ),
@@ -204,9 +291,7 @@ class _CompetitionResultsClientState extends State<CompetitionResultsClient> {
                       },
                     );
                   } else {
-                    return const Center(
-                      child: Text("لا توجد نتائج"),
-                    );
+                    return const Center(child: Text("لا توجد نتائج"));
                   }
                 },
               ),

@@ -1,10 +1,11 @@
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:iconly/iconly.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:quranic_competition/constants/colors.dart';
 import 'package:quranic_competition/models/competition.dart';
-import 'package:quranic_competition/models/inscription.dart';
 import 'package:quranic_competition/models/users.dart';
-import 'package:quranic_competition/services/competion_service.dart';
-import 'package:quranic_competition/services/inscription_service.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class JuryResults extends StatefulWidget {
   final Competition competition;
@@ -15,27 +16,158 @@ class JuryResults extends StatefulWidget {
 }
 
 class _JuryResultsState extends State<JuryResults> {
-  List<Users> juryUsers = [];
   Users? selectedUsers;
   String? selectedType;
   String? selectedText;
 
-  @override
-  void initState() {
-    getJuryUsers();
-    super.initState();
+  Map<String, Map<String, List<String>>> participantsFiles = {};
+
+  Future<void> fetchAllParticipantsFiles(String competitionRound) async {
+    try {
+      String basePath =
+          "/${widget.competition.competitionVirsion}/تصحيح لجنة التحكيم/$competitionRound";
+
+      Reference storageRef = FirebaseStorage.instance.ref().child(basePath);
+      ListResult result = await storageRef.listAll();
+
+      for (var prefix in result.prefixes) {
+        String participantName = prefix.name;
+        Map<String, List<String>> fileUrls =
+            await _fetchFilesForParticipant(prefix.fullPath);
+
+        participantsFiles[participantName] = {
+          "names": fileUrls["names"]!,
+          "urls": fileUrls["urls"]!,
+        };
+      }
+
+      setState(() {
+        participantsFiles = participantsFiles;
+      });
+
+      print("Fetched files: $participantsFiles");
+    } catch (e) {
+      // failure Snack Bar
+      final failureSnackBar = SnackBar(
+        content: Text("خطأ في جلب ملفات جميع المشاركين: $e"),
+        action: SnackBarAction(
+          label: 'تراجع',
+          onPressed: () {},
+        ),
+        backgroundColor: AppColors.pinkColor,
+      );
+      ScaffoldMessenger.of(context).showSnackBar(failureSnackBar);
+    }
   }
 
-  Future<void> getJuryUsers() async {
-    List<Users> jury = await CompetitionService.getJuryUsers();
-    setState(() {
-      juryUsers = jury;
-    });
+  Future<Map<String, List<String>>> _fetchFilesForParticipant(
+      String path) async {
+    List<String> urls = [];
+    List<String> names = [];
+    try {
+      Reference storageRef = FirebaseStorage.instance.ref().child(path);
+      ListResult result = await storageRef.listAll();
+
+      for (var ref in result.items) {
+        String name = ref.name;
+        String url = await ref.getDownloadURL();
+        names.add(name);
+        urls.add(url);
+      }
+    } catch (e) {
+      // failure Snack Bar
+      final failureSnackBar = SnackBar(
+        content: Text("خطأ في جلب ملفات المشارك من المسار: $path, $e"),
+        action: SnackBarAction(
+          label: 'تراجع',
+          onPressed: () {},
+        ),
+        backgroundColor: AppColors.pinkColor,
+      );
+      ScaffoldMessenger.of(context).showSnackBar(failureSnackBar);
+    }
+    return {
+      "urls": urls,
+      "names": names,
+    };
+  }
+
+  // New delete method
+  Future<void> deleteFile(String participantName, String fileName) async {
+    // Confirm deletion
+    bool confirm = await _confirmDelete(fileName);
+    if (!confirm) return;
+
+    try {
+      // Construct the full path to the file in Firebase Storage
+      String filePath =
+          "/${widget.competition.competitionVirsion}/تصحيح لجنة التحكيم/${selectedText!}/$participantName/$fileName";
+      Reference fileRef = FirebaseStorage.instance.ref().child(filePath);
+
+      // Delete the file
+      await fileRef.delete();
+
+      // Update the local participantsFiles map
+      setState(() {
+        int fileIndex =
+            participantsFiles[participantName]!["names"]!.indexOf(fileName);
+        participantsFiles[participantName]!["names"]!.removeAt(fileIndex);
+        participantsFiles[participantName]!["urls"]!.removeAt(fileIndex);
+      });
+      // saccess Snack Bar
+      final saccessSnackBar = SnackBar(
+        content: const Text("تم حذف الملف بنجاح"),
+        action: SnackBarAction(
+          label: 'تراجع',
+          onPressed: () {},
+        ),
+        backgroundColor: AppColors.greenColor,
+      );
+      ScaffoldMessenger.of(context).showSnackBar(saccessSnackBar);
+    } catch (e) {
+      // failure Snack Bar
+      final failureSnackBar = SnackBar(
+        content: Text("خطأ في حذف الملف: $e"),
+        action: SnackBarAction(
+          label: 'تراجع',
+          onPressed: () {},
+        ),
+        backgroundColor: AppColors.pinkColor,
+      );
+      ScaffoldMessenger.of(context).showSnackBar(failureSnackBar);
+    }
+  }
+
+  Future<bool> _confirmDelete(String fileName) async {
+    return await showDialog<bool>(
+          context: context,
+          builder: (context) {
+            return AlertDialog(
+              title: const Text("تأكيد الحذف"),
+              content: Text("هل أنت متأكد أنك تريد حذف $fileName؟"),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(false),
+                  child: const Text("إلغاء"),
+                ),
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(true),
+                  child: const Text("حذف"),
+                ),
+              ],
+            );
+          },
+        ) ??
+        false;
+  }
+
+  @override
+  void initState() {
+    super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    Competition competition = widget.competition;
     return Scaffold(
       appBar: AppBar(
         title: const Text('تصحيح لجنة التحكيم'),
@@ -50,9 +182,7 @@ class _JuryResultsState extends State<JuryResults> {
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 8.0),
                     decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(
-                        10.0,
-                      ),
+                      borderRadius: BorderRadius.circular(10.0),
                       color: AppColors.whiteColor,
                       border: Border.all(
                         color: Colors.grey.shade200,
@@ -64,7 +194,7 @@ class _JuryResultsState extends State<JuryResults> {
                       underline: Container(),
                       isExpanded: true,
                       value: selectedText,
-                      items: ["فئة الكبار", "فئة الصغار"]
+                      items: ["التصفيات الأولى", "التصفيات النهائية"]
                           .map(
                             (String type) => DropdownMenuItem<String>(
                               value: type,
@@ -75,17 +205,11 @@ class _JuryResultsState extends State<JuryResults> {
                           )
                           .toList(),
                       onChanged: (value) {
-                        if (value == "فئة الكبار") {
-                          setState(() {
-                            selectedText = value;
-                            selectedType = "adult_inscription";
-                          });
-                        } else {
-                          setState(() {
-                            selectedText = value;
-                            selectedType = "child_inscription";
-                          });
-                        }
+                        setState(() {
+                          participantsFiles = {};
+                          selectedText = value; // Store selected type
+                          fetchAllParticipantsFiles(value!);
+                        });
                       },
                     ),
                   ),
@@ -93,157 +217,92 @@ class _JuryResultsState extends State<JuryResults> {
                 const SizedBox(
                   width: 5.0,
                 ),
-                Expanded(
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(
-                        10.0,
-                      ),
-                      color: AppColors.whiteColor,
-                      border: Border.all(
-                        color: Colors.grey.shade200,
-                        width: 2,
-                      ),
-                    ),
-                    child: DropdownButton<Users>(
-                      hint: const Text("اختر شيخا"),
-                      underline: Container(),
-                      isExpanded: true,
-                      value: selectedUsers,
-                      items: juryUsers
-                          .map(
-                            (Users user) => DropdownMenuItem<Users>(
-                              value: user,
-                              child: Text(
-                                user.fullName,
-                              ),
-                            ),
-                          )
-                          .toList(),
-                      onChanged: (value) {
-                        if (selectedType != null) {
-                          setState(() {
-                            selectedUsers = value;
-                          });
-                        } else {
-                          // Snackbar for failure
-                          final successSnackBar = SnackBar(
-                            content: const Text('اختر فئة ثم اختر الشيخ'),
-                            action: SnackBarAction(
-                              label: 'تراجع',
-                              onPressed: () {
-                                // Perform some action
-                              },
-                            ),
-                            backgroundColor: Colors.red,
-                          );
-                          ScaffoldMessenger.of(context)
-                              .showSnackBar(successSnackBar);
-                        }
-                      },
-                    ),
-                  ),
-                ),
               ],
             ),
             const SizedBox(
               height: 10.0,
             ),
-            selectedUsers != null
-                ? Flexible(
-                    child: FutureBuilder<List<Inscription>>(
-                      future: InscriptionService.fetchContestantsByJury(
-                          competition, selectedType!, selectedUsers!.fullName, "التصفيات الأولى"),
-                      builder: (context, snapshotInscription) {
-                        if (snapshotInscription.connectionState ==
-                            ConnectionState.waiting) {
-                          return const Center(
-                            child: CircularProgressIndicator(),
-                          );
-                        }
-                        if (snapshotInscription.hasData &&
-                            snapshotInscription.data!.isNotEmpty) {
-                          return ListView.builder(
-                            itemCount: snapshotInscription.data!.length,
-                            itemBuilder: (context, index) {
-                              Inscription inscription =
-                                  snapshotInscription.data![index];
-                              return Container(
-                                padding: const EdgeInsets.all(
-                                  8.0,
+            Expanded(
+                child: ListView.builder(
+              itemCount: participantsFiles.length,
+              itemBuilder: (context, index) {
+                String participantName =
+                    participantsFiles.keys.elementAt(index);
+                List<String> fileNames =
+                    participantsFiles[participantName]!["names"]!;
+                List<String> fileUrls =
+                    participantsFiles[participantName]!["urls"]!;
+
+                return ExpansionTile(
+                  title: Text(
+                    participantName,
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  children: List.generate(fileNames.length, (fileIndex) {
+                    String fileName = fileNames[fileIndex];
+                    String fileUrl = fileUrls[fileIndex];
+
+                    return Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                      margin: const EdgeInsets.only(bottom: 5.0),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(5.0),
+                        color: AppColors.whiteColor,
+                        border: Border.all(
+                          color: Colors.grey.shade200,
+                          width: 2,
+                        ),
+                      ),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            flex: 3,
+                            child: Text(fileName),
+                          ),
+                          Expanded(
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Expanded(
+                                  child: IconButton(
+                                    icon: const Icon(
+                                      Iconsax.document_download5,
+                                      color: AppColors.primaryColor,
+                                    ),
+                                    onPressed: () async {
+                                      Uri url = Uri.parse(fileUrl);
+
+                                      if (await canLaunchUrl(url)) {
+                                        await launchUrl(url,
+                                            mode:
+                                                LaunchMode.externalApplication);
+                                      } else {
+                                        print('Could not launch $fileUrl');
+                                      }
+                                    },
+                                  ),
                                 ),
-                                margin: const EdgeInsets.only(bottom: 5.0),
-                                decoration: const BoxDecoration(
-                                  color: AppColors.whiteColor,
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(10.0)),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      offset: Offset(0.0, 2.0),
-                                      blurRadius: 10.0,
-                                      color: Colors.black12,
+                                Expanded(
+                                  child: IconButton(
+                                    icon: const Icon(
+                                      IconlyBold.delete,
+                                      color: AppColors.pinkColor,
                                     ),
-                                  ],
+                                    onPressed: () {
+                                      deleteFile(participantName, fileName);
+                                    },
+                                  ),
                                 ),
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  children: [
-                                    Expanded(
-                                      child: Column(
-                                        children: [
-                                          const Text(
-                                            "رقم المتسابق",
-                                            style: TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          ),
-                                          Text("${inscription.idInscription}"),
-                                        ],
-                                      ),
-                                    ),
-                                    Expanded(
-                                      child: Column(
-                                        children: [
-                                          const Text(
-                                            "الإسم الكامل",
-                                            style: TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          ),
-                                          Text("${inscription.fullName}"),
-                                        ],
-                                      ),
-                                    ),
-                                    Expanded(
-                                      child: Column(
-                                        children: [
-                                          const Text(
-                                            "المجموع",
-                                            style: TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          ),
-                                          Text(inscription
-                                              .result![selectedUsers!.fullName]
-                                              .toString()),
-                                        ],
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              );
-                            },
-                          );
-                        } else {
-                          return const Center(
-                            child: Text("لم ينتهي هذا الشيخ من التصحيح"),
-                          );
-                        }
-                      },
-                    ),
-                  )
-                : const SizedBox(),
+                              ],
+                            ),
+                          )
+                        ],
+                      ),
+                    );
+                  }),
+                );
+              },
+            )),
           ],
         ),
       ),

@@ -4,11 +4,12 @@ import 'package:excel/excel.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
-import 'package:iconly/iconly.dart';
-import 'package:iconsax/iconsax.dart';
+import 'package:provider/provider.dart';
 import 'package:quranic_competition/constants/colors.dart';
 import 'package:quranic_competition/models/competition.dart';
 import 'package:http/http.dart' as http;
+import 'package:quranic_competition/providers/competion_provider.dart';
+import 'package:quranic_competition/services/competion_service.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class CompetitionResults extends StatefulWidget {
@@ -174,7 +175,8 @@ class CompetitionResultsState extends State<CompetitionResults> {
     }
   }
 
-  bool isLoading = true;
+  bool isLoadingFirst = false;
+  bool isLoadingLast = false;
 
   Future<void> _confirmDelete(String fileName, bool isFirst) async {
     final confirm = await showDialog<bool>(
@@ -323,294 +325,123 @@ class CompetitionResultsState extends State<CompetitionResults> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const Text(
-                'نتائج التصفيات الأولية',
+                'حساب نتائج التصفيات الأولية',
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
               const SizedBox(
                 height: 10.0,
               ),
-              if (firstFileName != null)
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text(
-                    "الملف المختار: $firstFileName",
-                    style: const TextStyle(
-                        fontSize: 16, fontWeight: FontWeight.w500),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  minimumSize: const Size(double.infinity, 45.0),
+                  backgroundColor: AppColors.primaryColor,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10.0),
                   ),
                 ),
-              if (firstIsUploading)
-                Column(
-                  children: [
-                    const SizedBox(height: 20),
-                    LinearProgressIndicator(
-                      value: firstUploadProgress,
-                      backgroundColor: Colors.grey[200],
-                      color: AppColors.primaryColor,
-                      minHeight: 10,
-                    ),
-                    const SizedBox(height: 10),
-                    Text("${(firstUploadProgress * 100).toStringAsFixed(2)}%"),
-                  ],
-                ),
-              Row(
-                children: [
-                  Expanded(
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primaryColor,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10.0),
+                onPressed: () async {
+                  setState(() {
+                    isLoadingFirst = true;
+                  });
+                  Competition? competition =
+                      Provider.of<CompetitionProvider>(context, listen: false)
+                          .competition;
+                  bool isCorrected = await CompetitionService.publishResults(
+                      competition!.competitionVirsion!, "التصفيات الأولى");
+                  if (isCorrected) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text(
+                          'تم حساب المعدلات الأولية بنجاح.',
                         ),
+                        backgroundColor: AppColors.greenColor,
                       ),
-                      onPressed: () {
-                        pickFile(true);
-                      },
-                      child: const Text(
-                        'ملف التصفيات',
+                    );
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text(
+                          'لم تنتهي لجنة التحكيم من التصحيح',
+                        ),
+                        backgroundColor: AppColors.yellowColor,
+                      ),
+                    );
+                  }
+                  setState(() {
+                    isLoadingFirst = false;
+                  });
+                },
+                child: isLoadingFirst
+                    ? const CircularProgressIndicator(
+                        color: AppColors.whiteColor,
+                      )
+                    : const Text(
+                        'احسب المعدلات الأولية',
                         style: TextStyle(
                           color: AppColors.whiteColor,
                         ),
                       ),
-                    ),
-                  ),
-                  const SizedBox(
-                    width: 5.0,
-                  ),
-                  if (firstSelectedFile != null)
-                    Expanded(
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.primaryColor,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10.0),
-                          ),
-                        ),
-                        onPressed: () {
-                          if (firstSelectedFile != null) {
-                            uploadFile(
-                                firstSelectedFile!, widget.competition, true);
-                          } else {
-                            final failureSnackBar = SnackBar(
-                              content:
-                                  const Text('الرجاء تحديد ملف Excel أولاً.'),
-                              action: SnackBarAction(
-                                label: 'تراجع',
-                                onPressed: () {},
-                              ),
-                              backgroundColor: AppColors.yellowColor,
-                            );
-                            ScaffoldMessenger.of(context)
-                                .showSnackBar(failureSnackBar);
-                          }
-                        },
-                        child: const Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              'رفع الملف',
-                              style: TextStyle(
-                                color: AppColors.whiteColor,
-                              ),
-                            ),
-                            SizedBox(
-                              width: 5.0,
-                            ),
-                            Icon(
-                              Iconsax.document_upload,
-                              size: 24,
-                              color: AppColors.whiteColor,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                ],
               ),
               const SizedBox(
                 height: 10.0,
               ),
               const Text(
-                'نتائج التصفيات النهائية',
+                'حساب نتائج التصفيات النهائية',
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
               const SizedBox(
                 height: 10.0,
               ),
-              if (lastFileName != null)
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text(
-                    "الملف المختار: $lastFileName",
-                    style: const TextStyle(
-                        fontSize: 16, fontWeight: FontWeight.w500),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primaryColor,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10.0),
                   ),
+                  minimumSize: const Size(double.infinity, 45.0),
                 ),
-              if (lastIsUploading)
-                Column(
-                  children: [
-                    const SizedBox(height: 20),
-                    LinearProgressIndicator(
-                      value: lastUploadProgress,
-                      backgroundColor: Colors.grey[200],
-                      color: AppColors.primaryColor,
-                      minHeight: 10,
-                    ),
-                    const SizedBox(height: 10),
-                    Text("${(lastUploadProgress * 100).toStringAsFixed(2)}%"),
-                  ],
-                ),
-              Row(
-                children: [
-                  Expanded(
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primaryColor,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10.0),
+                onPressed: () async {
+                  setState(() {
+                    isLoadingLast = true;
+                  });
+                  Competition? competition =
+                      Provider.of<CompetitionProvider>(context, listen: false)
+                          .competition;
+                  bool isCorrected = await CompetitionService.publishResults(
+                      competition!.competitionVirsion!, "التصفيات النهائية");
+                  if (isCorrected) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text(
+                          'تم حساب المعدلات الأولية بنجاح.',
                         ),
+                        backgroundColor: AppColors.greenColor,
                       ),
-                      onPressed: () {
-                        pickFile(false);
-                      },
-                      child: const Text(
-                        'الملف النهائي',
+                    );
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text(
+                          'لم تنتهي لجنة التحكيم من التصحيح',
+                        ),
+                        backgroundColor: AppColors.yellowColor,
+                      ),
+                    );
+                  }
+                  setState(() {
+                    isLoadingLast = false;
+                  });
+                },
+                child: isLoadingLast
+                    ? const CircularProgressIndicator(
+                        color: AppColors.whiteColor,
+                      )
+                    : const Text(
+                        'احسب المعدلات النهائية',
                         style: TextStyle(
                           color: AppColors.whiteColor,
                         ),
                       ),
-                    ),
-                  ),
-                  const SizedBox(
-                    width: 5.0,
-                  ),
-                  if (lastSelectedFile != null)
-                    Expanded(
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.primaryColor,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10.0),
-                          ),
-                        ),
-                        onPressed: () {
-                          if (lastSelectedFile != null) {
-                            uploadFile(
-                                lastSelectedFile!, widget.competition, false);
-                          } else {
-                            final failureSnackBar = SnackBar(
-                              content:
-                                  const Text('الرجاء تحديد ملف Excel أولاً.'),
-                              action: SnackBarAction(
-                                label: 'تراجع',
-                                onPressed: () {},
-                              ),
-                              backgroundColor: AppColors.yellowColor,
-                            );
-                            ScaffoldMessenger.of(context)
-                                .showSnackBar(failureSnackBar);
-                          }
-                        },
-                        child: const Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              'رفع الملف',
-                              style: TextStyle(
-                                color: AppColors.whiteColor,
-                              ),
-                            ),
-                            SizedBox(
-                              width: 5.0,
-                            ),
-                            Icon(
-                              Iconsax.document_upload,
-                              size: 24,
-                              color: AppColors.whiteColor,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                ],
-              ),
-              const SizedBox(height: 20),
-              const Text(
-                "الملفات المرفوعة:",
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-              SizedBox(
-                height: 100,
-                child: ListView.builder(
-                  itemCount: fileNamesFirst.length,
-                  itemBuilder: (context, index) {
-                    return ListTile(
-                      title: Text(fileNamesFirst[index]),
-                      trailing: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          IconButton(
-                            icon: const Icon(
-                              Iconsax.document_download5,
-                              color: AppColors.primaryColor,
-                            ),
-                            onPressed: () {
-                              _launchURL(fileUrlsFirst[index]);
-                            },
-                          ),
-                          IconButton(
-                            icon: const Icon(
-                              IconlyBold.delete,
-                              color: AppColors.pinkColor,
-                            ),
-                            onPressed: () {
-                              _confirmDelete(fileNamesFirst[index], true);
-                            },
-                          ),
-                        ],
-                      ),
-                    );
-                  },
-                ),
-              ),
-              const SizedBox(height: 20),
-              const Text(
-                "النتائج النهائية",
-              ),
-              const SizedBox(height: 20),
-              SizedBox(
-                height: 100,
-                child: ListView.builder(
-                  physics: const AlwaysScrollableScrollPhysics(),
-                  itemCount: fileNamesLast.length,
-                  itemBuilder: (context, index) {
-                    return ListTile(
-                      title: Text(fileNamesLast[index]),
-                      trailing: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          IconButton(
-                            icon: const Icon(
-                              Iconsax.document_download5,
-                              color: AppColors.primaryColor,
-                            ),
-                            onPressed: () {
-                              _launchURL(fileUrlsLast[index]);
-                            },
-                          ),
-                          IconButton(
-                            icon: const Icon(
-                              IconlyBold.delete,
-                              color: AppColors.pinkColor,
-                            ),
-                            onPressed: () {
-                              _confirmDelete(fileNamesLast[index], false);
-                            },
-                          ),
-                        ],
-                      ),
-                    );
-                  },
-                ),
               ),
             ],
           ),

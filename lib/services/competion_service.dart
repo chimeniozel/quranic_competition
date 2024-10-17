@@ -5,7 +5,8 @@ import 'package:excel/excel.dart';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:quranic_competition/models/competition.dart';
-import 'package:quranic_competition/models/result_model.dart';
+import 'package:quranic_competition/models/inscription.dart';
+import 'package:quranic_competition/models/note_result.dart';
 import 'package:quranic_competition/models/users.dart';
 
 class CompetitionService {
@@ -283,35 +284,233 @@ class CompetitionService {
     }
   }
 
-  static Future<List<ResultModel>> getResults(
-      String competitionPhase, String competitionVersion, String query) async {
+  static Future<List<Inscription>> getResults({
+    required String competitionVersion,
+    required String competitionRound,
+    required bool isPassedFirstRound,
+    required String competitionType,
+    required String query,
+  }) async {
     try {
+      // Query Firestore with the selected competition round.
       QuerySnapshot<Map<String, dynamic>> querySnapshot =
           await FirebaseFirestore.instance
-              .collection("results")
+              .collection("inscriptions")
               .doc(competitionVersion)
-              .collection(competitionPhase)
-              .orderBy("المعدل العالم", descending: true)
+              .collection(competitionType)
+              .where("isPassedFirstRound",
+                  isEqualTo: isPassedFirstRound) // Add round filter
+              .orderBy("نتائج التصفيات الأولى", descending: true)
               .get();
 
-      List<ResultModel> results = [];
+      List<Inscription> inscriptions = [];
       for (var doc in querySnapshot.docs) {
         Map<String, dynamic> resultData = doc.data();
-        ResultModel result = ResultModel.fromMap(resultData);
+        Inscription result = Inscription.fromMap(resultData);
 
-        if (query != "") {
-          if (result.idUser == query) {
-            results.add(result);
+        if (!result.isPassedFirstRound!) {
+          // Select the appropriate round list
+          List<dynamic>? roundList = result.tashihMachaikhs?.firstRound;
+          int correctedCount = 0;
+          for (var element in (roundList ?? [])) {
+            // Handle null roundList
+            try {
+              NoteResult noteResult;
+
+              // Check if it's an adult or child inscription and parse accordingly
+              if (competitionType == "adult_inscription") {
+                noteResult = NoteResult.fromMapAdult(element);
+              } else {
+                noteResult = NoteResult.fromMapChild(element);
+              }
+
+              // Safely check if the result is corrected
+              if (noteResult.isCorrected ?? false) {
+                correctedCount++;
+              }
+            } catch (e) {
+              print("Error parsing NoteResult: $e");
+            }
+          }
+          if (correctedCount != 0) {
+            if (query.isNotEmpty) {
+              // Handle numeric query conversion safely.
+              if (double.tryParse(query) == result.idInscription) {
+                inscriptions.add(result);
+              }
+            } else {
+              inscriptions.add(result);
+            }
           }
         } else {
-          results.add(result);
+          List<dynamic>? roundList = result.tashihMachaikhs?.finalRound;
+          int correctedCount = 0;
+          for (var element in (roundList ?? [])) {
+            // Handle null roundList
+            try {
+              NoteResult noteResult;
+
+              // Check if it's an adult or child inscription and parse accordingly
+              if (competitionType == "adult_inscription") {
+                noteResult = NoteResult.fromMapAdult(element);
+              } else {
+                noteResult = NoteResult.fromMapChild(element);
+              }
+
+              // Safely check if the result is corrected
+              if (noteResult.isCorrected ?? false) {
+                correctedCount++;
+              }
+            } catch (e) {
+              print("Error parsing NoteResult: $e");
+            }
+          }
+          if (correctedCount != 0) {
+            if (query.isNotEmpty) {
+              // Handle numeric query conversion safely.
+              if (double.tryParse(query) == result.idInscription) {
+                inscriptions.add(result);
+              }
+            } else {
+              inscriptions.add(result);
+            }
+          }
         }
       }
 
-      return results;
+      return inscriptions;
     } on FirebaseException catch (e) {
       print("Error fetching results: $e");
       return [];
+    }
+  }
+
+  static NoteResult getNoteResult(
+      Map<String, dynamic> element, String competitionType) {
+    if (competitionType == "adult_inscription") {
+      return NoteResult.fromMapAdult(element);
+    } else if (competitionType == "child_inscription") {
+      return NoteResult.fromMapChild(element);
+    } else {
+      throw ArgumentError("Invalid competition type: $competitionType");
+    }
+  }
+
+  static double getResult(List<dynamic> roundList, String competitionType) {
+    // Ensure that notes and result are properly accessed and filtered
+    var results = roundList
+        .map((element) => getNoteResult(element, competitionType))
+        .where(
+            (noteResult) => noteResult.notes != null) // Filter out null notes
+        .map((noteResult) => noteResult.notes!.result) // Extract the results
+        .whereType<double>() // Ensure only valid doubles
+        .toList();
+
+    // Return the sum of all results or 0 if the list is empty
+    return results.isNotEmpty ? results.reduce((a, b) => a + b) : 0.0;
+  }
+
+  static Future<bool> publishResults(
+    String competitionVersion,
+    String competitionRound,
+  ) async {
+    List<Inscription> inscriptions = [];
+    try {
+      CollectionReference<Map<String, dynamic>> adultQuerySnapshot =
+          FirebaseFirestore.instance
+              .collection("inscriptions")
+              .doc(competitionVersion)
+              .collection("adult_inscription");
+      CollectionReference<Map<String, dynamic>> childQuerySnapshot =
+          FirebaseFirestore.instance
+              .collection("inscriptions")
+              .doc(competitionVersion)
+              .collection("child_inscription");
+      var adultQuery = await adultQuerySnapshot.get();
+      var childQuery = await childQuerySnapshot.get();
+      int allDocs = adultQuery.docs.length + childQuery.docs.length;
+      // Iterate through both adult and child competition types
+      for (var competitionType in ["adult_inscription", "child_inscription"]) {
+        // Fetch documents for the given competition version and type
+        QuerySnapshot<Map<String, dynamic>> querySnapshot =
+            await FirebaseFirestore.instance
+                .collection("inscriptions")
+                .doc(competitionVersion)
+                .collection(competitionType)
+                .get();
+
+        for (var doc in querySnapshot.docs) {
+          Inscription inscription = Inscription.fromMap(doc.data());
+
+          // Select the appropriate round list
+          List<dynamic>? roundList = competitionRound == "التصفيات الأولى"
+              ? inscription.tashihMachaikhs?.firstRound
+              : inscription.tashihMachaikhs?.finalRound;
+
+          if (roundList != null) {
+            // Count the number of corrected elements in the list
+            int correctedCount = roundList
+                .map((element) => getNoteResult(element, competitionType))
+                .where((noteResult) => noteResult.isCorrected ?? false)
+                .length;
+
+            // Add to the inscriptions list if all elements are corrected
+            if (correctedCount == roundList.length) {
+              inscriptions.add(inscription);
+            }
+          }
+        }
+      }
+
+      // Check if the number of processed inscriptions matches expectations
+      print(
+          "======================== \n $allDocs ================ ${inscriptions.length} inscriptions found.");
+
+      if (allDocs == inscriptions.length) {
+        for (var doc in adultQuery.docs) {
+          Inscription inscr = Inscription.fromDocumentSnapshot(doc);
+          // Select the appropriate round list
+          List? roundList = competitionRound == "التصفيات الأولى"
+              ? inscr.tashihMachaikhs?.firstRound
+              : inscr.tashihMachaikhs?.finalRound;
+          double roundNote = getResult(roundList!, "adult_inscription");
+          double roundMoyenne = roundNote / roundList.length;
+          FirebaseFirestore.instance
+              .collection("inscriptions")
+              .doc(competitionVersion)
+              .collection("adult_inscription")
+              .doc(doc.id)
+              .update({
+            "نتائج التصفيات الأولى": roundMoyenne,
+          });
+        }
+        for (var doc in childQuery.docs) {
+          Inscription inscr = Inscription.fromDocumentSnapshot(doc);
+          // Select the appropriate round list
+          List? roundList = competitionRound == "التصفيات الأولى"
+              ? inscr.tashihMachaikhs?.firstRound
+              : inscr.tashihMachaikhs?.finalRound;
+          double roundNote = getResult(roundList!, "child_inscription");
+          double roundMoyenne = roundNote / roundList.length;
+          FirebaseFirestore.instance
+              .collection("inscriptions")
+              .doc(competitionVersion)
+              .collection("child_inscription")
+              .doc(doc.id)
+              .update({
+            "نتائج التصفيات الأولى": roundMoyenne,
+          });
+        }
+      }
+
+      // Return true if all inscriptions have been added successfully
+      return allDocs == inscriptions.length;
+    } on FirebaseException catch (e) {
+      print("Error fetching inscriptions: ${e.message}");
+      return false;
+    } catch (e) {
+      print("Unexpected error: $e");
+      return false;
     }
   }
 }

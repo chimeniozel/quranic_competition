@@ -133,12 +133,12 @@ class _HomeScreenState extends State<HomeScreen> {
                         imageAsset: "assets/images/tejweed.png",
                         onTap: () {
                           // Navigate to the inscription screen
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const InscriptionScreen(),
-                            ),
-                          );
+                          // Navigator.push(
+                          //   context,
+                          //   MaterialPageRoute(
+                          //     builder: (context) => const InscriptionScreen(),
+                          //   ),
+                          // );
                         },
                       ),
                     ),

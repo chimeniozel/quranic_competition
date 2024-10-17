@@ -12,12 +12,14 @@ class DetailContestantScreen extends StatefulWidget {
   final NoteResult? noteResult;
   final String competitionType;
   final String competitionVersion;
+  final String competitionRound;
   const DetailContestantScreen({
     super.key,
     required this.inscription,
     required this.noteResult,
     required this.competitionType,
     required this.competitionVersion,
+    required this.competitionRound,
   });
 
   @override
@@ -42,14 +44,18 @@ class _DetailContestantScreenState extends State<DetailContestantScreen> {
         widget.noteResult?.notes?.noteTajwid != null &&
         widget.noteResult?.notes?.noteHousnSawtt != null &&
         widget.noteResult?.notes?.noteIltizamRiwaya != null) {
-      noteTajwidController.text = widget.noteResult!.notes!.noteTajwid!.toString();
-      noteHousnSawttController.text = widget.noteResult!.notes!.noteHousnSawtt!.toString();
+      noteTajwidController.text =
+          widget.noteResult!.notes!.noteTajwid!.toString();
+      noteHousnSawttController.text =
+          widget.noteResult!.notes!.noteHousnSawtt!.toString();
       noteIltizamRiwayaController.text =
           widget.noteResult!.notes!.noteIltizamRiwaya!.toString();
     }
     if (widget.competitionType != "adult_inscription") {
-      noteTajwidController.text = widget.noteResult!.notes!.noteTajwid!.toString();
-      noteHousnSawttController.text = widget.noteResult!.notes!.noteHousnSawtt!.toString();
+      noteTajwidController.text =
+          widget.noteResult!.notes!.noteTajwid!.toString();
+      noteHousnSawttController.text =
+          widget.noteResult!.notes!.noteHousnSawtt!.toString();
       noteOu4oubetSawttController.text =
           widget.noteResult!.notes!.noteOu4oubetSawtt!.toString();
       noteWaqfAndIbtidaaController.text =
@@ -136,13 +142,18 @@ class _DetailContestantScreenState extends State<DetailContestantScreen> {
                         double.parse(noteHousnSawttController.text);
                     noteResult.notes?.noteIltizamRiwaya =
                         double.parse(noteIltizamRiwayaController.text);
+                    noteResult.notes?.result =
+                        double.parse(noteTajwidController.text) +
+                            double.parse(noteHousnSawttController.text) +
+                            double.parse(noteIltizamRiwayaController.text);
                     AuthService.updateContestant(
                         context,
                         fullName,
                         noteResult,
                         widget.inscription!,
                         widget.competitionVersion,
-                        widget.competitionType , "التصفيات الأولى");
+                        widget.competitionType,
+                        widget.competitionRound);
                   } else {
                     noteResult.notes?.noteTajwid =
                         double.parse(noteTajwidController.text);
@@ -152,13 +163,19 @@ class _DetailContestantScreenState extends State<DetailContestantScreen> {
                         double.parse(noteOu4oubetSawttController.text);
                     noteResult.notes?.noteWaqfAndIbtidaa =
                         double.parse(noteWaqfAndIbtidaaController.text);
+                    noteResult.notes?.result =
+                        double.parse(noteTajwidController.text) +
+                            double.parse(noteHousnSawttController.text) +
+                            double.parse(noteOu4oubetSawttController.text) +
+                            double.parse(noteWaqfAndIbtidaaController.text);
                     AuthService.updateContestant(
                         context,
                         fullName,
                         noteResult,
                         widget.inscription!,
                         widget.competitionVersion,
-                        widget.competitionType, "التصفيات الأولى");
+                        widget.competitionType,
+                        widget.competitionRound);
                   }
                   setState(() {
                     isLoading = false;

@@ -5,22 +5,26 @@ class Users {
   String _phoneNumber;
   String _password;
   String? _role;
+  bool? _isFinishedCorrecting;
 
   Users({
     required String fullName,
     required String phoneNumber,
     required String password,
+    bool? isFinishedCorrecting,
     String? role,
   })  : _fullName = fullName,
         _phoneNumber = phoneNumber,
         _role = role,
-        _password = password;
+        _password = password,
+        _isFinishedCorrecting = isFinishedCorrecting;
 
   // Getters
   String get fullName => _fullName;
   String get phoneNumber => _phoneNumber;
   String get password => _password;
   String? get role => _role;
+  bool? get isFinishedCorrecting => _isFinishedCorrecting;
 
   // Setters
   set fullName(String name) {
@@ -39,6 +43,10 @@ class Users {
     _role = role;
   }
 
+  set isFinishedCorrecting(bool? finished) {
+    _isFinishedCorrecting = finished;
+  }
+
   // Convert a Users object to a map
   Map<String, dynamic> toMap() {
     return {
@@ -46,6 +54,7 @@ class Users {
       'phoneNumber': _phoneNumber,
       'password': _password,
       'role': _role,
+      'isFinishedCorrecting': _isFinishedCorrecting,
     };
   }
 
@@ -56,6 +65,7 @@ class Users {
       phoneNumber: map['phoneNumber'],
       password: map['password'],
       role: map['role'],
+      isFinishedCorrecting: map['isFinishedCorrecting'],
     );
   }
 
@@ -67,6 +77,7 @@ class Users {
       phoneNumber: data['phoneNumber'],
       password: data['password'],
       role: data['role'],
+      isFinishedCorrecting: data['isFinishedCorrecting'],
     );
   }
 }

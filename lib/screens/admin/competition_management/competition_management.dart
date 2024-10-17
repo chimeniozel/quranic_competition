@@ -127,10 +127,12 @@ class _CompetitionManagementState extends State<CompetitionManagement> {
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
         title: const Text('إدارة المسابقة'),
-        actions: const [
+        actions: [
           IconButton(
-            icon: Icon(Iconsax.logout),
-            onPressed: AuthProvider.logoutUser,
+            icon: const Icon(Iconsax.logout),
+            onPressed: () {
+              AuthProvider.logoutUser(context);
+            },
           ),
         ],
       ),

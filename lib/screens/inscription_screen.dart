@@ -399,11 +399,11 @@ class _InscriptionScreenState extends State<InscriptionScreen> {
                       horizontal: 10.0, vertical: 13.0),
                 ),
                 onPressed: () async {
-                  List<Map<String, dynamic>> tashihMachaikhs = [];
+                  List<Map<String, dynamic>> round = [];
                   setState(() {
                     isLoading = true;
                   });
-                  if (DateTime.now().year - _selectedDate.year < 18) {
+                  if (DateTime.now().year - _selectedDate.year < 12) {
                     for (var user
                         in Provider.of<AuthProvider>(context, listen: false)
                             .users!) {
@@ -413,12 +413,14 @@ class _InscriptionScreenState extends State<InscriptionScreen> {
                         noteOu4oubetSawtt: 0,
                         noteTajwid: 0,
                         noteWaqfAndIbtidaa: 0,
+                        result: 0,
                       );
                       NoteResult noteResult = NoteResult(
                         cheikhName: user.fullName,
                         notes: notes,
+                        isCorrected: false,
                       );
-                      tashihMachaikhs.add(noteResult.toMapChild()!);
+                      round.add(noteResult.toMapChild()!);
                     }
                   } else {
                     for (var user
@@ -430,14 +432,20 @@ class _InscriptionScreenState extends State<InscriptionScreen> {
                         noteOu4oubetSawtt: 0,
                         noteTajwid: 0,
                         noteWaqfAndIbtidaa: 0,
+                        result: 0,
                       );
                       NoteResult noteResult = NoteResult(
                         cheikhName: user.fullName,
                         notes: notes,
                       );
-                      tashihMachaikhs.add(noteResult.toMapAdult()!);
+                      round.add(noteResult.toMapAdult()!);
                     }
                   }
+
+                  TashihMachaikhs tashihMachaikhs = TashihMachaikhs(
+                    firstRound: round,
+                    finalRound: round,
+                  );
                   Inscription inscription = Inscription(
                     fullName: fullNameController.text,
                     phoneNumber: phoneNumberController.text,
@@ -450,7 +458,9 @@ class _InscriptionScreenState extends State<InscriptionScreen> {
                         haveYouParticipatedInACompetition,
                     haveYouEverWon1stTo2ndPlace: haveYouEverWon1stTo2ndPlace,
                     tashihMachaikhs: tashihMachaikhs,
-                    result: {},
+                    resultFirstRound: 0,
+                    resultLastRound: 0,
+                    isPassedFirstRound: false,
                   );
 
                   String competitionVirsion = context
@@ -460,12 +470,14 @@ class _InscriptionScreenState extends State<InscriptionScreen> {
                       .toString();
 
                   // Save user information to Firebase
-                  InscriptionService.sendToFirebase(inscription, context,
-                          competitionVirsion, "التصفيات الأولى")
-                      .whenComplete(
+                  InscriptionService.sendToFirebase(
+                    inscription,
+                    context,
+                    competitionVirsion,
+                  ).whenComplete(
                     () {
-                      // fullNameController.clear();
-                      // phoneNumberController.clear();
+                      fullNameController.clear();
+                      phoneNumberController.clear();
                       _selectedDate = DateTime.now();
                       setState(() {
                         isLoading = false;

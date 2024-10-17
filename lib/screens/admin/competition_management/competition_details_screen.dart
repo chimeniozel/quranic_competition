@@ -111,7 +111,7 @@ class _CompetitionDetailsScreenState extends State<CompetitionDetailsScreen> {
                   Expanded(
                     child: FutureBuilder<List<Inscription>>(
                       future: InscriptionService.fetchContestants(
-                        competition,"التصفيات الأولى"
+                        competition,
                       ),
                       builder: (context, snapshotInscription) {
                         if (snapshotInscription.connectionState ==
@@ -151,7 +151,7 @@ class _CompetitionDetailsScreenState extends State<CompetitionDetailsScreen> {
                                       child: Column(
                                         children: [
                                           const Text(
-                                            "رقم المتسابق",
+                                            "رقم التسجيل",
                                             style: TextStyle(
                                               fontWeight: FontWeight.bold,
                                             ),
