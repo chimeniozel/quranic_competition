@@ -325,14 +325,14 @@ class CompetitionService {
               }
 
               // Safely check if the result is corrected
-              if (noteResult.isCorrected ?? false) {
+              if (noteResult.isCorrected!) {
                 correctedCount++;
               }
             } catch (e) {
               print("Error parsing NoteResult: $e");
             }
           }
-          if (correctedCount != 0) {
+          if (correctedCount == roundList!.length) {
             if (query.isNotEmpty) {
               // Handle numeric query conversion safely.
               if (double.tryParse(query) == result.idInscription) {
@@ -358,14 +358,14 @@ class CompetitionService {
               }
 
               // Safely check if the result is corrected
-              if (noteResult.isCorrected ?? false) {
+              if (noteResult.isCorrected!) {
                 correctedCount++;
               }
             } catch (e) {
               print("Error parsing NoteResult: $e");
             }
           }
-          if (correctedCount != 0) {
+          if (correctedCount == roundList!.length) {
             if (query.isNotEmpty) {
               // Handle numeric query conversion safely.
               if (double.tryParse(query) == result.idInscription) {

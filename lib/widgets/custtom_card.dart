@@ -34,8 +34,8 @@ class CusttomCard extends StatelessWidget {
               child: Image.asset(
                 imageAsset,
                 width: double.infinity,
-                height: 150,
-                fit: BoxFit.cover,
+                height: 100,
+                fit: BoxFit.contain,
               ),
             ),
             Positioned(

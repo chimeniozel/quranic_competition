@@ -235,61 +235,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       ),
                     );
                   } else {
-                    //   authProvider
-                    //       .verifyPhoneNumber("+222${phoneNumberController.text}")
-                    //       .then(
-                    //         (value) => showDialog(
-                    //           barrierDismissible: false,
-                    //           context: context,
-                    //           builder: (context) => AlertDialog(
-                    //             title: const Text("تأكيد رقم الهاتف"),
-                    //             content: Column(
-                    //               mainAxisSize: MainAxisSize.min,
-                    //               children: [
-                    //                 Text(
-                    //                   "لقد أرسلنا رمز التأكيد إلي : ${phoneNumberController.text}",
-                    //                 ),
-                    //                 const SizedBox(
-                    //                   height: 10.0,
-                    //                 ),
-                    //                 InputWidget(
-                    //                   keyboardType: TextInputType.number,
-                    //                   label: "رمز التأكيد",
-                    //                   controller: verifyPhoneNumberController,
-                    //                   hint: "رمز التأكيد",
-                    //                   icon: Iconsax.code,
-                    //                   onTap: () {},
-                    //                   onChanged: (value) {},
-                    //                 ),
-                    //               ],
-                    //             ),
-                    //             actions: [
-                    //               ElevatedButton(
-                    //                 style: ElevatedButton.styleFrom(
-                    //                   backgroundColor: AppColors.primaryColor,
-                    //                   shape: RoundedRectangleBorder(
-                    //                     borderRadius: BorderRadius.circular(
-                    //                       10.0,
-                    //                     ),
-                    //                   ),
-                    //                   minimumSize: const Size(
-                    //                     double.infinity,
-                    //                     40.0,
-                    //                   ),
-                    //                 ),
-                    //                 onPressed: () {
-                    //                   Navigator.pop(context);
-                    //                 },
-                    //                 child: const Text(
-                    //                   "تأكيد",
-                    //                   style:
-                    //                       TextStyle(color: AppColors.whiteColor),
-                    //                 ),
-                    //               ),
-                    //             ],
-                    //           ),
-                    //         ),
-                    //       );
                     Users user = Users(
                         fullName: fullNameController.text,
                         phoneNumber: phoneNumberController.text,

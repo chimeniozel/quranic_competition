@@ -7,6 +7,7 @@ import 'package:quranic_competition/constants/utils.dart';
 import 'package:quranic_competition/models/archive_entry.dart';
 import 'package:quranic_competition/models/competition.dart';
 import 'package:quranic_competition/providers/auth_provider.dart';
+import 'package:quranic_competition/screens/admin/competition_management/competition_jurys.dart';
 import 'package:quranic_competition/screens/admin/file_prototype_screen.dart';
 import 'package:quranic_competition/screens/admin/competition_management/competition_details_screen.dart';
 import 'package:quranic_competition/services/competion_service.dart';
@@ -145,36 +146,19 @@ class _CompetitionManagementState extends State<CompetitionManagement> {
               decoration: const BoxDecoration(),
               child: Image.asset('assets/images/logo/logo.png'),
             ),
-            GestureDetector(
+            ListTile(
+              leading: const Icon(Iconsax.tag_user),
+              title: const Text("أعضاء لجنة التحكيم"),
               onTap: () {
-                // navigate to the file prototype screen
+                // navigate to the competition details screen
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => const FilePrototypeScreen(),
+                    builder: (context) => CompetitionJurys(),
                   ),
                 );
               },
-              child: Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(10.0),
-                margin: const EdgeInsets.symmetric(horizontal: 5.0),
-                decoration: const BoxDecoration(
-                  color: AppColors.whiteColor,
-                  borderRadius: BorderRadius.all(
-                    Radius.circular(10.0),
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      offset: Offset(0.0, 2.0),
-                      blurRadius: 10.0,
-                      color: Colors.black12,
-                    ),
-                  ],
-                ),
-                child: const Text("نماذج الملفات"),
-              ),
-            ),
+            )
           ],
         ),
       ),

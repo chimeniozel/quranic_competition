@@ -221,20 +221,11 @@ class _JuryHomeScreenState extends State<JuryHomeScreen> {
                                           inscriptions[index];
                                       NoteResult? noteResult;
                                       bool isAdult = DateTime.now().year -
-                                              inscription.birthDate!.year <
-                                          18;
+                                              inscription.birthDate!.year >=
+                                          13;
                                       inscription.tashihMachaikhs?.firstRound
                                           ?.forEach((result) {
                                         if (isAdult) {
-                                          noteResult =
-                                              NoteResult.fromMapChild(result);
-                                          if (noteResult!.cheikhName ==
-                                              authProvider
-                                                  .currentUser!.fullName) {
-                                            cheickh =
-                                                NoteResult.fromMapChild(result);
-                                          }
-                                        } else {
                                           noteResult =
                                               NoteResult.fromMapAdult(result);
                                           if (noteResult!.cheikhName ==
@@ -242,6 +233,15 @@ class _JuryHomeScreenState extends State<JuryHomeScreen> {
                                                   .currentUser!.fullName) {
                                             cheickh =
                                                 NoteResult.fromMapAdult(result);
+                                          }
+                                        } else {
+                                          noteResult =
+                                              NoteResult.fromMapChild(result);
+                                          if (noteResult!.cheikhName ==
+                                              authProvider
+                                                  .currentUser!.fullName) {
+                                            cheickh =
+                                                NoteResult.fromMapChild(result);
                                           }
                                         }
                                       });

@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
 
 class InputWidget extends StatefulWidget {
-
   final String label;
   final TextEditingController controller;
   final String hint;
   final String? initialValue;
   final IconData? icon;
+  final int? maxLength;
   final void Function(String)? onChanged;
   final void Function()? onTap;
   final bool? obscure;
   final bool? enabled;
-  final Widget? suffixIcon ;
+  final Widget? suffixIcon;
   final TextInputType? keyboardType;
 
   const InputWidget({
@@ -25,6 +25,7 @@ class InputWidget extends StatefulWidget {
     this.onTap,
     this.obscure,
     this.enabled,
+    this.maxLength,
     this.keyboardType,
     this.suffixIcon,
   });
@@ -42,11 +43,18 @@ class _InputWidgetState extends State<InputWidget> {
       obscureText: widget.obscure ?? false,
       keyboardType: widget.keyboardType ?? TextInputType.text,
       validator: (value) {
-        if (value!.isNotEmpty) {
+        if (value!.isEmpty) {
+          return "الحقل فارغ";
+        } else if (widget.maxLength != null) {
+          if (value.length < widget.maxLength!) {
+            return "يجب أن يكون الحد الأدنى ${widget.maxLength}!";
+          } else if (value.length > widget.maxLength!) {
+            return "يجب أن يكون الحد الأقصى ${widget.maxLength}!";
+          }
+        } else if (value.isNotEmpty) {
           return null;
-        } else {
-          return "Field is empty ";
         }
+        return null;
       },
       initialValue: widget.initialValue,
       onChanged: widget.onChanged,
@@ -63,8 +71,16 @@ class _InputWidgetState extends State<InputWidget> {
           fontWeight: FontWeight.w400,
         ),
         hintStyle: const TextStyle(
-          color: Colors.grey, fontSize: 14.0, ),
-        prefixIcon: widget.icon != null ? Icon(widget.icon, color: Colors.black, size: 18, ) : null,
+          color: Colors.grey,
+          fontSize: 14.0,
+        ),
+        prefixIcon: widget.icon != null
+            ? Icon(
+                widget.icon,
+                color: Colors.black,
+                size: 18,
+              )
+            : null,
         suffixIcon: widget.suffixIcon,
         enabledBorder: OutlineInputBorder(
           borderSide: BorderSide(color: Colors.grey.shade200, width: 2),

@@ -182,6 +182,7 @@ class InscriptionService {
   // Function to fetch constraints
   static Future<List<Inscription>> fetchContestants(
     Competition competition,
+    String competitionType,
   ) async {
     // CollectionReference inscriptionCollection = FirebaseFirestore.instance
     //     .collection('inscriptions')
@@ -190,16 +191,16 @@ class InscriptionService {
     QuerySnapshot childSnapshot = await FirebaseFirestore.instance
         .collection('inscriptions')
         .doc(competition.competitionVirsion)
-        .collection(competition.competitionTypes![0])
+        .collection(competitionType)
         .orderBy("رقم التسجيل", descending: false)
         .get();
 
-    QuerySnapshot adultSnapshot = await FirebaseFirestore.instance
-        .collection('inscriptions')
-        .doc(competition.competitionVirsion)
-        .collection(competition.competitionTypes![1])
-        .orderBy("رقم التسجيل", descending: false)
-        .get();
+    // QuerySnapshot adultSnapshot = await FirebaseFirestore.instance
+    //     .collection('inscriptions')
+    //     .doc(competition.competitionVirsion)
+    //     .collection(competition.competitionTypes![1])
+    //     .orderBy("رقم التسجيل", descending: false)
+    //     .get();
 
     List<Inscription> inscriptions = [];
 
@@ -207,9 +208,9 @@ class InscriptionService {
       inscriptions.add(Inscription.fromDocumentSnapshot(doc));
     }
 
-    for (var doc in adultSnapshot.docs) {
-      inscriptions.add(Inscription.fromDocumentSnapshot(doc));
-    }
+    // for (var doc in adultSnapshot.docs) {
+    //   inscriptions.add(Inscription.fromDocumentSnapshot(doc));
+    // }
 
     return inscriptions;
   }
@@ -286,21 +287,12 @@ class InscriptionService {
       // Add data rows
       for (Inscription inscription in notedInscriptions) {
         for (var data in dataList) {
-          if (DateTime.now().year - inscription.birthDate!.year < 12) {
+          if (DateTime.now().year - inscription.birthDate!.year < 13) {
             noteResult = NoteResult.fromMapChild(data);
           } else {
             noteResult = NoteResult.fromMapAdult(data);
           }
           List<CellValue> cells = [];
-          // for (var element in inscription.tashihMachaikhs!) {
-          //   if (element[fullName] == fullName) {
-          //     if (DateTime.now().year - inscription.birthDate!.year < 12) {
-          //       noteResult = NoteResult.fromMapChild(element);
-          //     } else {
-          //       noteResult = NoteResult.fromMapAdult(element);
-          //     }
-          //   }
-          // }
 
           // Add number of subscribers
           cells.add(TextCellValue(inscription.idInscription!.toString()));

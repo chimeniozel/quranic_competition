@@ -7,6 +7,7 @@ import 'package:quranic_competition/constants/colors.dart';
 import 'package:quranic_competition/models/users.dart';
 import 'package:quranic_competition/providers/auth_provider.dart';
 import 'package:quranic_competition/screens/admin/competition_management/competition_management.dart';
+import 'package:quranic_competition/screens/home_screen.dart';
 import 'package:quranic_competition/screens/jury/jury_home_screen.dart';
 import 'package:quranic_competition/widgets/input_widget.dart';
 
@@ -203,6 +204,31 @@ class _LoginScreenState extends State<LoginScreen> {
             ],
           ),
         ),
+      ),
+      bottomNavigationBar: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Text(
+            "المتابعة كزائر",
+          ),
+          TextButton(
+            style: TextButton.styleFrom(
+              overlayColor: Colors.transparent,
+            ),
+            onPressed: () {
+              // Navigate to the login screen
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const HomeScreen(),
+                ),
+              );
+            },
+            child: const Text(
+              "تفضل بالضغط هنا",
+            ),
+          ),
+        ],
       ),
     );
   }

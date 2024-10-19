@@ -146,6 +146,7 @@ class _DetailContestantScreenState extends State<DetailContestantScreen> {
                         double.parse(noteTajwidController.text) +
                             double.parse(noteHousnSawttController.text) +
                             double.parse(noteIltizamRiwayaController.text);
+                    noteResult.isCorrected = true;
                     AuthService.updateContestant(
                         context,
                         fullName,
@@ -168,6 +169,7 @@ class _DetailContestantScreenState extends State<DetailContestantScreen> {
                             double.parse(noteHousnSawttController.text) +
                             double.parse(noteOu4oubetSawttController.text) +
                             double.parse(noteWaqfAndIbtidaaController.text);
+                    noteResult.isCorrected = true;
                     AuthService.updateContestant(
                         context,
                         fullName,

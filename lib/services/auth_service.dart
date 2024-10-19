@@ -57,13 +57,10 @@ class AuthService {
       print("=================\n ${myList[userIndex]}");
 
       if (competitionType == "adult_inscription") {
-        // var result = noteResult.notes!.noteTajwid! +
-        //     noteResult.notes!.noteHousnSawtt! +
-        //     noteResult.notes!.noteIltizamRiwaya!;
         noteResult = NoteResult(
-          cheikhName: fullName,
-          notes: noteResult.notes!,
-        );
+            cheikhName: fullName,
+            notes: noteResult.notes!,
+            isCorrected: noteResult.isCorrected);
         myList[userIndex] = noteResult.toMapAdult(); // Update the element
         print(
             "===========================================\n ${myList[userIndex]}");
@@ -71,14 +68,10 @@ class AuthService {
           "tashihMachaikhs.$competitionRound": myList,
         });
       } else {
-        // var result = noteResult.notes!.noteTajwid! +
-        //     noteResult.notes!.noteHousnSawtt! +
-        //     noteResult.notes!.noteOu4oubetSawtt! +
-        //     noteResult.notes!.noteWaqfAndIbtidaa!;
         noteResult = NoteResult(
-          cheikhName: fullName,
-          notes: noteResult.notes!,
-        );
+            cheikhName: fullName,
+            notes: noteResult.notes!,
+            isCorrected: noteResult.isCorrected);
         myList[userIndex] = noteResult.toMapChild(); // Update the element
         print(
             "===========================================\n ${myList[userIndex]}");

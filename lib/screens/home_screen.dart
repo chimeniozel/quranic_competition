@@ -48,7 +48,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     Expanded(
                       child: CusttomCard(
                         text: "التسجيل في المسابقة",
-                        imageAsset: "assets/images/logo/logo.png",
+                        imageAsset: "assets/images/inscription.jpeg",
                         onTap: () {
                           if (competitionProvider.competition != null) {
                             // Navigate to the inscription screen
@@ -78,7 +78,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     Expanded(
                       child: CusttomCard(
                         text: "أرشيف المسابقات",
-                        imageAsset: "assets/images/archive.png",
+                        imageAsset: "assets/images/archive.jpeg",
                         onTap: () {
                           // Navigate to the inscription screen
                           Navigator.push(
@@ -99,7 +99,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     Expanded(
                       child: CusttomCard(
                         text: "نتائج المسابقة",
-                        imageAsset: "assets/images/notes_competition.png",
+                        imageAsset: "assets/images/results.jpeg",
                         onTap: () {
                           if (competitionProvider.competition != null) {
                             // Navigate to the inscription screen
@@ -154,12 +154,12 @@ class _HomeScreenState extends State<HomeScreen> {
                         imageAsset: "assets/images/فوائد قرآنية.jpeg",
                         onTap: () {
                           // Navigate to the inscription screen
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const InscriptionScreen(),
-                            ),
-                          );
+                          // Navigator.push(
+                          //   context,
+                          //   MaterialPageRoute(
+                          //     builder: (context) => const InscriptionScreen(),
+                          //   ),
+                          // );
                         },
                       ),
                     ),
@@ -168,15 +168,15 @@ class _HomeScreenState extends State<HomeScreen> {
                       child: CusttomCard(
                         text: "أسئلة وأجوبة في القرآن",
                         imageAsset:
-                            "assets/images/أسئلة_وأجوبة_عن_القرآن_الكريم.jpg",
+                            "assets/images/أسئلة_وأجوبة_عن_القرآن_الكريم.jpeg",
                         onTap: () {
                           // Navigate to the inscription screen
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const InscriptionScreen(),
-                            ),
-                          );
+                          // Navigator.push(
+                          //   context,
+                          //   MaterialPageRoute(
+                          //     builder: (context) => const InscriptionScreen(),
+                          //   ),
+                          // );
                         },
                       ),
                     ),
