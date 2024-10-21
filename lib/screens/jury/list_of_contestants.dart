@@ -57,7 +57,7 @@
 //               Positioned.fill(
 //                 top: 0,
 //                 child: Image.asset(
-//                   "assets/images/logo/logo.png",
+//                   "assets/images/logos/logo.png",
 //                   fit: BoxFit.cover,
 //                   // height: 500,
 //                 ),

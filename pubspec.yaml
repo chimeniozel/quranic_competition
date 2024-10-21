@@ -71,7 +71,7 @@ dev_dependencies:
 flutter_icons:
   android: true
   ios: true
-  image_path: "assets/images/logo/logo.png"
+  image_path: "assets/images/logos/logo.png"
 
 
 # For information on the generic Dart part of this file, see the
@@ -87,7 +87,7 @@ flutter:
 
   # To add assets to your application, add an assets section, like this:
   assets:
-    - assets/images/logo/
+    - assets/images/logos/
     - assets/images/
 
   # An image asset can refer to one or more resolution-specific "variants", see

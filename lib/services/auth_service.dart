@@ -92,6 +92,7 @@ class AuthService {
         backgroundColor: AppColors.greenColor,
       );
       ScaffoldMessenger.of(context).showSnackBar(successSnackBar);
+      Navigator.pop(context);
     } catch (e) {
       // Snackbar for exception
       final errorSnackBar = SnackBar(

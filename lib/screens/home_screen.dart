@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:provider/provider.dart';
 import 'package:quranic_competition/constants/colors.dart';
 import 'package:quranic_competition/providers/competion_provider.dart';
+import 'package:quranic_competition/screens/admin/competition_management/about_us/about_us_screen.dart';
 import 'package:quranic_competition/screens/competition_results_client.dart';
 import 'package:quranic_competition/screens/competitions_screen.dart';
 import 'package:quranic_competition/screens/inscription_screen.dart';
@@ -33,7 +35,7 @@ class _HomeScreenState extends State<HomeScreen> {
         children: [
           // Positioned.fill(
           //   child: Image.asset(
-          //     "assets/images/logo/logo.png",
+          //     "assets/images/logos/logo.png",
           //     fit: BoxFit.cover,
           //   ),
           // ),
@@ -50,7 +52,9 @@ class _HomeScreenState extends State<HomeScreen> {
                         text: "التسجيل في المسابقة",
                         imageAsset: "assets/images/inscription.jpeg",
                         onTap: () {
-                          if (competitionProvider.competition != null) {
+                          if (competitionProvider.competition != null &&
+                              DateTime.now().isBefore(
+                                  competitionProvider.competition!.endDate!)) {
                             // Navigate to the inscription screen
                             Navigator.push(
                               context,
@@ -186,6 +190,42 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
         ],
+      ),
+      floatingActionButton: Container(
+        height: 50.0,
+        // width: 45.0,
+        child: ElevatedButton(
+          style: ElevatedButton.styleFrom(
+            // maximumSize: const Size(50, 45.0)
+            backgroundColor: AppColors.primaryColor,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8.0),
+            ),
+          ),
+          child: const Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Iconsax.info_circle,
+                color: AppColors.whiteColor,
+              ),
+              Text(
+                "من نحن",
+                style: TextStyle(
+                  color: AppColors.whiteColor,
+                ),
+              ),
+            ],
+          ),
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const AboutUsScreen(),
+              ),
+            );
+          },
+        ),
       ),
     );
   }

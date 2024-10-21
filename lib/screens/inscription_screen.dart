@@ -467,6 +467,7 @@ class _InscriptionScreenState extends State<InscriptionScreen> {
                         NoteResult noteResult = NoteResult(
                           cheikhName: user.fullName,
                           notes: notes,
+                          isCorrected: false,
                         );
                         round.add(noteResult.toMapAdult()!);
                       }

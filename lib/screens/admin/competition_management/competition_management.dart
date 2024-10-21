@@ -7,6 +7,8 @@ import 'package:quranic_competition/constants/utils.dart';
 import 'package:quranic_competition/models/archive_entry.dart';
 import 'package:quranic_competition/models/competition.dart';
 import 'package:quranic_competition/providers/auth_provider.dart';
+import 'package:quranic_competition/screens/admin/competition_management/about_us/about_us_screen.dart';
+import 'package:quranic_competition/screens/admin/competition_management/about_us/contact_us_screen.dart';
 import 'package:quranic_competition/screens/admin/competition_management/competition_jurys.dart';
 import 'package:quranic_competition/screens/admin/file_prototype_screen.dart';
 import 'package:quranic_competition/screens/admin/competition_management/competition_details_screen.dart';
@@ -139,26 +141,37 @@ class _CompetitionManagementState extends State<CompetitionManagement> {
       ),
       drawer: Drawer(
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Container(
               height: 200,
               padding: const EdgeInsets.all(5.0),
-              decoration: const BoxDecoration(),
-              child: Image.asset('assets/images/logo/logo.png'),
+              child: Image.asset('assets/images/logos/logo.png'),
             ),
             ListTile(
               leading: const Icon(Iconsax.tag_user),
               title: const Text("أعضاء لجنة التحكيم"),
               onTap: () {
-                // navigate to the competition details screen
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => CompetitionJurys(),
+                    builder: (context) => const CompetitionJurys(),
                   ),
                 );
               },
-            )
+            ),
+            ListTile(
+              leading: const Icon(Iconsax.info_circle),
+              title: const Text("من نحن"),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const AboutUsScreen(),
+                  ),
+                );
+              },
+            ),
           ],
         ),
       ),
@@ -217,7 +230,7 @@ class _CompetitionManagementState extends State<CompetitionManagement> {
                           mainAxisAlignment: MainAxisAlignment.start,
                           children: [
                             const Icon(Iconsax.calendar),
-                            const SizedBox(width: 10.0),
+                            // const SizedBox(width: 10.0),
                             Text(
                               DateFormat('d/M/y').format(selectedStartDate),
                               style:
@@ -257,7 +270,7 @@ class _CompetitionManagementState extends State<CompetitionManagement> {
                           mainAxisAlignment: MainAxisAlignment.start,
                           children: [
                             const Icon(Iconsax.calendar),
-                            const SizedBox(width: 10.0),
+                            // const SizedBox(width: 10.0),
                             Text(
                               DateFormat('d/M/y').format(selectedEndDate),
                               style:

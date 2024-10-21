@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:quranic_competition/auth/register_screen.dart';
+import 'package:quranic_competition/auth/login_screen.dart';
 import 'package:quranic_competition/constants/colors.dart';
 import 'package:quranic_competition/models/users.dart';
 import 'package:quranic_competition/services/auth_service.dart';
@@ -171,7 +171,7 @@ class AuthProvider extends ChangeNotifier {
     Navigator.pushAndRemoveUntil(
       context,
       MaterialPageRoute(
-        builder: (context) => const RegisterScreen(),
+        builder: (context) => const LoginScreen(),
       ),
       (route) => false,
     );

@@ -67,17 +67,17 @@ class _CompetionArchiveState extends State<CompetionArchive> {
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return const Center(
-                        child:
-                            CircularProgressIndicator()); // Show loading indicator while waiting
+                      child: CircularProgressIndicator(),
+                    ); // Show loading indicator while waiting
                   } else if (snapshot.hasError) {
                     return Center(
-                        child: Text(
-                            'Error: ${snapshot.error}')); // Show error if any
+                      child: Text('Error: ${snapshot.error}'),
+                    ); // Show error if any
                   } else if (!snapshot.hasData ||
                       (snapshot.data as List).isEmpty) {
                     return const Center(
-                        child: Text(
-                            'No archives available')); // Handle empty data case
+                      child: Text('لا تتوفر أرشيفات الصور'),
+                    ); // Handle empty data case
                   }
 
                   List<String>? archives =
@@ -181,7 +181,7 @@ class _CompetionArchiveState extends State<CompetionArchive> {
                   } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
                     return const Center(
                       child: Text(
-                        'No video archives available',
+                        'لا تتوفر أرشيفات الفيديو',
                       ),
                     ); // Handle empty case
                   }

@@ -550,81 +550,6 @@ class CompetitionResultsState extends State<CompetitionResults> {
                   },
                 ),
               ),
-              // Row(
-              //   mainAxisAlignment: MainAxisAlignment.center,
-              //   children: [
-              //     Expanded(
-              //       child: ElevatedButton(
-              //         style: ElevatedButton.styleFrom(
-              //           shape: RoundedRectangleBorder(
-              //             borderRadius: BorderRadius.circular(10.0),
-              //             side: BorderSide(
-              //               color: selectedType == "adult_inscription"
-              //                   ? AppColors.primaryColor
-              //                   : AppColors.blackColor.withOpacity(.1),
-              //               width: 1,
-              //             ),
-              //           ),
-              //           backgroundColor: selectedType == "adult_inscription"
-              //               ? AppColors.primaryColor
-              //               : AppColors.whiteColor,
-              //           minimumSize: const Size(
-              //             double.infinity,
-              //             50.0,
-              //           ),
-              //         ),
-              //         onPressed: () {
-              //           setState(() {
-              //             selectedType = "adult_inscription";
-              //           });
-              //         },
-              //         child: Text(
-              //           "المتسابقين الكبار",
-              //           style: TextStyle(
-              //             color: selectedType == "adult_inscription"
-              //                 ? AppColors.whiteColor
-              //                 : AppColors.blackColor,
-              //           ),
-              //         ),
-              //       ),
-              //     ),
-              //     const SizedBox(
-              //       width: 5.0,
-              //     ),
-              //     Expanded(
-              //       child: ElevatedButton(
-              //         style: ElevatedButton.styleFrom(
-              //           shape: RoundedRectangleBorder(
-              //             borderRadius: BorderRadius.circular(10.0),
-              //             side: BorderSide(
-              //               color: selectedType == "child_inscription"
-              //                   ? AppColors.primaryColor
-              //                   : AppColors.blackColor.withOpacity(.1),
-              //               width: 1,
-              //             ),
-              //           ),
-              //           backgroundColor: selectedType == "child_inscription"
-              //               ? AppColors.primaryColor
-              //               : AppColors.whiteColor,
-              //           minimumSize: const Size(double.infinity, 50.0),
-              //         ),
-              //         onPressed: () {
-              //           setState(() {
-              //             selectedType = "child_inscription";
-              //           });
-              //         },
-              //         child: Text(
-              //           "المتسابقين الصغار",
-              //           style: TextStyle(
-              //             color: selectedType == "child_inscription"
-              //                 ? AppColors.whiteColor
-              //                 : AppColors.blackColor,
-              //           ),
-              //         ),
-              //       ),
-              //     ),
-              //   ],
-              // ),
               const SizedBox(
                 height: 15.0,
               ),
@@ -676,7 +601,7 @@ class CompetitionResultsState extends State<CompetitionResults> {
               ),
               if (selectedType != null)
                 SizedBox(
-                  height: 200,
+                  height: MediaQuery.of(context).size.height * 0.6,
                   child: FutureBuilder<List<Inscription>>(
                     future: CompetitionService.getResults(
                       competitionVersion: competitionProvider

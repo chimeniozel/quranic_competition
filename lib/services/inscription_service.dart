@@ -184,10 +184,6 @@ class InscriptionService {
     Competition competition,
     String competitionType,
   ) async {
-    // CollectionReference inscriptionCollection = FirebaseFirestore.instance
-    //     .collection('inscriptions')
-    //     .doc(competition.competitionVirsion)
-    //     .collection(competition.competitionTypes![0]);
     QuerySnapshot childSnapshot = await FirebaseFirestore.instance
         .collection('inscriptions')
         .doc(competition.competitionVirsion)
@@ -195,23 +191,11 @@ class InscriptionService {
         .orderBy("رقم التسجيل", descending: false)
         .get();
 
-    // QuerySnapshot adultSnapshot = await FirebaseFirestore.instance
-    //     .collection('inscriptions')
-    //     .doc(competition.competitionVirsion)
-    //     .collection(competition.competitionTypes![1])
-    //     .orderBy("رقم التسجيل", descending: false)
-    //     .get();
-
     List<Inscription> inscriptions = [];
 
     for (var doc in childSnapshot.docs) {
       inscriptions.add(Inscription.fromDocumentSnapshot(doc));
     }
-
-    // for (var doc in adultSnapshot.docs) {
-    //   inscriptions.add(Inscription.fromDocumentSnapshot(doc));
-    // }
-
     return inscriptions;
   }
 

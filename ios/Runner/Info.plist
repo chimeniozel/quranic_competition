@@ -47,6 +47,11 @@
 	<true/>
 	<key>NSMicrophoneUsageDescription</key>
 <string>We need access to the microphone to allow file picking</string>
+	<key>LSApplicationQueriesSchemes</key>
+	<array>
+		<string>mailto</string>
+		<string>tel</string>
+	</array>
 
 </dict>
 </plist>

@@ -48,12 +48,19 @@ class _CompetitionJurysState extends State<CompetitionJurys> {
                 Users user = snapshot.data![index];
                 return Container(
                   width: double.infinity,
-                  padding: const EdgeInsets.all(10.0),
-                  margin: const EdgeInsets.symmetric(horizontal: 5.0),
+                  padding: const EdgeInsets.all(
+                    10.0,
+                  ),
+                  margin: const EdgeInsets.symmetric(
+                    horizontal: 5.0,
+                    vertical: 3.0,
+                  ),
                   decoration: const BoxDecoration(
                     color: AppColors.whiteColor,
                     borderRadius: BorderRadius.all(
-                      Radius.circular(10.0),
+                      Radius.circular(
+                        10.0,
+                      ),
                     ),
                     boxShadow: [
                       BoxShadow(
@@ -85,7 +92,7 @@ class _CompetitionJurysState extends State<CompetitionJurys> {
                         ),
                         onPressed: () => _makePhoneCall(user.phoneNumber),
                         child: const Text(
-                          "اتضل",
+                          "اتصل",
                           style: TextStyle(
                             color: AppColors.whiteColor,
                           ),

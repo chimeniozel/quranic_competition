@@ -48,7 +48,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Image.asset(
-                "assets/images/logo/logo.png",
+                "assets/images/logos/logo.png",
                 height: 250,
               ),
               const SizedBox(
