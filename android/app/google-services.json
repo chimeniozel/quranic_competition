@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "395894434800",
+    "project_id": "quranic-competition-app",
+    "storage_bucket": "quranic-competition-app.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:395894434800:android:e1e8de52d1b2ce61060b35",
+        "android_client_info": {
+          "package_name": "com.example.quranic_competition"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCeb978MKkEBgvHuAE5-DV4krwI3aQM0OU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
