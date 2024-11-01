@@ -7,7 +7,7 @@ import 'package:quranic_competition/models/inscription.dart';
 import 'package:quranic_competition/models/note_result.dart';
 import 'package:quranic_competition/providers/auth_provider.dart';
 import 'package:quranic_competition/providers/competion_provider.dart';
-import 'package:quranic_competition/services/inscription_service.dart';
+import 'package:quranic_competition/screens/verify_phone_number_screen.dart';
 import 'package:quranic_competition/widgets/input_widget.dart';
 
 class InscriptionScreen extends StatefulWidget {
@@ -492,6 +492,7 @@ class _InscriptionScreenState extends State<InscriptionScreen> {
                       resultFirstRound: 0,
                       resultLastRound: 0,
                       isPassedFirstRound: false,
+                      // isBaned: false,
                     );
 
                     String competitionVirsion = context
@@ -501,18 +502,26 @@ class _InscriptionScreenState extends State<InscriptionScreen> {
                         .toString();
 
                     // Save user information to Firebase
-                    InscriptionService.sendToFirebase(
-                      inscription,
+                    // InscriptionService.sendToFirebase(
+                    //   inscription,
+                    //   context,
+                    //   competitionVirsion,
+                    // ).whenComplete(
+                    //   () {
+                    //     fullNameController.clear();
+                    //     phoneNumberController.clear();
+                    //     setState(() {
+                    //       isLoading = false;
+                    //     });
+                    //   },
+                    // );
+
+                    Navigator.push(
                       context,
-                      competitionVirsion,
-                    ).whenComplete(
-                      () {
-                        fullNameController.clear();
-                        phoneNumberController.clear();
-                        setState(() {
-                          isLoading = false;
-                        });
-                      },
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            VerifyPhoneNumberScreen(inscription: inscription),
+                      ),
                     );
                   },
                   child: isLoading

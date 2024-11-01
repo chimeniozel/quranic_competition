@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:iconly/iconly.dart';
 import 'package:iconsax/iconsax.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'package:quranic_competition/auth/register_screen.dart';
 import 'package:quranic_competition/constants/colors.dart';
@@ -30,6 +31,12 @@ class _LoginScreenState extends State<LoginScreen> {
     phoneNumberController.text = "46669696";
     passwordController.text = "12345678";
     super.initState();
+  }
+
+  getStoragePermissions() async {
+    if (!await Permission.storage.isGranted) {
+      await Permission.storage.request();
+    }
   }
 
   @override

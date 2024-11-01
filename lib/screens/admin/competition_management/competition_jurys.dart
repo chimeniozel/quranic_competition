@@ -45,23 +45,15 @@ class _CompetitionJurysState extends State<CompetitionJurys> {
             return ListView.builder(
               itemCount: users.length,
               itemBuilder: (context, index) {
-                Users user = snapshot.data![index];
+                Users user = users[index];
                 return Container(
                   width: double.infinity,
-                  padding: const EdgeInsets.all(
-                    10.0,
-                  ),
+                  padding: const EdgeInsets.all(10.0),
                   margin: const EdgeInsets.symmetric(
-                    horizontal: 5.0,
-                    vertical: 3.0,
-                  ),
+                      horizontal: 5.0, vertical: 3.0),
                   decoration: const BoxDecoration(
                     color: AppColors.whiteColor,
-                    borderRadius: BorderRadius.all(
-                      Radius.circular(
-                        10.0,
-                      ),
-                    ),
+                    borderRadius: BorderRadius.all(Radius.circular(10.0)),
                     boxShadow: [
                       BoxShadow(
                         offset: Offset(0.0, 2.0),
@@ -77,27 +69,96 @@ class _CompetitionJurysState extends State<CompetitionJurys> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            user.fullName, // Display user's name or any other field
+                            user.fullName,
                             style: const TextStyle(fontSize: 16.0),
                           ),
-                          Text(user.phoneNumber)
+                          Text(user.phoneNumber),
                         ],
                       ),
-                      ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.greenColor,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10.0),
+                      Row(
+                        children: [
+                          ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppColors.greenColor,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10.0),
+                              ),
+                            ),
+                            onPressed: () => _makePhoneCall(user.phoneNumber),
+                            child: const Text(
+                              "اتصل",
+                              style: TextStyle(color: AppColors.whiteColor),
+                            ),
                           ),
-                        ),
-                        onPressed: () => _makePhoneCall(user.phoneNumber),
-                        child: const Text(
-                          "اتصل",
-                          style: TextStyle(
-                            color: AppColors.whiteColor,
+                          const SizedBox(width: 8.0), // Spacing between buttons
+                          ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor:
+                                  Colors.red, // Danger color for delete
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10.0),
+                              ),
+                            ),
+                            onPressed: () {
+                              // Show confirmation dialog before deletion
+                              showDialog(
+                                context: context,
+                                builder: (context) => AlertDialog(
+                                  title: const Text('تحذير: حذف المستخدم'),
+                                  content: const Text(
+                                    'هل أنت متأكد أنك تريد حذف هذا المستخدم؟ هذا الإجراء لا يمكن التراجع عنه.',
+                                  ),
+                                  actions: [
+                                    TextButton(
+                                      onPressed: () {
+                                        Navigator.of(context)
+                                            .pop(); // Close the dialog
+                                      },
+                                      child: const Text('إلغاء'),
+                                    ),
+                                    TextButton(
+                                      style: TextButton.styleFrom(
+                                          backgroundColor: Colors.red,
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(10.0),
+                                          )),
+                                      onPressed: () async {
+                                        // Delete user from Firestore
+                                        await CompetitionService.deleteUser(
+                                          user: user,
+                                          context: context,
+                                        );
+                                        Navigator.of(context)
+                                            .pop(); // Close the dialog
+                                        ScaffoldMessenger.of(context)
+                                            .showSnackBar(
+                                          const SnackBar(
+                                            content:
+                                                Text('تم حذف المستخدم بنجاح.'),
+                                          ),
+                                        );
+                                        // Optionally, refresh the list
+                                        setState(() {}); // Refresh the UI
+                                      },
+                                      child: const Text(
+                                        'حذف',
+                                        style: TextStyle(
+                                          color: AppColors.whiteColor,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              );
+                            },
+                            child: const Text(
+                              "حذف",
+                              style: TextStyle(color: AppColors.whiteColor),
+                            ),
                           ),
-                        ),
-                      )
+                        ],
+                      ),
                     ],
                   ),
                 );

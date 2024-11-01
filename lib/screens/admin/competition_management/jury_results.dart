@@ -19,11 +19,15 @@ class _JuryResultsState extends State<JuryResults> {
   Users? selectedUsers;
   String? selectedType;
   String? selectedText;
+  bool isLoading = false;
 
   Map<String, Map<String, List<String>>> participantsFiles = {};
 
   Future<void> fetchAllParticipantsFiles(String competitionRound) async {
     try {
+      setState(() {
+        isLoading = true;
+      });
       String basePath =
           "/${widget.competition.competitionVirsion}/تصحيح لجنة التحكيم/$competitionRound";
 
@@ -44,9 +48,13 @@ class _JuryResultsState extends State<JuryResults> {
       setState(() {
         participantsFiles = participantsFiles;
       });
-
-      print("Fetched files: $participantsFiles");
+      setState(() {
+        isLoading = false;
+      });
     } catch (e) {
+      setState(() {
+        isLoading = false;
+      });
       // failure Snack Bar
       final failureSnackBar = SnackBar(
         content: Text("خطأ في جلب ملفات جميع المشاركين: $e"),
@@ -222,87 +230,113 @@ class _JuryResultsState extends State<JuryResults> {
             const SizedBox(
               height: 10.0,
             ),
-            Expanded(
-                child: ListView.builder(
-              itemCount: participantsFiles.length,
-              itemBuilder: (context, index) {
-                String participantName =
-                    participantsFiles.keys.elementAt(index);
-                List<String> fileNames =
-                    participantsFiles[participantName]!["names"]!;
-                List<String> fileUrls =
-                    participantsFiles[participantName]!["urls"]!;
-
-                return ExpansionTile(
-                  title: Text(
-                    participantName,
-                    style: const TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  children: List.generate(fileNames.length, (fileIndex) {
-                    String fileName = fileNames[fileIndex];
-                    String fileUrl = fileUrls[fileIndex];
-
-                    return Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                      margin: const EdgeInsets.only(bottom: 5.0),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(5.0),
-                        color: AppColors.whiteColor,
-                        border: Border.all(
-                          color: Colors.grey.shade200,
-                          width: 2,
-                        ),
+            isLoading
+                ? const Expanded(
+                    child: Center(
+                      child: CircularProgressIndicator(
+                        color: AppColors.primaryColor,
                       ),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            flex: 3,
-                            child: Text(fileName),
-                          ),
-                          Expanded(
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Expanded(
-                                  child: IconButton(
-                                    icon: const Icon(
-                                      Iconsax.document_download5,
-                                      color: AppColors.primaryColor,
-                                    ),
-                                    onPressed: () async {
-                                      Uri url = Uri.parse(fileUrl);
-
-                                      if (await canLaunchUrl(url)) {
-                                        await launchUrl(url,
-                                            mode:
-                                                LaunchMode.externalApplication);
-                                      } else {
-                                        print('Could not launch $fileUrl');
-                                      }
-                                    },
-                                  ),
-                                ),
-                                Expanded(
-                                  child: IconButton(
-                                    icon: const Icon(
-                                      IconlyBold.delete,
-                                      color: AppColors.pinkColor,
-                                    ),
-                                    onPressed: () {
-                                      deleteFile(participantName, fileName);
-                                    },
-                                  ),
-                                ),
-                              ],
+                    ),
+                  )
+                : participantsFiles.isEmpty && selectedText != null
+                    ? const Expanded(
+                        child: Center(
+                          child: Text(
+                            "لم تنتهي لجنة التحكيم من التصحيح !",
+                            style: TextStyle(
+                              color: AppColors.blackColor,
+                              fontSize: 16.0,
+                              fontWeight: FontWeight.bold,
                             ),
-                          )
-                        ],
-                      ),
-                    );
-                  }),
-                );
-              },
-            )),
+                          ),
+                        ),
+                      )
+                    : Expanded(
+                        child: ListView.builder(
+                        itemCount: participantsFiles.length,
+                        itemBuilder: (context, index) {
+                          String participantName =
+                              participantsFiles.keys.elementAt(index);
+                          List<String> fileNames =
+                              participantsFiles[participantName]!["names"]!;
+                          List<String> fileUrls =
+                              participantsFiles[participantName]!["urls"]!;
+
+                          return ExpansionTile(
+                            title: Text(
+                              participantName,
+                              style:
+                                  const TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                            children:
+                                List.generate(fileNames.length, (fileIndex) {
+                              String fileName = fileNames[fileIndex];
+                              String fileUrl = fileUrls[fileIndex];
+
+                              return Container(
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 8.0),
+                                margin: const EdgeInsets.only(bottom: 5.0),
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(5.0),
+                                  color: AppColors.whiteColor,
+                                  border: Border.all(
+                                    color: Colors.grey.shade200,
+                                    width: 2,
+                                  ),
+                                ),
+                                child: Row(
+                                  children: [
+                                    Expanded(
+                                      flex: 3,
+                                      child: Text(fileName),
+                                    ),
+                                    Expanded(
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Expanded(
+                                            child: IconButton(
+                                              icon: const Icon(
+                                                Iconsax.document_download5,
+                                                color: AppColors.primaryColor,
+                                              ),
+                                              onPressed: () async {
+                                                Uri url = Uri.parse(fileUrl);
+
+                                                if (await canLaunchUrl(url)) {
+                                                  await launchUrl(url,
+                                                      mode: LaunchMode
+                                                          .externalApplication);
+                                                } else {
+                                                  print(
+                                                      'Could not launch $fileUrl');
+                                                }
+                                              },
+                                            ),
+                                          ),
+                                          Expanded(
+                                            child: IconButton(
+                                              icon: const Icon(
+                                                IconlyBold.delete,
+                                                color: AppColors.pinkColor,
+                                              ),
+                                              onPressed: () {
+                                                deleteFile(
+                                                    participantName, fileName);
+                                              },
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    )
+                                  ],
+                                ),
+                              );
+                            }),
+                          );
+                        },
+                      )),
           ],
         ),
       ),

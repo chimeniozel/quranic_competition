@@ -210,9 +210,9 @@ class _CompetitionResultsClientState extends State<CompetitionResultsClient> {
             Expanded(
               child: FutureBuilder<List<Inscription>>(
                 future: CompetitionService.getResults(
-                  competitionVersion: competitionProvider
-                      .competition!.competitionVirsion
-                      .toString(),
+                  isAdmin: false,
+                  competition: competitionProvider
+                      .competition!,
                   competitionType: selectedType,
                   competitionRound: selectedRound!,
                   isPassedFirstRound: isPassedFirstRound,
@@ -264,7 +264,7 @@ class _CompetitionResultsClientState extends State<CompetitionResultsClient> {
                                 child: Column(
                                   children: [
                                     const Text(
-                                      "الإسم الثلاثي",
+                                      "الإسم الكامل",
                                       style: TextStyle(
                                           fontWeight: FontWeight.bold),
                                     ),
@@ -280,8 +280,17 @@ class _CompetitionResultsClientState extends State<CompetitionResultsClient> {
                                       style: TextStyle(
                                           fontWeight: FontWeight.bold),
                                     ),
-                                    Text(inscription.resultFirstRound!
-                                        .toStringAsFixed(2)),
+                                    Text(
+                                      inscription.resultFirstRound!
+                                          .toStringAsFixed(2),
+                                      style: TextStyle(
+                                        color:
+                                            inscription.resultFirstRound! >= 14
+                                                ? AppColors.greenColor
+                                                : AppColors.pinkColor,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
                                   ],
                                 ),
                               ),

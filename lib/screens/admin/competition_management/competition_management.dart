@@ -83,7 +83,7 @@ class _CompetitionManagementState extends State<CompetitionManagement> {
           const SnackBar(
             content:
                 Text('لا يمكن إنشاء نسخة جديدة أثناء وجود نسخة نشطة حالياً'),
-            backgroundColor: Colors.red,
+            backgroundColor: AppColors.yellowColor,
           ),
         );
         return;
@@ -337,6 +337,93 @@ class _CompetitionManagementState extends State<CompetitionManagement> {
                       }
 
                       return GestureDetector(
+                        onLongPress: () {
+                          // Show confirmation dialog to delete the competition
+                          showDialog(
+                            context: context,
+                            builder: (context) => AlertDialog(
+                              title: const Text(
+                                'تحذير: حذف المسابقة',
+                                style: TextStyle(
+                                    color: Colors
+                                        .red), // Change title color to red
+                              ),
+                              content: const Text(
+                                'هل أنت متأكد أنك تريد حذف هذه المسابقة؟ هذا الإجراء لا يمكن التراجع عنه.',
+                              ),
+                              actions: [
+                                TextButton(
+                                  onPressed: () {
+                                    Navigator.of(context)
+                                        .pop(); // Close the dialog
+                                  },
+                                  child: const Text('إلغاء'),
+                                ),
+                                TextButton(
+                                  style: TextButton.styleFrom(
+                                      backgroundColor: Colors
+                                          .red, // Set background color to red
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(10.0),
+                                      )),
+                                  onPressed: () {
+                                    if (!competition.isActive!) {
+                                      // Delete the competition from Firestore
+                                      FirebaseFirestore.instance
+                                          .collection('competitions')
+                                          .doc(competitionId)
+                                          .delete()
+                                          .then((_) {
+                                        Navigator.of(context)
+                                            .pop(); // Close the dialog
+                                        ScaffoldMessenger.of(context)
+                                            .showSnackBar(
+                                          const SnackBar(
+                                            content:
+                                                Text('تم حذف المسابقة بنجاح'),
+                                            backgroundColor:
+                                                AppColors.greenColor,
+                                          ),
+                                        );
+                                      }).catchError((error) {
+                                        ScaffoldMessenger.of(context)
+                                            .showSnackBar(
+                                          SnackBar(
+                                            content:
+                                                Text('خطأ في الحذف: $error'),
+                                            backgroundColor:
+                                                AppColors.grayColor,
+                                          ),
+                                        );
+                                      });
+                                    } else {
+                                      Navigator.of(context)
+                                          .pop(); // Close the dialog
+                                      // Show error message if competition is not active
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(
+                                        const SnackBar(
+                                          content: Text(
+                                            'لا يمكنك حذف هذه المسابقة حتى تنتهي الفترة المعلقة.',
+                                          ),
+                                          backgroundColor:
+                                              AppColors.yellowColor,
+                                        ),
+                                      );
+                                    }
+                                  },
+                                  child: const Text(
+                                    'حذف',
+                                    style: TextStyle(
+                                        color: Colors
+                                            .white), // Set text color to white,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
+                        },
                         onTap: () {
                           // Navigation to Competition Details
                           Navigator.push(

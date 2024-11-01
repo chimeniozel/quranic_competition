@@ -29,6 +29,9 @@ class UploadArchiveState extends State<UploadArchive> {
   bool isLoading = false;
   final FirebaseStorage _storage = FirebaseStorage.instance;
 
+  double? imagesProgress = 0.0;
+  double? videosProgress = 0.0;
+
   // Select multiple images
   Future<void> _selectImages() async {
     final List<XFile> selectedImages = await _picker.pickMultiImage();
@@ -67,13 +70,25 @@ class UploadArchiveState extends State<UploadArchive> {
         String fileName = path.basename(image.path); // Use path.basename
         File file = File(image.path);
 
-        // Upload to Firebase Storage
-        TaskSnapshot uploadTask = await _storage
+        // Upload to Firebase Storage with progress tracking
+        UploadTask uploadTask = _storage
             .ref('${competition.competitionVirsion}/images/$fileName')
             .putFile(file);
 
+        // Listen to the upload progress
+        uploadTask.snapshotEvents.listen((TaskSnapshot snapshot) {
+          double progress = snapshot.bytesTransferred / snapshot.totalBytes;
+          setState(() {
+            imagesProgress = progress;
+          });
+          // int percentage = (progress * 100).round();
+        });
+
+        // Wait until the upload completes
+        TaskSnapshot completedTask = await uploadTask;
+
         // Get the download URL
-        String downloadURL = await uploadTask.ref.getDownloadURL();
+        String downloadURL = await completedTask.ref.getDownloadURL();
         imageUrls.add(downloadURL); // Add the URL to the list
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -83,14 +98,17 @@ class UploadArchiveState extends State<UploadArchive> {
         );
       }
     }
+
     competition.setArchiveEntry = ArchiveEntry(imagesURL: imageUrls);
     CompetitionService.updateImagesURL(context, competition).whenComplete(() {
       _selectedImages.clear();
     });
+
     // Show a success Snackbar
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
         content: Text('تم تحميل الصور بنجاح!'),
+        backgroundColor: AppColors.greenColor,
       ),
     );
   }
@@ -105,13 +123,24 @@ class UploadArchiveState extends State<UploadArchive> {
         String fileName = path.basename(video.path); // Use path.basename
         File file = File(video.path);
 
-        // Upload to Firebase Storage
-        TaskSnapshot uploadTask = await _storage
+        // Upload to Firebase Storage with progress tracking
+        UploadTask uploadTask = _storage
             .ref('${competition.competitionVirsion}/videos/$fileName')
             .putFile(file);
 
+        // Listen to the upload progress
+        uploadTask.snapshotEvents.listen((TaskSnapshot snapshot) {
+          double progress = snapshot.bytesTransferred / snapshot.totalBytes;
+          setState(() {
+            videosProgress = progress; // Update the video upload progress
+          });
+        });
+
+        // Wait until the upload completes
+        TaskSnapshot completedTask = await uploadTask;
+
         // Get the download URL
-        String downloadURL = await uploadTask.ref.getDownloadURL();
+        String downloadURL = await completedTask.ref.getDownloadURL();
         videoUrls.add(downloadURL); // Add the URL to the list
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -119,14 +148,17 @@ class UploadArchiveState extends State<UploadArchive> {
         );
       }
     }
+
     competition.setArchiveEntry = ArchiveEntry(videosURL: videoUrls);
     CompetitionService.updateVideosURL(context, competition).whenComplete(() {
       _selectedVideos.clear();
     });
+
     // Show a success Snackbar
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
         content: Text('تم تحميل الفيديو بنجاح!'),
+        backgroundColor: AppColors.greenColor,
       ),
     );
   }
@@ -252,33 +284,40 @@ class UploadArchiveState extends State<UploadArchive> {
             ),
             minimumSize: const Size(
               double.infinity,
-              45.0,
+              50.0,
             ),
           ),
           onPressed: () async {
             setState(() {
               isLoading = true;
             });
-            // if (_selectedImages.isNotEmpty) {
-            await _uploadImages(context, widget.competition);
-            // }
-            // if (_selectedVideos.isNotEmpty) {
-            await _uploadVideos(context, widget.competition);
-            // }
+            if (_selectedImages.isNotEmpty) {
+              await _uploadImages(context, widget.competition);
+            }
+            if (_selectedVideos.isNotEmpty) {
+              await _uploadVideos(context, widget.competition);
+            }
             if (_selectedImages.isEmpty && _selectedVideos.isEmpty) {
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(
                   content: Text('قم بتحميل ملفات'),
                 ),
               );
+              setState(() {
+                isLoading = false;
+              });
             }
             setState(() {
               isLoading = false;
             });
           },
           child: isLoading
-              ? const CircularProgressIndicator(
-                  color: AppColors.whiteColor,
+              ? CircularProgressIndicator(
+                  value: _selectedImages.isNotEmpty
+                      ? imagesProgress
+                      : videosProgress, // Bind the progress value
+                  backgroundColor: AppColors.whiteColor,
+                  color: AppColors.greenColor,
                 )
               : const Text(
                   "حفظ",

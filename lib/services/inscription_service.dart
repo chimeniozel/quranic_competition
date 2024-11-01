@@ -11,6 +11,8 @@ import 'package:quranic_competition/models/inscription.dart';
 import 'package:quranic_competition/models/note_result.dart';
 import 'package:quranic_competition/models/users.dart';
 import 'package:quranic_competition/providers/auth_provider.dart';
+import 'package:path_provider/path_provider.dart';
+import 'dart:io';
 
 class InscriptionService {
 // Get the next ID, unique per version and competition type
@@ -374,6 +376,118 @@ class InscriptionService {
         // Show error SnackBar
         final successSnackBar = SnackBar(
           content: const Text('فشل تحميل الملف'),
+          action: SnackBarAction(
+            label: 'تراجع',
+            onPressed: () {
+              // Perform some action
+            },
+          ),
+          backgroundColor: Colors.red,
+        );
+        ScaffoldMessenger.of(context).showSnackBar(successSnackBar);
+      }
+    } else {
+      // Show error SnackBar
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("فشل في ترميز ملف Excel."),
+          duration: Duration(seconds: 3),
+        ),
+      );
+    }
+  }
+
+  static Future<void> exportFinalResultAsXlsx(
+    List<Inscription> inscriptions,
+    Competition competition,
+    String copmetitionType,
+    BuildContext context,
+    String copmetitionRound,
+  ) async {
+    var excel = Excel.createExcel();
+    Sheet sheetObject = excel['Sheet1'];
+
+    // Create header row
+    List<String> headers = [
+      "المعدل العام",
+      "الإسم الكامل",
+      "رقم التسجيل",
+    ];
+    List<CellValue?> cellHeaders = [];
+    for (var header in headers) {
+      cellHeaders.add(TextCellValue(header));
+    }
+    sheetObject.appendRow(cellHeaders);
+
+    // Add data rows
+    for (Inscription inscription in inscriptions) {
+      List<CellValue> cells = [];
+
+      // Add Moyenne
+      cells.add(
+        TextCellValue(
+          inscription.resultFirstRound!.toString(),
+        ),
+      );
+
+      // Add Full name
+      cells.add(
+        TextCellValue(
+          inscription.fullName.toString(),
+        ),
+      );
+
+      // Add number of subscribers
+      cells.add(
+        TextCellValue(
+          inscription.idInscription!.toString(),
+        ),
+      );
+      sheetObject.appendRow(cells);
+    }
+
+    // Convert the Excel file to bytes
+    List<int>? fileBytes = excel.encode();
+
+    // Upload the file to Firebase Storage and save it locally
+    if (fileBytes != null) {
+      try {
+        String fileName;
+        if (copmetitionType == "child_inscription") {
+          fileName = "$copmetitionRound فئة الصغار.xlsx";
+        } else {
+          fileName = "$copmetitionRound فئة الكبار.xlsx";
+        }
+
+        // Get the downloads directory for Android
+        Directory? downloadsDirectory =
+            Directory('/storage/emulated/0/Download');
+        if (!downloadsDirectory.existsSync()) {
+          downloadsDirectory = await getExternalStorageDirectory();
+        }
+        String filePath = "${downloadsDirectory!.path}/$fileName";
+
+        // Save the file
+        File file = File(filePath);
+        await file.writeAsBytes(fileBytes);
+
+        // Show success SnackBar
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text('تم حفظ الملف في التنزيلات'),
+            action: SnackBarAction(
+              label: 'تراجع',
+              onPressed: () {
+                // Perform some action
+              },
+            ),
+            backgroundColor: AppColors.greenColor,
+          ),
+        );
+      } catch (e) {
+        // Show error SnackBar
+        final successSnackBar = SnackBar(
+          content: const Text('فشل حفظ الملف'),
           action: SnackBarAction(
             label: 'تراجع',
             onPressed: () {
