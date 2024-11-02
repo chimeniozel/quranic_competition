@@ -46,7 +46,7 @@ class _JuryHomeScreenState extends State<JuryHomeScreen> {
                             color: AppColors.pinkColor,
                           ),
                           onPressed: () {
-                            AuthProvider.logoutUser(context);
+                            AuthService.logoutUser(context);
                           },
                         ),
                         actions: [

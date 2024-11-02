@@ -6,6 +6,8 @@ import 'package:quranic_competition/auth/login_screen.dart';
 import 'package:quranic_competition/constants/colors.dart';
 import 'package:quranic_competition/models/users.dart';
 import 'package:quranic_competition/providers/auth_provider.dart';
+import 'package:quranic_competition/screens/verify_phone_number_screen.dart';
+import 'package:quranic_competition/services/auth_service.dart';
 import 'package:quranic_competition/widgets/input_widget.dart';
 
 class RegisterScreen extends StatefulWidget {
@@ -107,6 +109,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
               const SizedBox(height: 10.0),
               InputWidget(
                 obscure: obscurePass,
+                maxLines: 1,
                 keyboardType: TextInputType.text,
                 label: "كلمة السر",
                 controller: passwordController,
@@ -130,6 +133,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
               const SizedBox(height: 10.0),
               InputWidget(
                 obscure: obscureCheck,
+                maxLines: 1,
                 keyboardType: TextInputType.text,
                 label: "إعادة كلمة السر",
                 controller: confirmPasswordController,
@@ -235,17 +239,79 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       ),
                     );
                   } else {
-                    Users user = Users(
-                        fullName: fullNameController.text,
-                        phoneNumber: phoneNumberController.text,
-                        password: passwordController.text,
-                        role: selectedRole!);
-                    authProvider.registerUser(user, context).whenComplete(() {
-                      fullNameController.clear();
-                      phoneNumberController.clear();
-                      passwordController.clear();
-                      confirmPasswordController.clear();
-                    });
+                    showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return AlertDialog(
+                          title: const Text("تأكيد الرقم"),
+                          content: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Text(
+                                "هل هذا هو رقمك الصحيح؟",
+                                style: TextStyle(fontSize: 16),
+                              ),
+                              const SizedBox(height: 16),
+                              Text(
+                                phoneNumberController.text,
+                                style: const TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.blueAccent),
+                              ),
+                              const SizedBox(height: 16),
+                              const Text(
+                                "سوف نرسل لك رمز تأكيد إلى هذا الرقم.",
+                                textAlign: TextAlign.center,
+                              ),
+                            ],
+                          ),
+                          actions: [
+                            TextButton(
+                              child: const Text("تعديل",
+                                  style: TextStyle(color: Colors.blue)),
+                              onPressed: () {
+                                Navigator.of(context)
+                                    .pop(); // Close the dialog without confirming
+                              },
+                            ),
+                            TextButton(
+                              child: const Text("تأكيد",
+                                  style: TextStyle(color: Colors.green)),
+                              onPressed: () async {
+                                // Navigator.of(context).pop(); // Close the dialog
+                                Users user = Users(
+                                    fullName: fullNameController.text,
+                                    phoneNumber: phoneNumberController.text,
+                                    password: passwordController.text,
+                                    role: selectedRole!);
+                                bool isSent =
+                                    await AuthService.sendVerificationCode(
+                                        phoneNumber: user.phoneNumber,
+                                        context: context);
+                                if (isSent) {
+                                  Navigator.pop(context);
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) =>
+                                          VerifyPhoneNumberScreen(
+                                        user: user,
+                                        function: () {
+                                          AuthService.registerUser(
+                                              user, context);
+                                        },
+                                      ),
+                                    ),
+                                  );
+                                }
+                                Navigator.pop(context);
+                              },
+                            ),
+                          ],
+                        );
+                      },
+                    );
                   }
                 },
                 child: const Text(

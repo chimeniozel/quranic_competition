@@ -10,6 +10,7 @@ import 'package:quranic_competition/providers/auth_provider.dart';
 import 'package:quranic_competition/screens/admin/competition_management/competition_management.dart';
 import 'package:quranic_competition/screens/home_screen.dart';
 import 'package:quranic_competition/screens/jury/jury_home_screen.dart';
+import 'package:quranic_competition/services/auth_service.dart';
 import 'package:quranic_competition/widgets/input_widget.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -70,6 +71,7 @@ class _LoginScreenState extends State<LoginScreen> {
               const SizedBox(height: 10.0),
               InputWidget(
                 obscure: obscurePass,
+                maxLines: 1,
                 keyboardType: TextInputType.text,
                 label: "كلمة السر",
                 controller: passwordController,
@@ -113,7 +115,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     phoneNumber: phoneNumberController.text,
                     password: passwordController.text,
                   );
-                  Map data = await authProvider.loginUser(user, context);
+                  Map data = await AuthService.loginUser(user, context);
                   bool loggedIn = data["loggedIn"];
                   Users? currentUser = data["currentUser"];
                   if (loggedIn && currentUser != null) {

@@ -7,7 +7,10 @@ import 'package:quranic_competition/models/inscription.dart';
 import 'package:quranic_competition/models/note_result.dart';
 import 'package:quranic_competition/providers/auth_provider.dart';
 import 'package:quranic_competition/providers/competion_provider.dart';
+import 'package:quranic_competition/screens/home_screen.dart';
 import 'package:quranic_competition/screens/verify_phone_number_screen.dart';
+import 'package:quranic_competition/services/auth_service.dart';
+import 'package:quranic_competition/services/inscription_service.dart';
 import 'package:quranic_competition/widgets/input_widget.dart';
 
 class InscriptionScreen extends StatefulWidget {
@@ -32,7 +35,7 @@ class _InscriptionScreenState extends State<InscriptionScreen> {
 
   List<String> howMuchYouMemorizes = ["القرآن كاملا", "نصف", "أقل من نصف"];
 
-  bool isLoading = false;
+  // bool isLoading = false;
 
   String typecomp = "";
 
@@ -430,9 +433,9 @@ class _InscriptionScreenState extends State<InscriptionScreen> {
                       return;
                     }
                     List<Map<String, dynamic>> round = [];
-                    setState(() {
-                      isLoading = true;
-                    });
+                    // setState(() {
+                    //   isLoading = true;
+                    // });
                     if (DateTime.now().year - _selectedDate.year < 13) {
                       for (var user
                           in Provider.of<AuthProvider>(context, listen: false)
@@ -501,6 +504,91 @@ class _InscriptionScreenState extends State<InscriptionScreen> {
                         .competitionVirsion
                         .toString();
 
+                    showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return AlertDialog(
+                          title: const Text("تأكيد الرقم"),
+                          content: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Text(
+                                "هل هذا هو رقمك الصحيح؟",
+                                style: TextStyle(fontSize: 16),
+                              ),
+                              const SizedBox(height: 16),
+                              Text(
+                                phoneNumberController.text,
+                                style: const TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.blueAccent),
+                              ),
+                              const SizedBox(height: 16),
+                              const Text(
+                                "سوف نرسل لك رمز تأكيد إلى هذا الرقم.",
+                                textAlign: TextAlign.center,
+                              ),
+                            ],
+                          ),
+                          actions: [
+                            TextButton(
+                              child: const Text("تعديل",
+                                  style: TextStyle(color: Colors.blue)),
+                              onPressed: () {
+                                Navigator.of(context)
+                                    .pop(); // Close the dialog without confirming
+                              },
+                            ),
+                            TextButton(
+                              child: const Text("تأكيد",
+                                  style: TextStyle(color: Colors.green)),
+                              onPressed: () async {
+                                Navigator.of(context).pop(); // Close the dialog
+                                bool isSent =
+                                    await AuthService.sendVerificationCode(
+                                        phoneNumber: inscription.phoneNumber!,
+                                        context: context);
+                                if (isSent) {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) =>
+                                          VerifyPhoneNumberScreen(
+                                        inscription: inscription,
+                                        function: () async {
+                                          bool isCreated =
+                                              await InscriptionService
+                                                  .sendToFirebase(
+                                            inscription,
+                                            context,
+                                            competitionVirsion,
+                                          );
+                                          if (isCreated) {
+                                            Navigator.pop(context);
+                                            Navigator.pushAndRemoveUntil(
+                                              context,
+                                              MaterialPageRoute(
+                                                builder: (context) =>
+                                                    const HomeScreen(),
+                                              ),
+                                              (route) => false,
+                                            );
+                                          } else {
+                                            Navigator.pop(context);
+                                          }
+                                        },
+                                      ),
+                                    ),
+                                  );
+                                }
+                              },
+                            ),
+                          ],
+                        );
+                      },
+                    );
+
                     // Save user information to Firebase
                     // InscriptionService.sendToFirebase(
                     //   inscription,
@@ -516,19 +604,21 @@ class _InscriptionScreenState extends State<InscriptionScreen> {
                     //   },
                     // );
 
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) =>
-                            VerifyPhoneNumberScreen(inscription: inscription),
-                      ),
-                    );
+                    // Navigator.push(
+                    //   context,
+                    //   MaterialPageRoute(
+                    //     builder: (context) =>
+                    //         VerifyPhoneNumberScreen(inscription: inscription),
+                    //   ),
+                    // );
                   },
-                  child: isLoading
-                      ? const CircularProgressIndicator(
-                          color: AppColors.whiteColor,
-                        )
-                      : const Text("إرسال المعلومات"),
+                  child:
+                      // isLoading
+                      //     ? const CircularProgressIndicator(
+                      //         color: AppColors.whiteColor,
+                      //       )
+                      //     :
+                      const Text("إرسال المعلومات"),
                 ),
               ],
             ),

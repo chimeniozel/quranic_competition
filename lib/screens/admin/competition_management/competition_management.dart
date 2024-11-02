@@ -10,6 +10,8 @@ import 'package:quranic_competition/providers/auth_provider.dart';
 import 'package:quranic_competition/screens/admin/competition_management/about_us/about_us_screen.dart';
 import 'package:quranic_competition/screens/admin/competition_management/competition_jurys.dart';
 import 'package:quranic_competition/screens/admin/competition_management/competition_details_screen.dart';
+import 'package:quranic_competition/screens/admin/competition_management/quranic_benefit_screen.dart';
+import 'package:quranic_competition/services/auth_service.dart';
 import 'package:quranic_competition/services/competion_service.dart';
 import 'package:quranic_competition/widgets/input_widget.dart';
 
@@ -132,7 +134,7 @@ class _CompetitionManagementState extends State<CompetitionManagement> {
           IconButton(
             icon: const Icon(Iconsax.logout),
             onPressed: () {
-              AuthProvider.logoutUser(context);
+              AuthService.logoutUser(context);
             },
           ),
         ],
@@ -166,6 +168,18 @@ class _CompetitionManagementState extends State<CompetitionManagement> {
                   context,
                   MaterialPageRoute(
                     builder: (context) => const AboutUsScreen(),
+                  ),
+                );
+              },
+            ),
+            ListTile(
+              leading: const Icon(Iconsax.info_circle),
+              title: const Text("الفوائد القرآنية"),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const QuranicBenefitScreen(),
                   ),
                 );
               },

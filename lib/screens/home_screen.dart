@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:quranic_competition/constants/colors.dart';
 import 'package:quranic_competition/providers/competion_provider.dart';
 import 'package:quranic_competition/screens/admin/competition_management/about_us/about_us_screen.dart';
+import 'package:quranic_competition/screens/admin/competition_management/quranic_benefit_screen.dart';
 import 'package:quranic_competition/screens/competition_results_client.dart';
 import 'package:quranic_competition/screens/competitions_screen.dart';
 import 'package:quranic_competition/screens/inscription_screen.dart';
@@ -158,12 +159,13 @@ class _HomeScreenState extends State<HomeScreen> {
                         imageAsset: "assets/images/فوائد قرآنية.jpeg",
                         onTap: () {
                           // Navigate to the inscription screen
-                          // Navigator.push(
-                          //   context,
-                          //   MaterialPageRoute(
-                          //     builder: (context) => const InscriptionScreen(),
-                          //   ),
-                          // );
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  const QuranicBenefitScreen(),
+                            ),
+                          );
                         },
                       ),
                     ),

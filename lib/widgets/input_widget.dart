@@ -7,6 +7,7 @@ class InputWidget extends StatefulWidget {
   final String? initialValue;
   final IconData? icon;
   final int? maxLength;
+  final int? maxLines;
   final void Function(String)? onChanged;
   final void Function()? onTap;
   final bool? obscure;
@@ -21,6 +22,7 @@ class InputWidget extends StatefulWidget {
     required this.hint,
     this.icon,
     this.initialValue,
+    this.maxLines,
     this.onChanged,
     this.onTap,
     this.obscure,
@@ -42,6 +44,7 @@ class _InputWidgetState extends State<InputWidget> {
       enabled: widget.enabled,
       obscureText: widget.obscure ?? false,
       keyboardType: widget.keyboardType ?? TextInputType.text,
+      maxLines: widget.maxLines,
       validator: (value) {
         if (value!.isEmpty) {
           return "الحقل فارغ";

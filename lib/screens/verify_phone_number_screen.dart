@@ -2,11 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:quranic_competition/models/inscription.dart';
+import 'package:quranic_competition/models/users.dart';
+import 'package:quranic_competition/services/auth_service.dart';
+import 'package:quranic_competition/services/inscription_service.dart';
 
 class VerifyPhoneNumberScreen extends StatefulWidget {
-  final Inscription inscription;
+  final Inscription? inscription;
+  final String? competitionVirsion;
+  final Users? user;
+  final void Function() function;
 
-  const VerifyPhoneNumberScreen({super.key, required this.inscription});
+  const VerifyPhoneNumberScreen(
+      {super.key, this.inscription, this.user, this.competitionVirsion , required this.function});
 
   @override
   State<VerifyPhoneNumberScreen> createState() =>
@@ -18,87 +25,34 @@ class _VerifyPhoneNumberScreenState extends State<VerifyPhoneNumberScreen> {
   final List<TextEditingController> _codeControllers =
       List.generate(4, (_) => TextEditingController());
   bool _isSubmitting = false;
-  String? _verificationId;
+  // String? _verificationId;
+  bool isSent = false;
 
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
   @override
   void initState() {
     super.initState();
-    _sendVerificationCode();
-  }
-
-  Future<void> _sendVerificationCode() async {
-    setState(() {
-      _isSubmitting = true;
-    });
-
-    try {
-      await _auth.verifyPhoneNumber(
-        phoneNumber: "+222${widget.inscription.phoneNumber}",
-        verificationCompleted: (PhoneAuthCredential credential) async {
-          await _auth.signInWithCredential(credential);
-          _showMessage('تم التحقق من رقم الهاتف وتسجيل الدخول تلقائيًا.');
-        },
-        verificationFailed: (FirebaseAuthException e) {
-          _showMessage('فشل التحقق: ${e.message}');
-        },
-        codeSent: (String verificationId, int? resendToken) {
-          _verificationId = verificationId;
-          _showMessage('تم إرسال رمز التحقق.');
-        },
-        codeAutoRetrievalTimeout: (String verificationId) {
-          _verificationId = verificationId;
-        },
-        timeout: const Duration(seconds: 60),
-      );
-    } catch (e) {
-      _showMessage('فشل إرسال رمز التحقق: $e');
-    } finally {
-      setState(() {
-        _isSubmitting = false;
-      });
-    }
-  }
-
-  Future<void> _verifyCode() async {
-    String code = _codeControllers.map((controller) => controller.text).join();
-    if (code.length != 4) {
-      _showMessage('يرجى إدخال الرمز الكامل.');
-      return;
-    }
-
-    try {
-      PhoneAuthCredential credential = PhoneAuthProvider.credential(
-        verificationId: _verificationId!,
-        smsCode: code,
-      );
-
-      await _auth.signInWithCredential(credential);
-      _showMessage('تم التحقق من الرقم بنجاح!');
-    } catch (e) {
-      _showMessage('فشل التحقق من الرمز: $e');
-    }
-  }
-
-  void _showMessage(String message) {
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text(message)));
+    // _sendVerificationCode();
   }
 
   @override
   Widget build(BuildContext context) {
-    Inscription inscription = widget.inscription;
-
+    Inscription? inscription = widget.inscription;
+    Users? user = widget.user;
     return Scaffold(
       appBar: AppBar(
-        title: Text(inscription.fullName.toString()),
+        title: Text(inscription != null
+            ? inscription.fullName.toString()
+            : user!.fullName.toString()),
       ),
       body: Padding(
         padding: const EdgeInsets.all(8.0),
         child: Column(
           children: [
-            Text(inscription.fullName.toString()),
+            Text(inscription != null
+                ? inscription.fullName.toString()
+                : user!.fullName.toString()),
             const SizedBox(height: 10),
             Form(
               child: Row(
@@ -143,7 +97,14 @@ class _VerifyPhoneNumberScreenState extends State<VerifyPhoneNumberScreen> {
             ),
             const SizedBox(height: 20),
             ElevatedButton(
-              onPressed: _isSubmitting ? null : _verifyCode,
+              onPressed: () {
+                if (!_isSubmitting) {
+                } else {
+                  AuthService.verifyCode(
+                    function: widget.function,
+                      codeControllers: _codeControllers, context: context);
+                }
+              },
               child: _isSubmitting
                   ? const CircularProgressIndicator(color: Colors.white)
                   : const Text('تحقق من الرمز'),
