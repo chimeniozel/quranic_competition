@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:iconsax/iconsax.dart';
+import 'package:provider/provider.dart';
 import 'package:quranic_competition/constants/colors.dart';
 import 'package:quranic_competition/constants/utils.dart';
 import 'package:quranic_competition/models/quranic_benefit.dart';
+import 'package:quranic_competition/providers/auth_provider.dart';
 import 'package:quranic_competition/screens/admin/competition_management/add_quranic_benefit_screen.dart';
 
 class QuranicBenefitScreen extends StatefulWidget {
@@ -15,6 +17,8 @@ class QuranicBenefitScreen extends StatefulWidget {
 class _QuranicBenefitScreenState extends State<QuranicBenefitScreen> {
   @override
   Widget build(BuildContext context) {
+    AuthProviders authProvider =
+        Provider.of<AuthProviders>(context, listen: false);
     return Scaffold(
       appBar: AppBar(
         title: const Text('الفوائد القرآنية'),
@@ -30,8 +34,7 @@ class _QuranicBenefitScreenState extends State<QuranicBenefitScreen> {
               } else if (snapshot.hasError) {
                 return Center(child: Text('Error: ${snapshot.error}'));
               } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                return const Center(
-                    child: Text('No Quranic benefits available.'));
+                return const Center(child: Text('لا تتم إضافة فوائد قرآنية.'));
               } else {
                 return ListView.builder(
                   itemCount: snapshot.data!.length,
@@ -100,18 +103,20 @@ class _QuranicBenefitScreenState extends State<QuranicBenefitScreen> {
               }
             },
           )),
-      floatingActionButton: FloatingActionButton(
-        backgroundColor: AppColors.primaryColor,
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => const AddQuranicBenefitScreen(),
-            ),
-          );
-        },
-        child: const Icon(Iconsax.add),
-      ),
+      floatingActionButton: authProvider.user != null
+          ? FloatingActionButton(
+              backgroundColor: AppColors.primaryColor,
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const AddQuranicBenefitScreen(),
+                  ),
+                );
+              },
+              child: const Icon(Iconsax.add),
+            )
+          : null,
     );
   }
 }

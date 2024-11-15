@@ -5,6 +5,8 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'package:quranic_competition/auth/register_screen.dart';
 import 'package:quranic_competition/constants/colors.dart';
+import 'package:quranic_competition/models/admin.dart';
+import 'package:quranic_competition/models/jury.dart';
 import 'package:quranic_competition/models/users.dart';
 import 'package:quranic_competition/providers/auth_provider.dart';
 import 'package:quranic_competition/screens/admin/competition_management/competition_management.dart';
@@ -42,8 +44,8 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    AuthProvider authProvider =
-        Provider.of<AuthProvider>(context, listen: false);
+    AuthProviders authProviders =
+        Provider.of<AuthProviders>(context, listen: false);
     return Scaffold(
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
@@ -115,11 +117,17 @@ class _LoginScreenState extends State<LoginScreen> {
                     phoneNumber: phoneNumberController.text,
                     password: passwordController.text,
                   );
-                  Map data = await AuthService.loginUser(user, context);
+                  Map data =
+                      await AuthService.loginUser(user: user, context: context);
+                  // AuthProviders().getJurys();
                   bool loggedIn = data["loggedIn"];
                   Users? currentUser = data["currentUser"];
                   if (loggedIn && currentUser != null) {
                     if (currentUser.role == "عضو لجنة التحكيم") {
+                      Jury jury = data["currentUser"];
+                      // Call this method after successful login
+                      await authProviders.saveUser(jury);
+                      authProviders.setCurrentUser(jury.userID!);
                       Navigator.pushAndRemoveUntil(
                         context,
                         MaterialPageRoute(
@@ -127,7 +135,10 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                         (route) => false,
                       );
-                    } else {
+                    } else if (currentUser.role == "إداري") {
+                      Admin admin = data["currentUser"];
+                      await authProviders.saveUser(admin);
+                      authProviders.setCurrentUser(admin.userID!);
                       Navigator.pushAndRemoveUntil(
                         context,
                         MaterialPageRoute(

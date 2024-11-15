@@ -11,20 +11,32 @@ import 'package:quranic_competition/services/auth_service.dart';
 import 'package:quranic_competition/services/inscription_service.dart';
 
 class JuryFinalResults extends StatefulWidget {
-  const JuryFinalResults({super.key});
+  final String? selectedType;
+  const JuryFinalResults({super.key, this.selectedType});
 
   @override
   State<JuryFinalResults> createState() => _JuryFinalResultsState();
 }
 
 class _JuryFinalResultsState extends State<JuryFinalResults> {
-  String? selectedType = "adult_inscription";
+  String? selectedType;
+
+  @override
+  void initState() {
+    if (widget.selectedType != null) {
+      selectedType = widget.selectedType;
+    } else {
+      selectedType = "adult_inscription";
+    }
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     CompetitionProvider competitionProvider =
         Provider.of<CompetitionProvider>(context, listen: false);
-    AuthProvider authProvider =
-        Provider.of<AuthProvider>(context, listen: false);
+    AuthProviders authProviders =
+        Provider.of<AuthProviders>(context, listen: false);
     return Scaffold(
       appBar: AppBar(
         title: const Text('النتائج النهائية'),
@@ -117,14 +129,18 @@ class _JuryFinalResultsState extends State<JuryFinalResults> {
                   ),
                   const SizedBox(height: 16.0),
                   Flexible(
-                    child: StreamBuilder<List<Inscription>>(
+                    child: StreamBuilder<List<Map<String, dynamic>>>(
                       stream: InscriptionService.streamContestants(
-                          competitionProvider.competition!.competitionVirsion
-                              .toString(),
-                          selectedType.toString(),
-                          "التصفيات النهائية"),
+                        version: competitionProvider
+                            .competition!.competitionVirsion
+                            .toString(),
+                        competitionType: selectedType.toString(),
+                        competitionRound: "التصفيات النهائية",
+                        jury: authProviders.currentJury!,
+                        successMoyenne:
+                            competitionProvider.competition!.successMoyenne!,
+                      ),
                       builder: (context, snapshot) {
-                        NoteResult? cheickh;
                         if (snapshot.hasError) {
                           return Text(
                               "حدث خطأ أثناء جلب البيانات: ${snapshot.error}");
@@ -132,45 +148,26 @@ class _JuryFinalResultsState extends State<JuryFinalResults> {
                         if (snapshot.connectionState ==
                             ConnectionState.waiting) {
                           return const Center(
-                            child: CircularProgressIndicator(),
-                          );
+                              child: CircularProgressIndicator());
                         }
 
                         if (snapshot.data!.isEmpty) {
-                          return const Center(
-                            child: Text("لا توجد بيانات"),
-                          );
+                          return const Center(child: Text("لا توجد بيانات"));
                         }
 
-                        List<Inscription> inscriptions = snapshot.data!;
                         return ListView.separated(
                           scrollDirection: Axis.vertical,
-                          separatorBuilder: (context, index) => const SizedBox(
-                            height: 15.0,
-                          ),
-                          itemCount: inscriptions.length,
+                          separatorBuilder: (context, index) =>
+                              const SizedBox(height: 15.0),
+                          itemCount: snapshot.data!.length,
                           itemBuilder: (context, index) {
-                            Inscription inscription = inscriptions[index];
-                            NoteResult? noteResult;
+                            Map<String, dynamic> map = snapshot.data![index];
+                            Inscription inscription = map["inscription"];
+                            NoteModel? firstNotes = map["notes"] as NoteModel?;
+
                             bool isAdult = DateTime.now().year -
                                     inscription.birthDate!.year >=
                                 13;
-                            inscription.tashihMachaikhs?.finalRound
-                                ?.forEach((result) {
-                              if (isAdult) {
-                                noteResult = NoteResult.fromMapAdult(result);
-                                if (noteResult!.cheikhName ==
-                                    authProvider.currentUser!.fullName) {
-                                  cheickh = NoteResult.fromMapAdult(result);
-                                }
-                              } else {
-                                noteResult = NoteResult.fromMapChild(result);
-                                if (noteResult!.cheikhName ==
-                                    authProvider.currentUser!.fullName) {
-                                  cheickh = NoteResult.fromMapChild(result);
-                                }
-                              }
-                            });
 
                             return GestureDetector(
                               onTap: () {
@@ -180,7 +177,7 @@ class _JuryFinalResultsState extends State<JuryFinalResults> {
                                     builder: (context) =>
                                         DetailContestantScreen(
                                       inscription: inscription,
-                                      noteResult: cheickh,
+                                      noteModel: firstNotes,
                                       competitionType: selectedType.toString(),
                                       competitionVersion: competitionProvider
                                           .competition!.competitionVirsion
@@ -196,41 +193,34 @@ class _JuryFinalResultsState extends State<JuryFinalResults> {
                                     margin: const EdgeInsets.symmetric(
                                         horizontal: 5.0),
                                     padding: const EdgeInsets.all(8.0),
-                                    width: MediaQuery.of(context).size.width,
                                     decoration: BoxDecoration(
-                                        borderRadius:
-                                            BorderRadius.circular(10.0),
-                                        color: AppColors.whiteColor,
-                                        boxShadow: [
-                                          BoxShadow(
-                                              color: AppColors.blackColor
-                                                  .withOpacity(.3),
-                                              blurRadius: 1.0,
-                                              spreadRadius: 2.0,
-                                              blurStyle: BlurStyle.outer,
-                                              offset: const Offset(0, 1))
-                                        ]),
+                                      borderRadius: BorderRadius.circular(10.0),
+                                      color: AppColors.whiteColor,
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: AppColors.blackColor
+                                              .withOpacity(.3),
+                                          blurRadius: 1.0,
+                                          spreadRadius: 2.0,
+                                          blurStyle: BlurStyle.outer,
+                                          offset: const Offset(0, 1),
+                                        ),
+                                      ],
+                                    ),
                                     child: Column(
                                       crossAxisAlignment:
                                           CrossAxisAlignment.center,
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
                                       children: [
                                         Text(
-                                            "المتسابق رقم : ${inscription.idInscription}"),
-                                        const SizedBox(
-                                          height: 10.0,
-                                        ),
+                                            "المتسابق رقم : ${inscription.idInscription} "),
+                                        const SizedBox(height: 10.0),
                                         Divider(
-                                          color: AppColors.blackColor
-                                              .withOpacity(.2),
-                                          height: 1,
-                                          indent: 50,
-                                          endIndent: 50,
-                                        ),
-                                        const SizedBox(
-                                          height: 10.0,
-                                        ),
+                                            color: AppColors.blackColor
+                                                .withOpacity(.2),
+                                            height: 1,
+                                            indent: 50,
+                                            endIndent: 50),
+                                        const SizedBox(height: 10.0),
                                         Row(
                                           mainAxisAlignment:
                                               MainAxisAlignment.spaceBetween,
@@ -240,13 +230,10 @@ class _JuryFinalResultsState extends State<JuryFinalResults> {
                                                 child: Column(
                                                   children: [
                                                     const Text("التجويد"),
-                                                    const SizedBox(
-                                                      height: 5.0,
-                                                    ),
-                                                    Text(
-                                                      cheickh!.notes!.noteTajwid
-                                                          .toString(),
-                                                    ),
+                                                    const SizedBox(height: 5.0),
+                                                    Text(firstNotes?.noteTajwid
+                                                            ?.toString() ??
+                                                        "0.0"),
                                                   ],
                                                 ),
                                               ),
@@ -256,14 +243,11 @@ class _JuryFinalResultsState extends State<JuryFinalResults> {
                                                 child: Column(
                                                   children: [
                                                     const Text("حسن الصوت"),
-                                                    const SizedBox(
-                                                      height: 5.0,
-                                                    ),
-                                                    Text(
-                                                      cheickh!
-                                                          .notes!.noteHousnSawtt
-                                                          .toString(),
-                                                    ),
+                                                    const SizedBox(height: 5.0),
+                                                    Text(firstNotes
+                                                            ?.noteHousnSawtt
+                                                            ?.toString() ??
+                                                        "0.0"),
                                                   ],
                                                 ),
                                               ),
@@ -277,10 +261,11 @@ class _JuryFinalResultsState extends State<JuryFinalResults> {
                                                       const Text(
                                                           "الإلتزام بالرواية"),
                                                       const SizedBox(
-                                                        height: 5.0,
-                                                      ),
-                                                      Text(
-                                                          "${cheickh!.notes!.noteIltizamRiwaya}"),
+                                                          height: 5.0),
+                                                      Text(firstNotes
+                                                              ?.noteIltizamRiwaya
+                                                              ?.toString() ??
+                                                          "0.0"),
                                                     ],
                                                   ),
                                                 ),
@@ -293,11 +278,11 @@ class _JuryFinalResultsState extends State<JuryFinalResults> {
                                                     children: [
                                                       const Text("عذوبة الصوت"),
                                                       const SizedBox(
-                                                        height: 5.0,
-                                                      ),
-                                                      Text(cheickh!.notes!
-                                                          .noteOu4oubetSawtt!
-                                                          .toString()),
+                                                          height: 5.0),
+                                                      Text(firstNotes
+                                                              ?.noteOu4oubetSawtt
+                                                              ?.toString() ??
+                                                          "0.0"),
                                                     ],
                                                   ),
                                                 ),
@@ -311,11 +296,11 @@ class _JuryFinalResultsState extends State<JuryFinalResults> {
                                                       const Text(
                                                           "الوقف والإبتداء"),
                                                       const SizedBox(
-                                                        height: 5.0,
-                                                      ),
-                                                      Text(cheickh!.notes!
-                                                          .noteWaqfAndIbtidaa
-                                                          .toString()),
+                                                          height: 5.0),
+                                                      Text(firstNotes
+                                                              ?.noteWaqfAndIbtidaa
+                                                              ?.toString() ??
+                                                          "0.0"),
                                                     ],
                                                   ),
                                                 ),
@@ -325,50 +310,38 @@ class _JuryFinalResultsState extends State<JuryFinalResults> {
                                       ],
                                     ),
                                   ),
-                                  if (isAdult && cheickh!.isCorrected!)
-                                    const Positioned(
-                                      top: 10,
-                                      right: 10,
-                                      child: Row(
-                                        children: [
-                                          Text(
-                                            "تم التصحيح",
-                                            style: TextStyle(
-                                              color: AppColors.greenColor,
-                                            ),
-                                          ),
-                                          SizedBox(
-                                            width: 5.0,
-                                          ),
-                                          Icon(
-                                            Iconsax.verify5,
-                                            color: AppColors.greenColor,
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  if (!isAdult && cheickh!.isCorrected!)
-                                    const Positioned(
-                                      top: 10,
-                                      right: 10,
-                                      child: Row(
-                                        children: [
-                                          Text(
-                                            "تم التصحيح",
-                                            style: TextStyle(
-                                              color: AppColors.greenColor,
-                                            ),
-                                          ),
-                                          SizedBox(
-                                            width: 5.0,
-                                          ),
-                                          Icon(
-                                            Iconsax.verify5,
-                                            color: AppColors.greenColor,
-                                          ),
-                                        ],
-                                      ),
-                                    ),
+                                  // if (isAdult &&
+                                  //     firstNotes?.isCorrected == true)
+                                  //   const Positioned(
+                                  //     top: 10,
+                                  //     right: 10,
+                                  //     child: Row(
+                                  //       children: [
+                                  //         Text("تم التصحيح",
+                                  //             style: TextStyle(
+                                  //                 color: AppColors.greenColor)),
+                                  //         SizedBox(width: 5.0),
+                                  //         Icon(Iconsax.verify5,
+                                  //             color: AppColors.greenColor),
+                                  //       ],
+                                  //     ),
+                                  //   ),
+                                  // if (!isAdult &&
+                                  //     firstNotes?.isCorrected == true)
+                                  //   const Positioned(
+                                  //     top: 10,
+                                  //     right: 10,
+                                  //     child: Row(
+                                  //       children: [
+                                  //         Text("تم التصحيح",
+                                  //             style: TextStyle(
+                                  //                 color: AppColors.greenColor)),
+                                  //         SizedBox(width: 5.0),
+                                  //         Icon(Iconsax.verify5,
+                                  //             color: AppColors.greenColor),
+                                  //       ],
+                                  //     ),
+                                  //   ),
                                 ],
                               ),
                             );
@@ -392,12 +365,20 @@ class _JuryFinalResultsState extends State<JuryFinalResults> {
                   ),
                 ),
                 onPressed: () async {
-                  var returnData = await AuthService.checkAllNotes(
-                      competitionProvider.competition!.competitionVirsion
+                  /*
+                  competitionProvider.competition!.competitionVirsion
                           .toString(),
                       selectedType.toString(),
-                      authProvider.currentUser!.fullName,
-                      "التصفيات النهائية");
+                      authProviders.currentJury!.userID!,
+                      "التصفيات النهائية"
+                  */
+                  var returnData = await AuthService.checkAllNotes(
+                    cometionType: selectedType.toString(),
+                    competitionRound: "التصفيات النهائية",
+                    version: competitionProvider.competition!.competitionVirsion
+                        .toString(),
+                    userID: authProviders.currentJury!.userID!,
+                  );
                   bool isNoted = returnData["isNoted"];
                   List<Inscription> notedInscriptions =
                       returnData["notedInscriptions"];
@@ -407,7 +388,7 @@ class _JuryFinalResultsState extends State<JuryFinalResults> {
                     InscriptionService.exportDataAsXlsx(
                         notedInscriptions,
                         dataList,
-                        authProvider.currentUser!.fullName,
+                        authProviders.currentJury!.fullName!,
                         competitionProvider.competition!,
                         selectedType.toString(),
                         context,

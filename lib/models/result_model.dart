@@ -1,7 +1,7 @@
 class ResultModel {
   String? fullName;
-  String? generalMoyenne;
-  String? idUser;
+  double? generalMoyenne;
+  int? idUser;
 
   ResultModel(
       {required this.fullName,

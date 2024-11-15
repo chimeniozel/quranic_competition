@@ -1,6 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:quranic_competition/constants/utils.dart';
 import 'package:quranic_competition/models/competition.dart';
 import 'package:quranic_competition/screens/admin/competition_management/competion_archive.dart';
 import '../constants/colors.dart';
@@ -52,17 +51,17 @@ class _CompetitionsScreenState extends State<CompetitionsScreen> {
                           competitions[index].data() as Map<String, dynamic>);
                       var competitionId = competitions[index].id;
                       var startDate = competition.startDate;
-                      var endDate = competition.endDate;
+                      // var endDate = competition.endDate;
 
                       // Check if the competition end date has passed
-                      if (endDate != null && DateTime.now().isAfter(endDate)) {
-                        // Update the competition to be inactive if endDate has passed
-                        FirebaseFirestore.instance
-                            .collection('competitions')
-                            .doc(competitionId)
-                            .update({'isActive': false});
-                        competition.setActive = false;
-                      }
+                      // if (endDate != null && DateTime.now().isAfter(endDate)) {
+                      //   // Update the competition to be inactive if endDate has passed
+                      //   FirebaseFirestore.instance
+                      //       .collection('competitions')
+                      //       .doc(competitionId)
+                      //       .update({'isActive': false});
+                      //   competition.setActive = false;
+                      // }
 
                       return GestureDetector(
                         onTap: () {
@@ -101,11 +100,11 @@ class _CompetitionsScreenState extends State<CompetitionsScreen> {
                                 child: Text(
                                     competition.competitionVirsion.toString()),
                               ),
-                              Expanded(
-                                child: Text(
-                                  '${Utils.arDateFormat(startDate!)} - ${Utils.arDateFormat(endDate!)}',
-                                ),
-                              ),
+                              // Expanded(
+                              //   child: Text(
+                              //     '${Utils.arDateFormat(startDate!)} - ${Utils.arDateFormat(endDate!)}',
+                              //   ),
+                              // ),
                             ],
                           ),
                         ),

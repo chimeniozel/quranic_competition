@@ -2,21 +2,24 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:quranic_competition/constants/colors.dart';
 import 'package:quranic_competition/models/inscription.dart';
+import 'package:quranic_competition/models/jurys_inscription.dart';
 import 'package:quranic_competition/models/note_result.dart';
 import 'package:quranic_competition/providers/auth_provider.dart';
+import 'package:quranic_competition/screens/jury/jury_final_results.dart';
+import 'package:quranic_competition/screens/jury/jury_home_screen.dart';
 import 'package:quranic_competition/services/auth_service.dart';
 import 'package:quranic_competition/widgets/input_widget.dart';
 
 class DetailContestantScreen extends StatefulWidget {
   final Inscription? inscription;
-  final NoteResult? noteResult;
+  final NoteModel? noteModel;
   final String competitionType;
   final String competitionVersion;
   final String competitionRound;
   const DetailContestantScreen({
     super.key,
     required this.inscription,
-    required this.noteResult,
+    required this.noteModel,
     required this.competitionType,
     required this.competitionVersion,
     required this.competitionRound,
@@ -37,38 +40,38 @@ class _DetailContestantScreenState extends State<DetailContestantScreen> {
 
   @override
   void initState() {
-    AuthProvider authProvider =
-        Provider.of<AuthProvider>(context, listen: false);
-
     if (widget.competitionType == "adult_inscription" &&
-        widget.noteResult?.notes?.noteTajwid != null &&
-        widget.noteResult?.notes?.noteHousnSawtt != null &&
-        widget.noteResult?.notes?.noteIltizamRiwaya != null) {
-      noteTajwidController.text =
-          widget.noteResult!.notes!.noteTajwid!.toString();
+        widget.noteModel?.noteTajwid != null &&
+        widget.noteModel?.noteHousnSawtt != null &&
+        widget.noteModel?.noteIltizamRiwaya != null) {
+      noteTajwidController.text = widget.noteModel!.noteTajwid!.toString();
       noteHousnSawttController.text =
-          widget.noteResult!.notes!.noteHousnSawtt!.toString();
+          widget.noteModel!.noteHousnSawtt!.toString();
       noteIltizamRiwayaController.text =
-          widget.noteResult!.notes!.noteIltizamRiwaya!.toString();
+          widget.noteModel!.noteIltizamRiwaya!.toString();
     }
-    if (widget.competitionType != "adult_inscription") {
-      noteTajwidController.text =
-          widget.noteResult!.notes!.noteTajwid!.toString();
+    if (widget.competitionType != "adult_inscription" &&
+        widget.noteModel?.noteTajwid != null &&
+        widget.noteModel?.noteHousnSawtt != null &&
+        widget.noteModel?.noteOu4oubetSawtt != null &&
+        widget.noteModel!.noteWaqfAndIbtidaa != null) {
+      noteTajwidController.text = widget.noteModel!.noteTajwid!.toString();
       noteHousnSawttController.text =
-          widget.noteResult!.notes!.noteHousnSawtt!.toString();
+          widget.noteModel!.noteHousnSawtt!.toString();
       noteOu4oubetSawttController.text =
-          widget.noteResult!.notes!.noteOu4oubetSawtt!.toString();
+          widget.noteModel!.noteOu4oubetSawtt!.toString();
       noteWaqfAndIbtidaaController.text =
-          widget.noteResult!.notes!.noteWaqfAndIbtidaa!.toString();
+          widget.noteModel!.noteWaqfAndIbtidaa!.toString();
     }
     super.initState();
   }
 
+  final _fromKey = GlobalKey<FormState>();
+
   @override
   Widget build(BuildContext context) {
-    NoteResult? noteResult = widget.noteResult!;
-    AuthProvider authProvider =
-        Provider.of<AuthProvider>(context, listen: false);
+    AuthProviders authProviders =
+        Provider.of<AuthProviders>(context, listen: false);
     return Scaffold(
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
@@ -77,124 +80,273 @@ class _DetailContestantScreenState extends State<DetailContestantScreen> {
       body: Padding(
         padding: const EdgeInsets.all(8.0),
         child: SingleChildScrollView(
-          child: Column(
-            children: [
-              InputWidget(
+          child: Form(
+            key: _fromKey,
+            child: Column(
+              children: [
+                InputWidget(
                   keyboardType: TextInputType.number,
                   label: "التجويد",
                   controller: noteTajwidController,
-                  hint: "التجويد"),
-              const SizedBox(
-                height: 15.0,
-              ),
-              InputWidget(
+                  hint: "التجويد",
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return "الحقل فارغ";
+                    }
+                    try {
+                      double.parse(value); // Try to parse the value to a double
+                    } catch (e) {
+                      return "الرجاء إدخال قيمة رقمية صحيحة";
+                    }
+                    return null; // Validation passed
+                  },
+                ),
+                const SizedBox(
+                  height: 15.0,
+                ),
+                InputWidget(
                   keyboardType: TextInputType.number,
                   label: "حسن الصوت",
                   controller: noteHousnSawttController,
-                  hint: "حسن الصوت"),
-              const SizedBox(
-                height: 15.0,
-              ),
-              widget.competitionType == "adult_inscription"
-                  ? InputWidget(
-                      keyboardType: TextInputType.number,
-                      label: "الإلتزام بالرواية",
-                      controller: noteIltizamRiwayaController,
-                      hint: "الإلتزام بالرواية")
-                  : Column(
-                      children: [
-                        InputWidget(
+                  hint: "حسن الصوت",
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return "الحقل فارغ";
+                    }
+                    try {
+                      double.parse(value); // Try to parse the value to a double
+                    } catch (e) {
+                      return "الرجاء إدخال قيمة رقمية صحيحة";
+                    }
+                    return null; // Validation passed
+                  },
+                ),
+                const SizedBox(
+                  height: 15.0,
+                ),
+                widget.competitionType == "adult_inscription"
+                    ? InputWidget(
+                        keyboardType: TextInputType.number,
+                        label: "الإلتزام بالرواية",
+                        controller: noteIltizamRiwayaController,
+                        hint: "الإلتزام بالرواية",
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return "الحقل فارغ";
+                          }
+                          try {
+                            double.parse(
+                                value); // Try to parse the value to a double
+                          } catch (e) {
+                            return "الرجاء إدخال قيمة رقمية صحيحة";
+                          }
+                          return null; // Validation passed
+                        },
+                      )
+                    : Column(
+                        children: [
+                          InputWidget(
                             keyboardType: TextInputType.number,
                             label: "عذوبة الصوت",
                             controller: noteOu4oubetSawttController,
-                            hint: "عذوبة الصوت"),
-                        const SizedBox(
-                          height: 15.0,
-                        ),
-                        InputWidget(
+                            hint: "عذوبة الصوت",
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return "الحقل فارغ";
+                              }
+                              try {
+                                double.parse(
+                                    value); // Try to parse the value to a double
+                              } catch (e) {
+                                return "الرجاء إدخال قيمة رقمية صحيحة";
+                              }
+                              return null; // Validation passed
+                            },
+                          ),
+                          const SizedBox(
+                            height: 15.0,
+                          ),
+                          InputWidget(
                             keyboardType: TextInputType.number,
                             label: "الوقف والإبتداء",
                             controller: noteWaqfAndIbtidaaController,
-                            hint: "الوقف والإبتداء"),
-                      ],
-                    ),
-              const SizedBox(
-                height: 15.0,
-              ),
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primaryColor,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10.0),
-                  ),
-                  minimumSize: const Size(double.infinity, 40.0),
-                ),
-                onPressed: () {
-                  setState(() {
-                    isLoading = true;
-                  });
-                  String fullName = authProvider.currentUser!.fullName;
-
-                  if (widget.competitionType == "adult_inscription") {
-                    noteResult.notes?.noteTajwid =
-                        double.parse(noteTajwidController.text);
-                    noteResult.notes?.noteHousnSawtt =
-                        double.parse(noteHousnSawttController.text);
-                    noteResult.notes?.noteIltizamRiwaya =
-                        double.parse(noteIltizamRiwayaController.text);
-                    noteResult.notes?.result =
-                        double.parse(noteTajwidController.text) +
-                            double.parse(noteHousnSawttController.text) +
-                            double.parse(noteIltizamRiwayaController.text);
-                    noteResult.isCorrected = true;
-                    AuthService.updateContestant(
-                        context,
-                        fullName,
-                        noteResult,
-                        widget.inscription!,
-                        widget.competitionVersion,
-                        widget.competitionType,
-                        widget.competitionRound);
-                  } else {
-                    noteResult.notes?.noteTajwid =
-                        double.parse(noteTajwidController.text);
-                    noteResult.notes?.noteHousnSawtt =
-                        double.parse(noteHousnSawttController.text);
-                    noteResult.notes?.noteOu4oubetSawtt =
-                        double.parse(noteOu4oubetSawttController.text);
-                    noteResult.notes?.noteWaqfAndIbtidaa =
-                        double.parse(noteWaqfAndIbtidaaController.text);
-                    noteResult.notes?.result =
-                        double.parse(noteTajwidController.text) +
-                            double.parse(noteHousnSawttController.text) +
-                            double.parse(noteOu4oubetSawttController.text) +
-                            double.parse(noteWaqfAndIbtidaaController.text);
-                    noteResult.isCorrected = true;
-                    AuthService.updateContestant(
-                        context,
-                        fullName,
-                        noteResult,
-                        widget.inscription!,
-                        widget.competitionVersion,
-                        widget.competitionType,
-                        widget.competitionRound);
-                  }
-                  setState(() {
-                    isLoading = false;
-                  });
-                },
-                child: isLoading
-                    ? const CircularProgressIndicator(
-                        color: AppColors.whiteColor,
-                      )
-                    : const Text(
-                        "حفظ",
-                        style: TextStyle(
-                          color: AppColors.whiteColor,
-                        ),
+                            hint: "الوقف والإبتداء",
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return "الحقل فارغ";
+                              }
+                              try {
+                                double.parse(
+                                    value); // Try to parse the value to a double
+                              } catch (e) {
+                                return "الرجاء إدخال قيمة رقمية صحيحة";
+                              }
+                              return null; // Validation passed
+                            },
+                          ),
+                        ],
                       ),
-              ),
-            ],
+                const SizedBox(
+                  height: 15.0,
+                ),
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primaryColor,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10.0),
+                    ),
+                    minimumSize: const Size(double.infinity, 40.0),
+                  ),
+                  onPressed: () {
+                    if (!_fromKey.currentState!.validate()) {
+                      return;
+                    }
+                    setState(() {
+                      isLoading = true;
+                    });
+                    JuryInscription juryInscription;
+                    NoteModel noteModel = NoteModel();
+                    if (widget.competitionType == "adult_inscription") {
+                      noteModel.noteTajwid =
+                          double.parse(noteTajwidController.text);
+                      noteModel.noteHousnSawtt =
+                          double.parse(noteHousnSawttController.text);
+                      noteModel.noteIltizamRiwaya =
+                          double.parse(noteIltizamRiwayaController.text);
+                      noteModel.result =
+                          double.parse(noteTajwidController.text) +
+                              double.parse(noteHousnSawttController.text) +
+                              double.parse(noteIltizamRiwayaController.text);
+                      if (widget.competitionRound == "التصفيات الأولى") {
+                        juryInscription = JuryInscription(
+                          idJury: authProviders.currentJury!.userID!,
+                          idInscription: widget.inscription!.idInscription!,
+                          firstNotes: noteModel,
+                          lastNotes: NoteModel(
+                            noteTajwid: 0,
+                            noteHousnSawtt: 0,
+                            noteIltizamRiwaya: 0,
+                            noteOu4oubetSawtt: 0,
+                            noteWaqfAndIbtidaa: 0,
+                            result: 0,
+                          ),
+                          isAdult: true,
+                          isFirstCorrected: true,
+                          isLastCorrected: false,
+                        );
+                      } else {
+                        print(
+                            "========================= note : ${noteModel.toMapAdult()}");
+                        juryInscription = JuryInscription(
+                          idJury: authProviders.currentJury!.userID!,
+                          idInscription: widget.inscription!.idInscription!,
+                          lastNotes: noteModel,
+                          isAdult: true,
+                          isLastCorrected: true,
+                        );
+                      }
+
+                      // update inscription is corrected for first round and last round
+                      AuthService.addJuryInscriptionNotes(
+                        competitionVersion: widget.competitionVersion,
+                        juryInscription: juryInscription,
+                        isAdult: true,
+                        context: context,
+                        competitionRound: widget.competitionRound,
+                      );
+                    } else {
+                      noteModel.noteTajwid =
+                          double.parse(noteTajwidController.text);
+                      noteModel.noteHousnSawtt =
+                          double.parse(noteHousnSawttController.text);
+                      noteModel.noteOu4oubetSawtt =
+                          double.parse(noteOu4oubetSawttController.text);
+                      noteModel.noteWaqfAndIbtidaa =
+                          double.parse(noteWaqfAndIbtidaaController.text);
+                      noteModel.result =
+                          double.parse(noteTajwidController.text) +
+                              double.parse(noteHousnSawttController.text) +
+                              double.parse(noteOu4oubetSawttController.text) +
+                              double.parse(noteWaqfAndIbtidaaController.text);
+                      if (widget.competitionRound == "التصفيات الأولى") {
+                        juryInscription = JuryInscription(
+                          idJury: authProviders.currentJury!.userID!,
+                          idInscription: widget.inscription!.idInscription!,
+                          firstNotes: noteModel,
+                          lastNotes: NoteModel(
+                            noteTajwid: 0,
+                            noteHousnSawtt: 0,
+                            noteIltizamRiwaya: 0,
+                            noteOu4oubetSawtt: 0,
+                            noteWaqfAndIbtidaa: 0,
+                            result: 0,
+                          ),
+                          isAdult: false,
+                          isFirstCorrected: true,
+                          isLastCorrected: false,
+                        );
+                      } else {
+                        juryInscription = JuryInscription(
+                          idJury: authProviders.currentJury!.userID!,
+                          idInscription: widget.inscription!.idInscription!,
+                          lastNotes: noteModel,
+                          isAdult: false,
+                          isFirstCorrected: false,
+                          isLastCorrected: true,
+                        );
+                      }
+                      AuthService.addJuryInscriptionNotes(
+                        competitionVersion: widget.competitionVersion,
+                        juryInscription: juryInscription,
+                        isAdult: false,
+                        context: context,
+                        competitionRound: widget.competitionRound,
+                      );
+                    }
+                    if (widget.competitionRound == "التصفيات الأولى") {
+                      // Navigate to the jury home screen
+                      Navigator.pushAndRemoveUntil(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => JuryHomeScreen(
+                            selectedType: juryInscription.isAdult!
+                                ? "adult_inscription"
+                                : "child_inscription",
+                          ),
+                        ),
+                        (route) => false,
+                      );
+                    } else {
+                      // Navigate to the jury home screen
+                      Navigator.pushAndRemoveUntil(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => JuryFinalResults(
+                            selectedType: juryInscription.isAdult!
+                                ? "adult_inscription"
+                                : "child_inscription",
+                          ),
+                        ),
+                        (route) => false,
+                      );
+                    }
+                    setState(() {
+                      isLoading = false;
+                    });
+                  },
+                  child: isLoading
+                      ? const CircularProgressIndicator(
+                          color: AppColors.whiteColor,
+                        )
+                      : const Text(
+                          "حفظ",
+                          style: TextStyle(
+                            color: AppColors.whiteColor,
+                          ),
+                        ),
+                ),
+              ],
+            ),
           ),
         ),
       ),

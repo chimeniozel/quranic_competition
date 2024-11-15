@@ -4,7 +4,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:quranic_competition/models/inscription.dart';
 import 'package:quranic_competition/models/users.dart';
 import 'package:quranic_competition/services/auth_service.dart';
-import 'package:quranic_competition/services/inscription_service.dart';
 
 class VerifyPhoneNumberScreen extends StatefulWidget {
   final Inscription? inscription;
@@ -24,7 +23,7 @@ class _VerifyPhoneNumberScreenState extends State<VerifyPhoneNumberScreen> {
   final TextEditingController _phoneController = TextEditingController();
   final List<TextEditingController> _codeControllers =
       List.generate(4, (_) => TextEditingController());
-  bool _isSubmitting = false;
+  final bool _isSubmitting = false;
   // String? _verificationId;
   bool isSent = false;
 

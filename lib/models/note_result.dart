@@ -68,6 +68,8 @@ class NoteModel {
   double? _noteWaqfAndIbtidaa;
   double? _noteIltizamRiwaya;
   double? _result;
+  // bool? _isFirstCorrected;
+  // bool? _isLastCorrected;
 
   NoteModel({
     double? noteTajwid,
@@ -76,12 +78,16 @@ class NoteModel {
     double? noteWaqfAndIbtidaa,
     double? noteIltizamRiwaya,
     double? result,
+    // required bool? isFirstCorrected,
+    // required bool? isLastCorrected,
   })  : _noteTajwid = noteTajwid,
         _noteHousnSawtt = noteHousnSawtt,
         _noteOu4oubetSawtt = noteOu4oubetSawtt,
         _noteWaqfAndIbtidaa = noteWaqfAndIbtidaa,
         _noteIltizamRiwaya = noteIltizamRiwaya,
         _result = result;
+  // _isFirstCorrected = isFirstCorrected,
+  // _isLastCorrected = isLastCorrected;
 
   // setters
   set noteTajwid(double? value) {
@@ -108,6 +114,14 @@ class NoteModel {
     _result = value;
   }
 
+  // set isFirstCorrected(bool? value) {
+  //   _isFirstCorrected = value;
+  // }
+
+  // set isLastCorrected(bool? value) {
+  //   _isLastCorrected = value;
+  // }
+
   // getters
   double? get noteTajwid => _noteTajwid;
   double? get noteHousnSawtt => _noteHousnSawtt;
@@ -115,12 +129,16 @@ class NoteModel {
   double? get noteWaqfAndIbtidaa => _noteWaqfAndIbtidaa;
   double? get noteIltizamRiwaya => _noteIltizamRiwaya;
   double? get result => _result;
+  // bool? get isFirstCorrected => _isFirstCorrected;
+  // bool? get isLastCorrected => _isLastCorrected;
   // from Map
   NoteModel.fromMapAdult(Map<String, dynamic> map) {
     noteTajwid = map["التجويد"].toDouble();
     noteHousnSawtt = map["حسن الصوت"].toDouble();
     noteIltizamRiwaya = map["الإلتزام بالرواية"].toDouble();
     result = map["النتيجة"].toDouble();
+    // isFirstCorrected = map["isFirstCorrected"];
+    // isLastCorrected = map["isLastCorrected"];
   }
 
   // from Map
@@ -130,6 +148,8 @@ class NoteModel {
     noteOu4oubetSawtt = map["عذوبة الصوت"].toDouble();
     noteWaqfAndIbtidaa = map["الوقف والإبتداء"].toDouble();
     result = map["النتيجة"].toDouble();
+    // isFirstCorrected = map["isFirstCorrected"];
+    // isLastCorrected = map["isLastCorrected"];
   }
 
   // to MapAdult
@@ -139,6 +159,8 @@ class NoteModel {
       "حسن الصوت": _noteHousnSawtt,
       "الإلتزام بالرواية": _noteIltizamRiwaya,
       "النتيجة": _result,
+      // "isFirstCorrected": _isFirstCorrected,
+      // "isLastCorrected": _isLastCorrected,
     };
   }
 
@@ -150,6 +172,8 @@ class NoteModel {
       "عذوبة الصوت": _noteOu4oubetSawtt,
       "الوقف والإبتداء": _noteWaqfAndIbtidaa,
       "النتيجة": _result,
+      // "isFirstCorrected": _isFirstCorrected,
+      // "isLastCorrected": _isLastCorrected,
     };
   }
 }

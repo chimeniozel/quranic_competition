@@ -7,15 +7,15 @@ import 'package:quranic_competition/models/competition.dart';
 import 'package:quranic_competition/models/users.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-class JuryResults extends StatefulWidget {
+class JuryResultsFiles extends StatefulWidget {
   final Competition competition;
-  const JuryResults({super.key, required this.competition});
+  const JuryResultsFiles({super.key, required this.competition});
 
   @override
-  State<JuryResults> createState() => _JuryResultsState();
+  State<JuryResultsFiles> createState() => _JuryResultsFilesState();
 }
 
-class _JuryResultsState extends State<JuryResults> {
+class _JuryResultsFilesState extends State<JuryResultsFiles> {
   Users? selectedUsers;
   String? selectedType;
   String? selectedText;
@@ -296,37 +296,36 @@ class _JuryResultsState extends State<JuryResults> {
                                         mainAxisSize: MainAxisSize.min,
                                         children: [
                                           Expanded(
-                                            child: IconButton(
-                                              icon: const Icon(
-                                                Iconsax.document_download5,
-                                                color: AppColors.primaryColor,
-                                              ),
-                                              onPressed: () async {
-                                                Uri url = Uri.parse(fileUrl);
+                                              child: IconButton(
+                                            icon: const Icon(
+                                              Iconsax.document_download5,
+                                              color: AppColors.primaryColor,
+                                            ),
+                                            onPressed: () async {
+                                              Uri url = Uri.parse(fileUrl);
 
-                                                if (await canLaunchUrl(url)) {
-                                                  await launchUrl(url,
-                                                      mode: LaunchMode
-                                                          .externalApplication);
-                                                } else {
-                                                  print(
-                                                      'Could not launch $fileUrl');
-                                                }
-                                              },
-                                            ),
-                                          ),
-                                          Expanded(
-                                            child: IconButton(
-                                              icon: const Icon(
-                                                IconlyBold.delete,
-                                                color: AppColors.pinkColor,
+                                              if (await canLaunchUrl(url)) {
+                                                await launchUrl(url,
+                                                    mode: LaunchMode
+                                                        .externalApplication);
+                                              } else {
+                                                print('Could not launch $url');
+                                              }
+                                            },
+                                          )),
+                                          if (widget.competition.isActive!)
+                                            Expanded(
+                                              child: IconButton(
+                                                icon: const Icon(
+                                                  IconlyBold.delete,
+                                                  color: AppColors.pinkColor,
+                                                ),
+                                                onPressed: () {
+                                                  deleteFile(participantName,
+                                                      fileName);
+                                                },
                                               ),
-                                              onPressed: () {
-                                                deleteFile(
-                                                    participantName, fileName);
-                                              },
                                             ),
-                                          ),
                                         ],
                                       ),
                                     )

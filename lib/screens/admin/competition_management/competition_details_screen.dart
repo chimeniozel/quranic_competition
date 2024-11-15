@@ -1,16 +1,13 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:iconsax/iconsax.dart';
-import 'package:provider/provider.dart';
 import 'package:quranic_competition/constants/colors.dart';
 import 'package:quranic_competition/constants/utils.dart';
 import 'package:quranic_competition/models/competition.dart';
 import 'package:quranic_competition/models/inscription.dart';
-import 'package:quranic_competition/models/note_result.dart';
-import 'package:quranic_competition/providers/competion_provider.dart';
 import 'package:quranic_competition/screens/admin/competition_management/competion_archive.dart';
+import 'package:quranic_competition/screens/admin/competition_management/competition_jurys.dart';
 import 'package:quranic_competition/screens/admin/competition_management/competition_result.dart';
-import 'package:quranic_competition/screens/admin/competition_management/jury_results.dart';
+import 'package:quranic_competition/screens/admin/competition_management/jury_results_files.dart';
 import 'package:quranic_competition/services/competion_service.dart';
 import 'package:quranic_competition/services/inscription_service.dart';
 
@@ -32,15 +29,16 @@ class _CompetitionDetailsScreenState extends State<CompetitionDetailsScreen> {
   String? selectedText = "المتسابقين الكبار";
   @override
   Widget build(BuildContext context) {
-    Competition? currentCompetition =
-        Provider.of<CompetitionProvider>(context, listen: true).competition;
+    // Competition? currentCompetition =
+    //     Provider.of<CompetitionProvider>(context, listen: true).competition;
+    Competition competition = widget.competition;
     return Scaffold(
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
         toolbarHeight: 60,
-        title: const Text(
-          'تفاصيل المسابقة',
-          style: TextStyle(
+        title: Text(
+          competition.competitionVirsion.toString(),
+          style: const TextStyle(
             fontSize: 16.0,
             fontWeight: FontWeight.bold,
           ),
@@ -52,7 +50,28 @@ class _CompetitionDetailsScreenState extends State<CompetitionDetailsScreen> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => JuryResults(
+                  builder: (context) => CompetitionJurys(
+                    competition: widget.competition,
+                  ),
+                ),
+              );
+            },
+            child: const Column(
+              children: [
+                Icon(Iconsax.profile_2user),
+                Text(
+                  "لجنة التحكيم",
+                  style: TextStyle(fontSize: 12.0),
+                ),
+              ],
+            ),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => JuryResultsFiles(
                     competition: widget.competition,
                   ),
                 ),
@@ -62,8 +81,8 @@ class _CompetitionDetailsScreenState extends State<CompetitionDetailsScreen> {
               children: [
                 Icon(Iconsax.trend_up),
                 Text(
-                  "التصحيح اللجنة",
-                  style: TextStyle(fontSize: 14.0),
+                  "تصحيح اللجنة",
+                  style: TextStyle(fontSize: 12.0),
                 ),
               ],
             ),
@@ -97,14 +116,6 @@ class _CompetitionDetailsScreenState extends State<CompetitionDetailsScreen> {
                           ),
                         ),
                       ),
-                      Expanded(
-                        child: Text(
-                          "تاريخ النهاية: ${competition.endDate != null ? Utils.arDateFormat(competition.endDate!) : 'غير متاح'}",
-                          style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
                     ],
                   ),
                   const SizedBox(
@@ -116,6 +127,10 @@ class _CompetitionDetailsScreenState extends State<CompetitionDetailsScreen> {
                       fontWeight: FontWeight.bold,
                     ),
                     textAlign: TextAlign.left,
+                  ),
+
+                  const SizedBox(
+                    height: 10.0,
                   ),
                   const SizedBox(
                     height: 5.0,
@@ -187,141 +202,65 @@ class _CompetitionDetailsScreenState extends State<CompetitionDetailsScreen> {
                                 return GestureDetector(
                                   onLongPress: () async {
                                     // Show confirmation dialog to delete the competition
-                                    await showDialog(
-                                      context: context,
-                                      builder: (context) => StatefulBuilder(
-                                        builder: (context, setState) =>
-                                            AlertDialog(
-                                          title: const Text(
-                                            'تحذير: حذف المتسابق',
-                                            style: TextStyle(
-                                                color: Colors
-                                                    .red), // Change title color to red
-                                          ),
-                                          content: const Text(
-                                            'هل أنت متأكد أنك تريد حذف هذا المتسابق ؟ هذا الإجراء لا يمكن التراجع عنه.',
-                                          ),
-                                          actions: [
-                                            TextButton(
-                                              onPressed: () {
-                                                Navigator.of(context)
-                                                    .pop(); // Close the dialog
-                                              },
-                                              child: const Text('إلغاء'),
+                                    if (competition.isActive!) {
+                                      await showDialog(
+                                        context: context,
+                                        builder: (context) => StatefulBuilder(
+                                          builder: (context, setState) =>
+                                              AlertDialog(
+                                            title: const Text(
+                                              'تحذير: حذف المتسابق',
+                                              style: TextStyle(
+                                                  color: Colors
+                                                      .red), // Change title color to red
                                             ),
-                                            TextButton(
-                                              style: TextButton.styleFrom(
-                                                  backgroundColor: Colors
-                                                      .red, // Set background color to red
-                                                  shape: RoundedRectangleBorder(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            10.0),
-                                                  )),
-                                              onPressed: () {
-                                                List<dynamic>? roundList =
-                                                    inscription.tashihMachaikhs
-                                                        ?.firstRound;
-                                                int correctedCount = 0;
-                                                for (var element
-                                                    in (roundList ?? [])) {
-                                                  // Handle null roundList
-                                                  try {
-                                                    NoteResult noteResult;
-
-                                                    // Check if it's an adult or child inscription and parse accordingly
-                                                    if (selectedType ==
-                                                        "adult_inscription") {
-                                                      noteResult = NoteResult
-                                                          .fromMapAdult(
-                                                              element);
-                                                    } else {
-                                                      noteResult = NoteResult
-                                                          .fromMapChild(
-                                                              element);
-                                                    }
-
-                                                    // Safely check if the result is corrected
-                                                    if (noteResult
-                                                        .isCorrected!) {
-                                                      correctedCount++;
-                                                    }
-                                                  } catch (e) {
-                                                    print(
-                                                        "Error parsing NoteResult: $e");
-                                                  }
-                                                }
-                                                if (currentCompetition !=
-                                                        null &&
-                                                    correctedCount !=
-                                                        roundList!.length) {
-                                                  // Delete the competition from Firestore
-                                                  FirebaseFirestore.instance
-                                                      .collection(
-                                                          'inscriptions')
-                                                      .doc(competition
-                                                          .competitionVirsion)
-                                                      .collection(selectedType!)
-                                                      .doc(inscription
-                                                          .phoneNumber)
-                                                      .delete()
-                                                      .then((_) {
-                                                    Navigator.of(context)
-                                                        .pop(); // Close the dialog
-                                                    ScaffoldMessenger.of(
-                                                            context)
-                                                        .showSnackBar(
-                                                      const SnackBar(
-                                                        content: Text(
-                                                            'تم حذف المتسابق بنجاح'),
-                                                        backgroundColor:
-                                                            AppColors
-                                                                .primaryColor,
-                                                      ),
-                                                    );
-                                                  }).catchError(
-                                                    (error) {
-                                                      ScaffoldMessenger.of(
-                                                              context)
-                                                          .showSnackBar(
-                                                        SnackBar(
-                                                          content: Text(
-                                                              'خطأ في الحذف: $error'),
-                                                          backgroundColor:
-                                                              AppColors
-                                                                  .grayColor,
-                                                        ),
-                                                      );
-                                                    },
-                                                  );
-                                                } else {
+                                            content: const Text(
+                                              'هل أنت متأكد أنك تريد حذف هذا المتسابق ؟ هذا الإجراء لا يمكن التراجع عنه.',
+                                            ),
+                                            actions: [
+                                              TextButton(
+                                                onPressed: () {
                                                   Navigator.of(context)
                                                       .pop(); // Close the dialog
-                                                  // Show error message if competition is not active
-                                                  ScaffoldMessenger.of(context)
-                                                      .showSnackBar(
-                                                    const SnackBar(
-                                                      content: Text(
-                                                        'لا يمكنك حذف هذا المتسابق لأن المسابقة قد انتهت !.',
-                                                      ),
-                                                      backgroundColor:
-                                                          AppColors.yellowColor,
-                                                    ),
-                                                  );
-                                                }
-                                              },
-                                              child: const Text(
-                                                'حذف',
-                                                style: TextStyle(
-                                                    color: Colors
-                                                        .white), // Set text color to white,
+                                                },
+                                                child: const Text('إلغاء'),
                                               ),
-                                            ),
-                                          ],
+                                              TextButton(
+                                                style: TextButton.styleFrom(
+                                                    backgroundColor: Colors
+                                                        .red, // Set background color to red
+                                                    shape:
+                                                        RoundedRectangleBorder(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              10.0),
+                                                    )),
+                                                onPressed: () {},
+                                                child: const Text(
+                                                  'حذف',
+                                                  style: TextStyle(
+                                                      color: Colors
+                                                          .white), // Set text color to white,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
                                         ),
-                                      ),
-                                    );
-                                    setState(() {});
+                                      );
+                                    } else {
+                                      final failureSnackBar = SnackBar(
+                                        content: const Text(
+                                            "لا يمكن حذف المتسابق لأن المسابقة غير نشطة !"),
+                                        action: SnackBarAction(
+                                          label: 'تراجع',
+                                          onPressed: () {},
+                                        ),
+                                        backgroundColor: AppColors.yellowColor,
+                                      );
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(failureSnackBar);
+                                    }
+                                    // setState(() {});
                                   },
                                   child: Container(
                                     padding: const EdgeInsets.all(
@@ -394,42 +333,6 @@ class _CompetitionDetailsScreenState extends State<CompetitionDetailsScreen> {
                                             ),
                                           ],
                                         ),
-                                        // if (inscription.isBaned!)
-                                        //   Positioned(
-                                        //     top: 7,
-                                        //     left: -17,
-                                        //     // bottom: 13,
-                                        //     child: Transform.rotate(
-                                        //       angle: -50 *
-                                        //           3.141592653589793 /
-                                        //           180, // Convert 30 degrees to radians
-                                        //       child: Container(
-                                        //         height: 15,
-                                        //         width: 55,
-                                        //         padding:
-                                        //             const EdgeInsets.symmetric(
-                                        //                 vertical: 2,
-                                        //                 horizontal: 4),
-                                        //         decoration: BoxDecoration(
-                                        //           color: Colors
-                                        //               .redAccent, // Use any color that stands out
-                                        //           borderRadius:
-                                        //               BorderRadius.circular(4),
-                                        //         ),
-                                        //         child: const Text(
-                                        //           "محظور",
-                                        //           textAlign: TextAlign.center,
-                                        //           style: TextStyle(
-                                        //             color: Colors.white,
-                                        //             fontSize: 8,
-                                        //             fontWeight: FontWeight.bold,
-                                        //             fontStyle: FontStyle.italic,
-                                        //             letterSpacing: 1.2,
-                                        //           ),
-                                        //         ),
-                                        //       ),
-                                        //     ),
-                                        //   ),
                                       ],
                                     ),
                                   ),
@@ -500,9 +403,11 @@ class _CompetitionDetailsScreenState extends State<CompetitionDetailsScreen> {
                               ),
                             );
                           },
-                          child: const Text(
-                            "نشر نتائج المسابقة",
-                            style: TextStyle(
+                          child: Text(
+                            competition.isActive!
+                                ? "نشر نتائج المسابقة"
+                                : "نتائج المسابقة",
+                            style: const TextStyle(
                               color: AppColors.whiteColor,
                             ),
                           ),

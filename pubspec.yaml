@@ -42,7 +42,7 @@ dependencies:
   firebase_core: ^3.3.0
   cloud_firestore: ^5.2.0
   excel: ^4.0.3
-  path_provider: ^2.1.4
+  path_provider: ^2.1.5
   iconly: ^1.0.1
   image_picker: ^1.1.2
   provider: ^6.1.2
@@ -54,8 +54,11 @@ dependencies:
   flick_video_player: ^0.9.0
   archive: ^3.6.1
   file_picker: ^8.1.2
-  url_launcher: ^6.3.0
+  url_launcher: ^6.2.3
   permission_handler: ^11.3.1
+  open_filex: ^4.5.0
+  intl_phone_field: ^3.2.0
+  shared_preferences: ^2.3.3
 
 dev_dependencies:
   flutter_test:

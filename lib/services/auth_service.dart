@@ -6,82 +6,99 @@ import 'package:flutter/material.dart';
 import 'package:quranic_competition/auth/login_screen.dart';
 import 'package:quranic_competition/auth/register_screen.dart';
 import 'package:quranic_competition/constants/colors.dart';
+import 'package:quranic_competition/models/admin.dart';
 import 'package:quranic_competition/models/inscription.dart';
-import 'package:quranic_competition/models/note_result.dart';
+import 'package:quranic_competition/models/jury.dart';
+import 'package:quranic_competition/models/jurys_inscription.dart';
 import 'package:quranic_competition/models/users.dart';
-import 'package:quranic_competition/providers/auth_provider.dart'
-    as auth_provider;
-import 'package:quranic_competition/services/inscription_service.dart';
+import 'package:quranic_competition/providers/auth_provider.dart';
 
 class AuthService {
   static FirebaseFirestore firebaseFirestore = FirebaseFirestore.instance;
   static final FirebaseAuth _auth = FirebaseAuth.instance;
+  static AuthProviders authProviders = AuthProviders();
 
   static String? _verificationId;
 
-  static Future<Users> getCurrentUser(String phoneNumber) async {
+  static Future<Map<String, dynamic>?> getCurrentUser(String userID) async {
     var usersRef = firebaseFirestore.collection("users");
-    var users = await usersRef.doc(phoneNumber).get();
-    return Users.fromMap(users.data()!);
+    var users = await usersRef.doc(userID).get();
+
+    // Check if the document exists
+    if (!users.exists) {
+      print("User document does not exist for userID: $userID");
+      return null; // Return null or handle as appropriate for your app
+    }
+
+    // Safely access fields after confirming the document exists
+    if (users.get("role") == "إداري") {
+      return {
+        "role": users.data()!["role"],
+        "user": Admin.fromMap(users.data()!)
+      };
+    } else {
+      return {
+        "role": users.data()!["role"],
+        "user": Jury.fromMap(users.data()!)
+      };
+    }
   }
 
-  // Update a Contestant
-  static Future<void> updateContestant(
-    BuildContext context,
-    String fullName,
-    NoteResult noteResult,
-    Inscription inscription,
-    String competitionVersion,
-    String competitionType,
-    String competitionRound,
-  ) async {
+  static Future<void> addJuryInscriptionNotes(
+      {required String competitionVersion,
+      required String competitionRound,
+      required JuryInscription juryInscription,
+      required bool isAdult,
+      required BuildContext context}) async {
+    // Reference to the collection where you want to store the JurysInscription
+    CollectionReference jurysInscriptionCollection = FirebaseFirestore.instance
+        .collection("inscriptions")
+        .doc(competitionVersion)
+        .collection('jurysInscriptions');
     try {
-      firebaseFirestore.collection("users");
-      var cometitionTypeRef = firebaseFirestore
-          .collection("inscriptions")
-          .doc(competitionVersion)
-          .collection(competitionType)
-          .doc(inscription.phoneNumber);
-
-      noteResult.cheikhName = fullName;
-      List<Users>? users = auth_provider.AuthProvider().users;
-      int userIndex = 0;
-      for (var i = 0; i < users!.length; i++) {
-        if (users[i].fullName == fullName) {
-          userIndex = i;
-          break;
+      // Generate a unique ID for the document
+      juryInscription.idCollection =
+          "${juryInscription.idJury}-${juryInscription.idInscription}";
+      // Add a new document with data from jurysInscription.toMap()
+      if (isAdult) {
+        juryInscription.idCollection =
+            "${juryInscription.idJury}-${juryInscription.idInscription}-adult";
+        if (competitionRound == "التصفيات الأولى") {
+          await jurysInscriptionCollection
+              .doc(juryInscription.idCollection)
+              .set(
+                juryInscription.toMapAdult(),
+              );
+        } else {
+          print(
+              "========================== juryInscription firstNotes : ${juryInscription.firstNotes} ");
+          print(
+              "========================== juryInscription lastNotes : ${juryInscription.lastNotes!.toMapAdult()} ");
+          await jurysInscriptionCollection
+              .doc(juryInscription.idCollection)
+              .update({
+            "lastResult": juryInscription.lastNotes!.toMapAdult(),
+            "isLastCorrected": true,
+          });
+        }
+      } else {
+        juryInscription.idCollection =
+            "${juryInscription.idJury}-${juryInscription.idInscription}-child";
+        if (competitionRound == "التصفيات الأولى") {
+          await jurysInscriptionCollection
+              .doc(juryInscription.idCollection)
+              .set(
+                juryInscription.toMapChild(),
+              );
+        } else {
+          await jurysInscriptionCollection
+              .doc(juryInscription.idCollection)
+              .update({
+            "lastResult": juryInscription.lastNotes!.toMapChild(),
+            "isLastCorrected": true,
+          });
         }
       }
-      DocumentSnapshot<Map<String, dynamic>> doc =
-          await cometitionTypeRef.get();
-
-      List<dynamic> myList = doc['tashihMachaikhs'][competitionRound];
-      print("=================\n ${myList[userIndex]}");
-
-      if (competitionType == "adult_inscription") {
-        noteResult = NoteResult(
-            cheikhName: fullName,
-            notes: noteResult.notes!,
-            isCorrected: noteResult.isCorrected);
-        myList[userIndex] = noteResult.toMapAdult(); // Update the element
-        print(
-            "===========================================\n ${myList[userIndex]}");
-        await cometitionTypeRef.update({
-          "tashihMachaikhs.$competitionRound": myList,
-        });
-      } else {
-        noteResult = NoteResult(
-            cheikhName: fullName,
-            notes: noteResult.notes!,
-            isCorrected: noteResult.isCorrected);
-        myList[userIndex] = noteResult.toMapChild(); // Update the element
-        print(
-            "===========================================\n ${myList[userIndex]}");
-        await cometitionTypeRef.update({
-          "tashihMachaikhs.$competitionRound": myList,
-        });
-      }
-
       // Snackbar for success
       final successSnackBar = SnackBar(
         content: const Text('تم حفظ العلامة بنجاح'),
@@ -94,33 +111,39 @@ class AuthService {
         backgroundColor: AppColors.greenColor,
       );
       ScaffoldMessenger.of(context).showSnackBar(successSnackBar);
-      Navigator.pop(context);
     } catch (e) {
-      // Snackbar for exception
-      final errorSnackBar = SnackBar(
-        content: Text('حدث خطأ أثناء حفظ العلامة: $e'),
-        action: SnackBarAction(
-          label: 'حاول مرة أخرى',
-          onPressed: () {
-            // Optional: Retry the operation or other actions
-          },
-        ),
-        backgroundColor: Colors
-            .red, // Optional: Change the background color to red to indicate an error
-      );
-
-      ScaffoldMessenger.of(context).showSnackBar(errorSnackBar);
+      print("Failed to add JurysInscription: $e");
     }
   }
 
   // check if all constraints have notes and return result and list of constraints
 
-  static Future<Map<String, dynamic>> checkAllNotes(String version,
-      String cometionType, String fullName, String competitionRound) async {
+  static Future<Map<String, dynamic>> checkAllNotes(
+      {required String version,
+      required String cometionType,
+      required String userID,
+      required String competitionRound}) async {
     CollectionReference inscriptionCollection = FirebaseFirestore.instance
         .collection('inscriptions')
         .doc(version)
         .collection(cometionType);
+
+    QuerySnapshot<Map<String, dynamic>> juryInscriptionAdult =
+        await FirebaseFirestore.instance
+            .collection('inscriptions')
+            .doc(version)
+            .collection("jurysInscriptions")
+            .where("idJury", isEqualTo: userID)
+            .where("isAdult", isEqualTo: true)
+            .get();
+    QuerySnapshot<Map<String, dynamic>> juryInscriptionChild =
+        await FirebaseFirestore.instance
+            .collection('inscriptions')
+            .doc(version)
+            .collection("jurysInscriptions")
+            .where("idJury", isEqualTo: userID)
+            .where("isAdult", isEqualTo: false)
+            .get();
 
     QuerySnapshot querySnapshot = await inscriptionCollection
         .orderBy("رقم التسجيل", descending: false)
@@ -136,44 +159,54 @@ class AuthService {
       inscriptions.add(inscription);
       if (competitionRound == "التصفيات الأولى") {
         if (cometionType == "adult_inscription") {
-          for (var note in inscription.tashihMachaikhs!.firstRound!) {
-            NoteResult noteResult = NoteResult.fromMapAdult(note);
-            if (noteResult.cheikhName == fullName && noteResult.isCorrected!) {
-              dataList.add(noteResult.toMapAdult()!);
+          for (var juryDoc in juryInscriptionAdult.docs) {
+            JuryInscription juryInscription =
+                JuryInscription.fromMapAdult(juryDoc.data());
+
+            if (juryInscription.idInscription == inscription.idInscription) {
+              dataList.add(juryInscription.firstNotes!.toMapAdult()!);
               notedInscriptions.add(inscription);
             }
           }
         } else {
-          for (var note in inscription.tashihMachaikhs!.firstRound!) {
-            NoteResult noteResult = NoteResult.fromMapChild(note);
-            if (noteResult.cheikhName == fullName && noteResult.isCorrected!) {
-              dataList.add(noteResult.toMapChild()!);
+          for (var juryDoc in juryInscriptionChild.docs) {
+            JuryInscription juryInscription =
+                JuryInscription.fromMapChild(juryDoc.data());
+            if (juryInscription.idInscription == inscription.idInscription) {
+              dataList.add(juryInscription.firstNotes!.toMapChild()!);
               notedInscriptions.add(inscription);
             }
           }
         }
       } else {
         if (cometionType == "adult_inscription") {
-          for (var note in inscription.tashihMachaikhs!.finalRound!) {
-            NoteResult noteResult = NoteResult.fromMapAdult(note);
-            if (noteResult.cheikhName == fullName && noteResult.isCorrected!) {
-              dataList.add(noteResult.toMapAdult()!);
+          for (var juryDoc in juryInscriptionAdult.docs) {
+            JuryInscription juryInscription =
+                JuryInscription.fromMapAdult(juryDoc.data());
+            if (juryInscription.idInscription == inscription.idInscription &&
+                inscription.isPassedFirstRound!) {
+              dataList.add(juryInscription.lastNotes!.toMapAdult()!);
               notedInscriptions.add(inscription);
             }
           }
         } else {
-          for (var note in inscription.tashihMachaikhs!.finalRound!) {
-            NoteResult noteResult = NoteResult.fromMapChild(note);
-            if (noteResult.cheikhName == fullName && noteResult.isCorrected!) {
-              dataList.add(noteResult.toMapChild()!);
+          for (var juryDoc in juryInscriptionChild.docs) {
+            JuryInscription juryInscription =
+                JuryInscription.fromMapChild(juryDoc.data());
+            if (juryInscription.idInscription == inscription.idInscription &&
+                inscription.isPassedFirstRound!) {
+              dataList.add(juryInscription.lastNotes!.toMapChild()!);
               notedInscriptions.add(inscription);
             }
           }
         }
       }
     }
-
-    if (inscriptions.length == dataList.length) {
+    if (inscriptions.length == dataList.length &&
+        dataList.isNotEmpty &&
+        inscriptions.isNotEmpty) {
+      print(
+          "=============== Inscriptions: ${inscriptions.length} , data: ${dataList.length}");
       return {
         "isNoted": true,
         "notedInscriptions": notedInscriptions,
@@ -207,12 +240,28 @@ class AuthService {
     }
   }
 
-  static Future<void> registerUser(Users user, BuildContext context) async {
+  static Future<void> registerUser(
+      {Jury? jury, Admin? admin, required BuildContext context}) async {
     try {
-      await firebaseFirestore
-          .collection("users")
-          .doc(user.phoneNumber)
-          .set(user.toMap());
+      if (jury != null) {
+        await firebaseFirestore
+            .collection("users")
+            .add(jury.toMap())
+            .then((val) async {
+          await firebaseFirestore.collection("users").doc(val.id).update({
+            "userID": val.id,
+          });
+        });
+      } else {
+        await firebaseFirestore
+            .collection("users")
+            .add(admin!.toMap())
+            .then((val) async {
+          await firebaseFirestore.collection("users").doc(val.id).update({
+            "userID": val.id,
+          });
+        });
+      }
 
       // If the set operation is successful, show the success dialog
       showDialog(
@@ -299,22 +348,42 @@ class AuthService {
   }
 
   static Future<Map<String, dynamic>> loginUser(
-      Users user, BuildContext context) async {
-    var usersRef = firebaseFirestore.collection("users");
+      {required Users user, required BuildContext context}) async {
+    QuerySnapshot<Map<String, dynamic>> users;
     bool loggedIn = false;
     Users? existUser;
-    var users = await usersRef.doc(user.phoneNumber).get();
-    if (users.exists) {
-      existUser = Users.fromMap(users.data()!);
-      auth_provider.AuthProvider().setCurrentUser(user.phoneNumber);
-      loggedIn = true;
+
+    var usersRef = firebaseFirestore.collection("users");
+    users =
+        await usersRef.where("phoneNumber", isEqualTo: user.phoneNumber).get();
+
+    // var users = await usersRef.doc(user.phoneNumber).get();
+    if (users.docs.isNotEmpty) {
+      existUser = Users.fromMap(users.docs.first.data());
+      // authProviders.setCurrentUser(existUser.userID!);
+
+      if (existUser.role == "إداري") {
+        loggedIn = true;
+        Admin admin = Admin.fromMap(users.docs.first.data());
+        return {
+          "loggedIn": loggedIn,
+          "currentUser": admin,
+        };
+      } else {
+        loggedIn = true;
+        Jury jury = Jury.fromMap(users.docs.first.data());
+        return {
+          "loggedIn": loggedIn,
+          "currentUser": jury,
+        };
+      }
     } else {
       loggedIn = false;
+      return {
+        "loggedIn": loggedIn,
+        "currentUser": null,
+      };
     }
-    return {
-      "loggedIn": loggedIn,
-      "currentUser": existUser,
-    };
   }
 
   // Déconnecter l'utilisateur
@@ -338,71 +407,76 @@ class AuthService {
     required String phoneNumber,
     required BuildContext context,
   }) async {
-    final Completer<bool> completer = Completer<bool>();
-    final FirebaseAuth _auth = FirebaseAuth.instance;
-
     try {
-      await _auth.verifyPhoneNumber(
-        phoneNumber: "+222$phoneNumber",
+      await FirebaseAuth.instance.verifyPhoneNumber(
+        phoneNumber: phoneNumber,
         verificationCompleted: (PhoneAuthCredential credential) async {
-          await _auth.signInWithCredential(credential);
-          showMessage(
-              'تم التحقق من رقم الهاتف وتسجيل الدخول تلقائيًا.', context);
-          completer.complete(true); // Mark as successful
+          // Automatically signs in the user
+          await FirebaseAuth.instance.signInWithCredential(credential);
         },
         verificationFailed: (FirebaseAuthException e) {
-          showMessage('فشل التحقق: ${e.message}', context);
-          completer.complete(false); // Mark as failed
+          // Check if the widget is still mounted before accessing context
+          if (context.mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Verification failed: ${e.message}')),
+            );
+          }
         },
         codeSent: (String verificationId, int? resendToken) {
           _verificationId = verificationId;
-          showMessage('تم إرسال رمز التحقق.', context);
-          completer.complete(true); // Code was successfully sent
+          // Check if the widget is still mounted before accessing context
+          if (context.mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Verification code sent!')),
+            );
+          }
         },
         codeAutoRetrievalTimeout: (String verificationId) {
           _verificationId = verificationId;
-          completer.complete(false); // Timeout; treat as a failure
         },
-        timeout: const Duration(seconds: 60),
       );
+      return true;
     } catch (e) {
-      showMessage('فشل إرسال رمز التحقق: $e', context);
-      completer.complete(false); // Exception occurred
+      // Check if the widget is still mounted before accessing context
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to send verification code: $e')),
+        );
+      }
+      return false;
     }
-
-    return completer.future; // Await the completion of this future
   }
 
-  // static void showMessage(String message, BuildContext context) {
-  //   final snackBar = SnackBar(content: Text(message));
-  //   ScaffoldMessenger.of(context).showSnackBar(snackBar);
-  // }
-
-  static Future<void> verifyCode(
-      {required void Function() function,
-      required List<TextEditingController> codeControllers,
-      required BuildContext context,
-      Users? user,
-      Inscription? inscription,
-      String? competitionVirsion}) async {
+  static Future<void> verifyCode({
+    required void Function() function,
+    required List<TextEditingController> codeControllers,
+    required BuildContext context,
+    Users? user,
+    Inscription? inscription,
+    String? competitionVirsion,
+  }) async {
     String code = codeControllers.map((controller) => controller.text).join();
+
+    // Ensure that the code length is 4
     if (code.length != 4) {
       AuthService.showMessage('يرجى إدخال الرمز الكامل.', context);
       return;
     }
 
     try {
+      // Create a PhoneAuthCredential with the code and verificationId
       PhoneAuthCredential credential = PhoneAuthProvider.credential(
-        verificationId: _verificationId!,
-        smsCode: code,
+        verificationId:
+            _verificationId!, // Ensure _verificationId is properly set before this point
+        smsCode: code, // Use smsCode as the parameter name
       );
 
-      await _auth.signInWithCredential(credential).whenComplete(
-        () {
-          function();
-        },
-      );
-      AuthService.showMessage('تم التحقق من الرقم بنجاح!', context);
+      // Sign in with the credential
+      await _auth.signInWithCredential(credential).then((value) {
+        // Call the function passed to indicate success
+        function();
+        AuthService.showMessage('تم التحقق من الرقم بنجاح!', context);
+      });
     } catch (e) {
       AuthService.showMessage('فشل التحقق من الرمز: $e', context);
     }

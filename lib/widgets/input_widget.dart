@@ -14,6 +14,7 @@ class InputWidget extends StatefulWidget {
   final bool? enabled;
   final Widget? suffixIcon;
   final TextInputType? keyboardType;
+  final String? Function(String?)? validator;
 
   const InputWidget({
     super.key,
@@ -30,6 +31,7 @@ class InputWidget extends StatefulWidget {
     this.maxLength,
     this.keyboardType,
     this.suffixIcon,
+    this.validator,
   });
 
   @override
@@ -45,20 +47,21 @@ class _InputWidgetState extends State<InputWidget> {
       obscureText: widget.obscure ?? false,
       keyboardType: widget.keyboardType ?? TextInputType.text,
       maxLines: widget.maxLines,
-      validator: (value) {
-        if (value!.isEmpty) {
-          return "الحقل فارغ";
-        } else if (widget.maxLength != null) {
-          if (value.length < widget.maxLength!) {
-            return "يجب أن يكون الحد الأدنى ${widget.maxLength}!";
-          } else if (value.length > widget.maxLength!) {
-            return "يجب أن يكون الحد الأقصى ${widget.maxLength}!";
-          }
-        } else if (value.isNotEmpty) {
-          return null;
-        }
-        return null;
-      },
+      validator: widget.validator ??
+          (value) {
+            if (value!.isEmpty) {
+              return "الحقل فارغ";
+            } else if (widget.maxLength != null) {
+              if (value.length < widget.maxLength!) {
+                return "يجب أن يكون الحد الأدنى ${widget.maxLength}!";
+              } else if (value.length > widget.maxLength!) {
+                return "يجب أن يكون الحد الأقصى ${widget.maxLength}!";
+              }
+            } else if (value.isNotEmpty) {
+              return null;
+            }
+            return null;
+          },
       initialValue: widget.initialValue,
       onChanged: widget.onChanged,
       onTap: widget.onTap,

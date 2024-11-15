@@ -38,8 +38,8 @@
 
 //   @override
 //   Widget build(BuildContext context) {
-//     AuthProvider authProvider =
-//         Provider.of<AuthProvider>(context, listen: false);
+//     AuthProviders AuthProviders =
+//         Provider.of<AuthProviders>(context, listen: false);
 //     return Scaffold(
 //       resizeToAvoidBottomInset: false,
 //       appBar: AppBar(
@@ -163,12 +163,12 @@
 //                                                   height: 5.0,
 //                                                 ),
 //                                                 Text(inscription.noteTajwid![
-//                                                             authProvider
+//                                                             AuthProviders
 //                                                                 .currentUser!
 //                                                                 .fullName] !=
 //                                                         null
 //                                                     ? inscription.noteTajwid![
-//                                                             authProvider
+//                                                             AuthProviders
 //                                                                 .currentUser!
 //                                                                 .fullName]
 //                                                         .toString()
@@ -186,13 +186,13 @@
 //                                                   height: 5.0,
 //                                                 ),
 //                                                 Text(inscription.noteHousnSawtt![
-//                                                             authProvider
+//                                                             AuthProviders
 //                                                                 .currentUser!
 //                                                                 .fullName] !=
 //                                                         null
 //                                                     ? inscription
 //                                                         .noteHousnSawtt![
-//                                                             authProvider
+//                                                             AuthProviders
 //                                                                 .currentUser!
 //                                                                 .fullName]
 //                                                         .toString()
@@ -217,13 +217,13 @@
 //                                                           null
 //                                                       ? Text(inscription
 //                                                                       .noteIltizamRiwaya![
-//                                                                   authProvider
+//                                                                   AuthProviders
 //                                                                       .currentUser!
 //                                                                       .fullName] !=
 //                                                               null
 //                                                           ? inscription
 //                                                               .noteIltizamRiwaya![
-//                                                                   authProvider
+//                                                                   AuthProviders
 //                                                                       .currentUser!
 //                                                                       .fullName]
 //                                                               .toString()
@@ -249,13 +249,13 @@
 //                                                           null
 //                                                       ? Text(inscription
 //                                                                       .noteOu4oubetSawtt![
-//                                                                   authProvider
+//                                                                   AuthProviders
 //                                                                       .currentUser!
 //                                                                       .fullName] !=
 //                                                               null
 //                                                           ? inscription
 //                                                               .noteOu4oubetSawtt![
-//                                                                   authProvider
+//                                                                   AuthProviders
 //                                                                       .currentUser!
 //                                                                       .fullName]
 //                                                               .toString()
@@ -281,13 +281,13 @@
 //                                                           null
 //                                                       ? Text(inscription
 //                                                                       .noteWaqfAndIbtidaa![
-//                                                                   authProvider
+//                                                                   AuthProviders
 //                                                                       .currentUser!
 //                                                                       .fullName] !=
 //                                                               null
 //                                                           ? inscription
 //                                                               .noteWaqfAndIbtidaa![
-//                                                                   authProvider
+//                                                                   AuthProviders
 //                                                                       .currentUser!
 //                                                                       .fullName]
 //                                                               .toString()
@@ -305,7 +305,7 @@
 //                               ),
 //                               Visibility(
 //                                 visible: inscription.result![
-//                                         authProvider.currentUser!.fullName] !=
+//                                         AuthProviders.currentUser!.fullName] !=
 //                                     null,
 //                                 child: const Positioned(
 //                                   top: 10,
@@ -356,14 +356,14 @@
 //                   Map result = await AuthService.checkAllNotes(
 //                       widget.competitionVersion,
 //                       widget.competitionType,
-//                       authProvider.currentUser!.fullName);
+//                       AuthProviders.currentUser!.fullName);
 //                   bool isCheked = result["result"];
 //                   List<Map<String, dynamic>> dataList = result["dataList"];
 //                   if (isCheked && dataList.isNotEmpty) {
 //                     // Send notes to the admin
 //                     InscriptionService.exportDataAsXlsx(
 //                         dataList,
-//                         authProvider.currentUser!.fullName,
+//                         AuthProviders.currentUser!.fullName,
 //                         widget.competitionVersion,
 //                         widget.competitionType,
 //                         context);

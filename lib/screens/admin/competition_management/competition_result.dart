@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:quranic_competition/constants/colors.dart';
 import 'package:quranic_competition/models/competition.dart';
 import 'package:quranic_competition/models/inscription.dart';
+import 'package:quranic_competition/models/result_model.dart';
 import 'package:quranic_competition/providers/competion_provider.dart';
 import 'package:quranic_competition/services/competion_service.dart';
 import 'package:quranic_competition/services/inscription_service.dart';
@@ -31,9 +32,8 @@ class CompetitionResultsState extends State<CompetitionResults> {
   String? selectedType;
   String? selectedText;
   String? selectedRound = "التصفيات الأولى";
-  bool isPassedFirstRound = false;
   String query = "";
-
+  bool _isLoading = false;
   @override
   Widget build(BuildContext context) {
     Competition competition = widget.competition;
@@ -46,42 +46,6 @@ class CompetitionResultsState extends State<CompetitionResults> {
             fontSize: 18.0,
           ),
         ),
-        actions: [
-          TextButton(
-            onPressed: () async {
-              await CompetitionService.publishResults(
-                  competition: competition,
-                  competitionRound: "التصفيات الأولى",
-                  context: context);
-            },
-            child: const Column(
-              children: [
-                Icon(Iconsax.share5),
-                Text(
-                  "نشر النتائج 1",
-                  style: TextStyle(fontSize: 9.0),
-                ),
-              ],
-            ),
-          ),
-          TextButton(
-            onPressed: () async {
-              await CompetitionService.publishResults(
-                  competition: competition,
-                  competitionRound: "التصفيات النهائية",
-                  context: context);
-            },
-            child: const Column(
-              children: [
-                Icon(Iconsax.share5),
-                Text(
-                  "نشر النتائج 2",
-                  style: TextStyle(fontSize: 9.0),
-                ),
-              ],
-            ),
-          ),
-        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(8.0),
@@ -94,115 +58,48 @@ class CompetitionResultsState extends State<CompetitionResults> {
                       .competition !=
                   null)
                 Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
-                    Expanded(
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                            // minimumSize: const Size(double.infinity, 45.0),
-                            backgroundColor: AppColors.primaryColor,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10.0),
-                            ),
-                            padding: const EdgeInsets.all(5.0)),
-                        onPressed: () async {
-                          setState(() {
-                            isLoadingFirst = true;
-                          });
-                          bool isCorrected =
-                              await CompetitionService.calculeResults(
-                                  competition.competitionVirsion!,
-                                  "التصفيات الأولى");
-                          if (isCorrected) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text(
-                                  'تم حساب المعدلات الأولية بنجاح.',
-                                ),
-                                backgroundColor: AppColors.greenColor,
-                              ),
-                            );
-                          } else {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text(
-                                  'لم تنتهي لجنة التحكيم من التصحيح',
-                                ),
-                                backgroundColor: AppColors.yellowColor,
-                              ),
-                            );
-                          }
-                          setState(() {
-                            isLoadingFirst = false;
-                          });
-                        },
-                        child: isLoadingFirst
-                            ? const CircularProgressIndicator(
-                                color: AppColors.whiteColor,
-                              )
-                            : const Text(
-                                'حساب النتائج الأولية',
-                                style: TextStyle(
-                                  color: AppColors.whiteColor,
-                                ),
-                              ),
-                      ),
-                    ),
-                    const SizedBox(
-                      width: 5.0,
-                    ),
-                    Expanded(
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.primaryColor,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10.0),
+                    TextButton(
+                      onPressed: () async {
+                        await CompetitionService.publishResults(
+                            competition: competition,
+                            competitionRound: "التصفيات الأولى",
+                            context: context);
+                      },
+                      child: const Column(
+                        children: [
+                          Icon(
+                            Iconsax.share5,
+                            size: 30,
                           ),
-                          // minimumSize: const Size(double.infinity, 45.0),
-                          padding: const EdgeInsets.all(5.0),
-                        ),
-                        onPressed: () async {
-                          setState(() {
-                            isLoadingLast = true;
-                          });
-                          bool isCorrected =
-                              await CompetitionService.calculeResults(
-                                  competition.competitionVirsion!,
-                                  "التصفيات النهائية");
-                          if (isCorrected) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text(
-                                  'تم حساب المعدلات الأولية بنجاح.',
-                                ),
-                                backgroundColor: AppColors.greenColor,
-                              ),
-                            );
-                          } else {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text(
-                                  'لم تنتهي لجنة التحكيم من التصحيح',
-                                ),
-                                backgroundColor: AppColors.yellowColor,
-                              ),
-                            );
-                          }
-                          setState(() {
-                            isLoadingLast = false;
-                          });
-                        },
-                        child: isLoadingLast
-                            ? const CircularProgressIndicator(
-                                color: AppColors.whiteColor,
-                              )
-                            : const Text(
-                                'حساب النتائج النهائية',
-                                style: TextStyle(
-                                  color: AppColors.whiteColor,
-                                ),
-                              ),
+                          Text(
+                            "نشر النتائج الأولية",
+                            style: TextStyle(fontSize: 16.0),
+                          ),
+                        ],
                       ),
-                    )
+                    ),
+                    TextButton(
+                      onPressed: () async {
+                        await CompetitionService.publishResults(
+                            competition: competition,
+                            competitionRound: "التصفيات النهائية",
+                            context: context);
+                      },
+                      child: const Column(
+                        children: [
+                          Icon(
+                            Iconsax.share5,
+                            size: 30,
+                          ),
+                          Text(
+                            "نشر النتائج النهائية",
+                            style: TextStyle(fontSize: 16.0),
+                          ),
+                        ],
+                      ),
+                    ),
                   ],
                 ),
               const SizedBox(
@@ -240,11 +137,6 @@ class CompetitionResultsState extends State<CompetitionResults> {
                   onChanged: (String? phase) {
                     setState(() {
                       selectedRound = phase;
-                      if (phase == "التصفيات الأولى") {
-                        isPassedFirstRound = false;
-                      } else {
-                        isPassedFirstRound = true;
-                      }
                     });
                   },
                 ),
@@ -347,20 +239,21 @@ class CompetitionResultsState extends State<CompetitionResults> {
                     ),
                     SizedBox(
                       height: MediaQuery.of(context).size.height * 0.6,
-                      child: FutureBuilder<List<Inscription>>(
+                      child: FutureBuilder<List<Map<String, dynamic>>>(
                         future: CompetitionService.getResults(
                           isAdmin: true,
                           competition: competition,
+                          version: competition.competitionVirsion!,
                           competitionType: selectedType!,
                           competitionRound: selectedRound!,
-                          isPassedFirstRound: isPassedFirstRound,
                           query: query,
                         ),
                         builder: (context, snapshotInscription) {
                           if (snapshotInscription.connectionState ==
                               ConnectionState.waiting) {
                             return const Center(
-                                child: CircularProgressIndicator());
+                              child: CircularProgressIndicator(),
+                            );
                           }
                           if (snapshotInscription.hasData &&
                               snapshotInscription.data!.isNotEmpty) {
@@ -371,8 +264,16 @@ class CompetitionResultsState extends State<CompetitionResults> {
                                   child: ListView.builder(
                                     itemCount: snapshotInscription.data!.length,
                                     itemBuilder: (context, index) {
-                                      Inscription inscription =
+                                      Map<String, dynamic> map =
                                           snapshotInscription.data![index];
+                                      Inscription inscription =
+                                          map["inscription"];
+
+                                      ResultModel? resultModel =
+                                          map["result"] as ResultModel?;
+                                      // selectedText == "المتسابقين الكبار"
+                                      //     ? adultResults.add(resultModel!)
+                                      //     : childResults.add(resultModel!);
                                       return Stack(
                                         children: [
                                           Container(
@@ -436,12 +337,12 @@ class CompetitionResultsState extends State<CompetitionResults> {
                                                                     .bold),
                                                       ),
                                                       Text(
-                                                        inscription
-                                                            .resultFirstRound!
+                                                        resultModel!
+                                                            .generalMoyenne!
                                                             .toStringAsFixed(2),
                                                         style: TextStyle(
-                                                          color: inscription
-                                                                      .resultFirstRound! >=
+                                                          color: resultModel
+                                                                      .generalMoyenne! >=
                                                                   14
                                                               ? AppColors
                                                                   .greenColor
@@ -476,20 +377,48 @@ class CompetitionResultsState extends State<CompetitionResults> {
                                           minimumSize: const Size(
                                               double.infinity, 45.0)),
                                       onPressed: () async {
+                                        setState(() {
+                                          _isLoading = true;
+                                        });
+                                        List<ResultModel> resultModels = [];
+                                        List<Map<String, dynamic>> map =
+                                            await CompetitionService.getResults(
+                                          isAdmin: true,
+                                          competition: competition,
+                                          version:
+                                              competition.competitionVirsion!,
+                                          competitionType: selectedType!,
+                                          competitionRound: selectedRound!,
+                                          query: query,
+                                        );
+                                        for (var element in map) {
+                                          resultModels.add(
+                                              element["result"] as ResultModel);
+                                        }
+
                                         InscriptionService
-                                            .exportFinalResultAsXlsx(
-                                                snapshotInscription.data!,
-                                                competition,
-                                                selectedType!,
-                                                context,
-                                                selectedRound!);
+                                                .exportFinalResultAsXlsx(
+                                                    resultModels,
+                                                    competition,
+                                                    selectedType!,
+                                                    context,
+                                                    selectedRound!)
+                                            .whenComplete(() {
+                                          setState(() {
+                                            _isLoading = false;
+                                          });
+                                        });
                                       },
-                                      child: const Text(
-                                        "تنزيل النتائج",
-                                        style: TextStyle(
-                                          color: AppColors.whiteColor,
-                                        ),
-                                      ),
+                                      child: _isLoading
+                                          ? const CircularProgressIndicator(
+                                              strokeWidth: 5.0,
+                                            )
+                                          : const Text(
+                                              "تنزيل النتائج",
+                                              style: TextStyle(
+                                                color: AppColors.whiteColor,
+                                              ),
+                                            ),
                                     ),
                                   )
                               ],

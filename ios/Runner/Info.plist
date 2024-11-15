@@ -45,13 +45,27 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+
+	<!-- Permissions -->
 	<key>NSMicrophoneUsageDescription</key>
-<string>We need access to the microphone to allow file picking</string>
+	<string>We need access to the microphone to allow file picking.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>We need permission to access the photo library to save and edit files.</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>We need permission to save files to the photo library.</string>
+
+	<!-- Background Modes -->
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>fetch</string>
+		<string>processing</string>
+	</array>
+
+	<!-- Schemes for external linking -->
 	<key>LSApplicationQueriesSchemes</key>
 	<array>
 		<string>mailto</string>
 		<string>tel</string>
 	</array>
-
 </dict>
 </plist>

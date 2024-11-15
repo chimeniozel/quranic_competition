@@ -58,15 +58,29 @@ class _AddQuranicBenefitScreenState extends State<AddQuranicBenefitScreen> {
                 setState(() {
                   isloading = true;
                 });
-                // Save the benefit to the database
-                QuranicBenefit quranicBenefit = QuranicBenefit(
-                  description: controller.text,
-                  addByName: Provider.of<AuthProvider>(context, listen: false)
-                      .currentUser!
-                      .fullName,
-                );
-                QuranicBenefit.addQuranicBenefit(quranicBenefit, context);
-                controller.clear();
+                if (controller.text.isNotEmpty) {
+                  // Save the benefit to the database
+                  QuranicBenefit quranicBenefit = QuranicBenefit(
+                    description: controller.text,
+                    addByName:
+                        Provider.of<AuthProviders>(context, listen: false)
+                            .currentAdmin!
+                            .fullName,
+                  );
+                  QuranicBenefit.addQuranicBenefit(quranicBenefit, context);
+                  controller.clear();
+                } else {
+                  final failureSnackBar = SnackBar(
+                    content: const Text("لا يمكن أن يكون الحقل فارغا !"),
+                    action: SnackBarAction(
+                      label: 'تراجع',
+                      onPressed: () {},
+                    ),
+                    backgroundColor: AppColors.yellowColor,
+                  );
+                  ScaffoldMessenger.of(context).showSnackBar(failureSnackBar);
+                }
+
                 setState(() {
                   isloading = false;
                 });
