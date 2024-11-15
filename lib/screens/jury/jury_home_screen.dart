@@ -4,6 +4,7 @@ import 'package:iconsax/iconsax.dart';
 import 'package:provider/provider.dart';
 import 'package:quranic_competition/constants/colors.dart';
 import 'package:quranic_competition/models/inscription.dart';
+import 'package:quranic_competition/models/jurys_inscription.dart';
 import 'package:quranic_competition/models/note_result.dart';
 import 'package:quranic_competition/providers/auth_provider.dart';
 import 'package:quranic_competition/providers/competion_provider.dart';
@@ -256,8 +257,8 @@ class _JuryHomeScreenState extends State<JuryHomeScreen> {
                                       // : inscriptions[index];
                                       Inscription inscription =
                                           map["inscription"];
-                                      NoteModel? firstNotes =
-                                          map["notes"] as NoteModel?;
+                                      JuryInscription? juryInscription =
+                                          map["juryInscription"] as JuryInscription?;
 
                                       return GestureDetector(
                                         onTap: () {
@@ -267,7 +268,8 @@ class _JuryHomeScreenState extends State<JuryHomeScreen> {
                                               builder: (context) =>
                                                   DetailContestantScreen(
                                                 inscription: inscription,
-                                                noteModel: firstNotes,
+                                                firsNoteModel: juryInscription?.firstNotes,
+                                                lastNoteModel: juryInscription?.lastNotes,
                                                 competitionType:
                                                     selectedType.toString(),
                                                 competitionVersion:
@@ -332,7 +334,7 @@ class _JuryHomeScreenState extends State<JuryHomeScreen> {
                                                                   "التجويد"),
                                                               const SizedBox(
                                                                   height: 5.0),
-                                                              Text(firstNotes
+                                                              Text(juryInscription?.firstNotes
                                                                       ?.noteTajwid
                                                                       ?.toString() ??
                                                                   "0.0"),
@@ -348,7 +350,7 @@ class _JuryHomeScreenState extends State<JuryHomeScreen> {
                                                                   "حسن الصوت"),
                                                               const SizedBox(
                                                                   height: 5.0),
-                                                              Text(firstNotes
+                                                              Text(juryInscription?.firstNotes
                                                                       ?.noteHousnSawtt
                                                                       ?.toString() ??
                                                                   "0.0"),
@@ -367,7 +369,7 @@ class _JuryHomeScreenState extends State<JuryHomeScreen> {
                                                                 const SizedBox(
                                                                     height:
                                                                         5.0),
-                                                                Text(firstNotes
+                                                                Text(juryInscription?.firstNotes
                                                                         ?.noteIltizamRiwaya
                                                                         ?.toString() ??
                                                                     "0.0"),
@@ -386,7 +388,7 @@ class _JuryHomeScreenState extends State<JuryHomeScreen> {
                                                                 const SizedBox(
                                                                     height:
                                                                         5.0),
-                                                                Text(firstNotes
+                                                                Text(juryInscription?.firstNotes
                                                                         ?.noteOu4oubetSawtt
                                                                         ?.toString() ??
                                                                     "0.0"),
@@ -405,7 +407,7 @@ class _JuryHomeScreenState extends State<JuryHomeScreen> {
                                                                 const SizedBox(
                                                                     height:
                                                                         5.0),
-                                                                Text(firstNotes
+                                                                Text(juryInscription?.firstNotes
                                                                         ?.noteWaqfAndIbtidaa
                                                                         ?.toString() ??
                                                                     "0.0"),

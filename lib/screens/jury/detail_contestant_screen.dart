@@ -12,17 +12,17 @@ import 'package:quranic_competition/widgets/input_widget.dart';
 
 class DetailContestantScreen extends StatefulWidget {
   final Inscription? inscription;
-  final NoteModel? noteModel;
+  final NoteModel? firsNoteModel;
+  final NoteModel? lastNoteModel;
   final String competitionType;
   final String competitionVersion;
   final String competitionRound;
   const DetailContestantScreen({
     super.key,
     required this.inscription,
-    required this.noteModel,
     required this.competitionType,
     required this.competitionVersion,
-    required this.competitionRound,
+    required this.competitionRound, required this.firsNoteModel, required this.lastNoteModel,
   });
 
   @override
@@ -40,28 +40,54 @@ class _DetailContestantScreenState extends State<DetailContestantScreen> {
 
   @override
   void initState() {
-    if (widget.competitionType == "adult_inscription" &&
-        widget.noteModel?.noteTajwid != null &&
-        widget.noteModel?.noteHousnSawtt != null &&
-        widget.noteModel?.noteIltizamRiwaya != null) {
-      noteTajwidController.text = widget.noteModel!.noteTajwid!.toString();
+    if (widget.competitionRound == "التصفيات الأولى") {
+      if (widget.competitionType == "adult_inscription" &&
+        widget.firsNoteModel?.noteTajwid != null &&
+        widget.firsNoteModel?.noteHousnSawtt != null &&
+        widget.firsNoteModel?.noteIltizamRiwaya != null) {
+      noteTajwidController.text = widget.firsNoteModel!.noteTajwid!.toString();
       noteHousnSawttController.text =
-          widget.noteModel!.noteHousnSawtt!.toString();
+          widget.firsNoteModel!.noteHousnSawtt!.toString();
       noteIltizamRiwayaController.text =
-          widget.noteModel!.noteIltizamRiwaya!.toString();
+          widget.firsNoteModel!.noteIltizamRiwaya!.toString();
     }
     if (widget.competitionType != "adult_inscription" &&
-        widget.noteModel?.noteTajwid != null &&
-        widget.noteModel?.noteHousnSawtt != null &&
-        widget.noteModel?.noteOu4oubetSawtt != null &&
-        widget.noteModel!.noteWaqfAndIbtidaa != null) {
-      noteTajwidController.text = widget.noteModel!.noteTajwid!.toString();
+        widget.firsNoteModel?.noteTajwid != null &&
+        widget.firsNoteModel?.noteHousnSawtt != null &&
+        widget.firsNoteModel?.noteOu4oubetSawtt != null &&
+        widget.firsNoteModel!.noteWaqfAndIbtidaa != null) {
+      noteTajwidController.text = widget.firsNoteModel!.noteTajwid!.toString();
       noteHousnSawttController.text =
-          widget.noteModel!.noteHousnSawtt!.toString();
+          widget.firsNoteModel!.noteHousnSawtt!.toString();
       noteOu4oubetSawttController.text =
-          widget.noteModel!.noteOu4oubetSawtt!.toString();
+          widget.firsNoteModel!.noteOu4oubetSawtt!.toString();
       noteWaqfAndIbtidaaController.text =
-          widget.noteModel!.noteWaqfAndIbtidaa!.toString();
+          widget.firsNoteModel!.noteWaqfAndIbtidaa!.toString();
+    }
+    } else {
+      if (widget.competitionType == "adult_inscription" &&
+        widget.lastNoteModel?.noteTajwid != null &&
+        widget.lastNoteModel?.noteHousnSawtt != null &&
+        widget.lastNoteModel?.noteIltizamRiwaya != null) {
+      noteTajwidController.text = widget.lastNoteModel!.noteTajwid!.toString();
+      noteHousnSawttController.text =
+          widget.lastNoteModel!.noteHousnSawtt!.toString();
+      noteIltizamRiwayaController.text =
+          widget.lastNoteModel!.noteIltizamRiwaya!.toString();
+    }
+    if (widget.competitionType != "adult_inscription" &&
+        widget.lastNoteModel?.noteTajwid != null &&
+        widget.lastNoteModel?.noteHousnSawtt != null &&
+        widget.lastNoteModel?.noteOu4oubetSawtt != null &&
+        widget.lastNoteModel!.noteWaqfAndIbtidaa != null) {
+      noteTajwidController.text = widget.lastNoteModel!.noteTajwid!.toString();
+      noteHousnSawttController.text =
+          widget.lastNoteModel!.noteHousnSawtt!.toString();
+      noteOu4oubetSawttController.text =
+          widget.lastNoteModel!.noteOu4oubetSawtt!.toString();
+      noteWaqfAndIbtidaaController.text =
+          widget.lastNoteModel!.noteWaqfAndIbtidaa!.toString();
+    }
     }
     super.initState();
   }

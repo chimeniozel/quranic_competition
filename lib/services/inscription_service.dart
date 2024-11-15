@@ -331,10 +331,10 @@ class InscriptionService {
                   .get();
 
           // Process jury entries
-          List<NoteModel> juryEntries = [];
+          List<JuryInscription> juryEntries = [];
           for (var juryDoc in docSnapshot.docs) {
             Map<String, dynamic> data = juryDoc.data();
-            NoteModel? note;
+            JuryInscription? juryInscription;
 
             if (competitionType == "adult_inscription") {
               if (juryDoc.get("isAdult")) {
@@ -342,14 +342,20 @@ class InscriptionService {
                     JuryInscription.fromMapAdult(data);
                 if (competitionRound == "التصفيات الأولى") {
                   if (adultJuryInscription.isFirstCorrected != null) {
-                    note = adultJuryInscription.firstNotes;
+                    juryInscription = adultJuryInscription;
+                    juryEntries.add(juryInscription);
+                    print(
+                        "====================== FirstNotes: ${juryInscription.firstNotes?.toMapAdult()}, LastNotes: ${juryInscription.lastNotes?.toMapAdult()}");
                   } else {
                     print(
                         "Warning: Score is null for adult inscription ID: ${inscription.idInscription}");
                   }
                 } else {
                   if (adultJuryInscription.isLastCorrected != null) {
-                    note = adultJuryInscription.lastNotes;
+                    juryInscription = adultJuryInscription;
+                    juryEntries.add(juryInscription);
+                    print(
+                        "====================== FirstNotes: ${juryInscription.firstNotes?.toMapAdult()}, LastNotes: ${juryInscription.lastNotes?.toMapAdult()}");
                   } else {
                     print(
                         "Warning: Score is null for adult inscription ID: ${inscription.idInscription}");
@@ -363,14 +369,20 @@ class InscriptionService {
 
                 if (competitionRound == "التصفيات الأولى") {
                   if (childJuryInscription.isFirstCorrected != null) {
-                    note = childJuryInscription.firstNotes;
+                    juryInscription = childJuryInscription;
+                    juryEntries.add(juryInscription);
+                    print(
+                        "====================== FirstNotes: ${juryInscription.firstNotes?.toMapChild()}, LastNotes: ${juryInscription.lastNotes?.toMapChild()}");
                   } else {
                     print(
                         "Warning: Score is null for adult inscription ID: ${inscription.idInscription}");
                   }
                 } else {
                   if (childJuryInscription.isLastCorrected != null) {
-                    note = childJuryInscription.lastNotes;
+                    juryInscription = childJuryInscription;
+                    juryEntries.add(juryInscription);
+                    print(
+                        "====================== FirstNotes: ${juryInscription.firstNotes?.toMapChild()}, LastNotes: ${juryInscription.lastNotes?.toMapChild()}");
                   } else {
                     print(
                         "Warning: Score is null for adult inscription ID: ${inscription.idInscription}");
@@ -378,16 +390,13 @@ class InscriptionService {
                 }
               }
             }
-
-            if (note != null) {
-              juryEntries.add(note);
-            }
           }
 
           // Add processed data to the result list
           inscriptions.add({
             "inscription": inscription,
-            "notes": juryEntries.isNotEmpty ? juryEntries.first : null,
+            "juryInscription":
+                juryEntries.isNotEmpty ? juryEntries.first : null,
           });
         } catch (e) {
           print("Error processing inscription ${doc.id}: $e");

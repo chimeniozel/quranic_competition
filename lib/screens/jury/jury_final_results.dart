@@ -3,6 +3,7 @@ import 'package:iconsax/iconsax.dart';
 import 'package:provider/provider.dart';
 import 'package:quranic_competition/constants/colors.dart';
 import 'package:quranic_competition/models/inscription.dart';
+import 'package:quranic_competition/models/jurys_inscription.dart';
 import 'package:quranic_competition/models/note_result.dart';
 import 'package:quranic_competition/providers/auth_provider.dart';
 import 'package:quranic_competition/providers/competion_provider.dart';
@@ -163,11 +164,8 @@ class _JuryFinalResultsState extends State<JuryFinalResults> {
                           itemBuilder: (context, index) {
                             Map<String, dynamic> map = snapshot.data![index];
                             Inscription inscription = map["inscription"];
-                            NoteModel? firstNotes = map["notes"] as NoteModel?;
-
-                            bool isAdult = DateTime.now().year -
-                                    inscription.birthDate!.year >=
-                                13;
+                            JuryInscription? juryInscription =
+                                          map["juryInscription"] as JuryInscription?;
 
                             return GestureDetector(
                               onTap: () {
@@ -177,7 +175,8 @@ class _JuryFinalResultsState extends State<JuryFinalResults> {
                                     builder: (context) =>
                                         DetailContestantScreen(
                                       inscription: inscription,
-                                      noteModel: firstNotes,
+                                      firsNoteModel: juryInscription?.firstNotes,
+                                      lastNoteModel: juryInscription?.lastNotes,
                                       competitionType: selectedType.toString(),
                                       competitionVersion: competitionProvider
                                           .competition!.competitionVirsion
@@ -231,7 +230,7 @@ class _JuryFinalResultsState extends State<JuryFinalResults> {
                                                   children: [
                                                     const Text("التجويد"),
                                                     const SizedBox(height: 5.0),
-                                                    Text(firstNotes?.noteTajwid
+                                                    Text(juryInscription?.lastNotes?.noteTajwid
                                                             ?.toString() ??
                                                         "0.0"),
                                                   ],
@@ -244,7 +243,7 @@ class _JuryFinalResultsState extends State<JuryFinalResults> {
                                                   children: [
                                                     const Text("حسن الصوت"),
                                                     const SizedBox(height: 5.0),
-                                                    Text(firstNotes
+                                                    Text(juryInscription?.lastNotes
                                                             ?.noteHousnSawtt
                                                             ?.toString() ??
                                                         "0.0"),
@@ -262,7 +261,7 @@ class _JuryFinalResultsState extends State<JuryFinalResults> {
                                                           "الإلتزام بالرواية"),
                                                       const SizedBox(
                                                           height: 5.0),
-                                                      Text(firstNotes
+                                                      Text(juryInscription?.lastNotes
                                                               ?.noteIltizamRiwaya
                                                               ?.toString() ??
                                                           "0.0"),
@@ -279,7 +278,7 @@ class _JuryFinalResultsState extends State<JuryFinalResults> {
                                                       const Text("عذوبة الصوت"),
                                                       const SizedBox(
                                                           height: 5.0),
-                                                      Text(firstNotes
+                                                      Text(juryInscription?.lastNotes
                                                               ?.noteOu4oubetSawtt
                                                               ?.toString() ??
                                                           "0.0"),
@@ -297,7 +296,7 @@ class _JuryFinalResultsState extends State<JuryFinalResults> {
                                                           "الوقف والإبتداء"),
                                                       const SizedBox(
                                                           height: 5.0),
-                                                      Text(firstNotes
+                                                      Text(juryInscription?.lastNotes
                                                               ?.noteWaqfAndIbtidaa
                                                               ?.toString() ??
                                                           "0.0"),
@@ -342,6 +341,7 @@ class _JuryFinalResultsState extends State<JuryFinalResults> {
                                   //       ],
                                   //     ),
                                   //   ),
+                                
                                 ],
                               ),
                             );
