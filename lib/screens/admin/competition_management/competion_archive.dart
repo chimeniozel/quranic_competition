@@ -196,7 +196,7 @@ class _CompetionArchiveState extends State<CompetionArchive> {
                         return Column(
                           children: [
                             VideoWidget(videoSource: videoUrl),
-                            ElevatedButton(
+                           if( authProvider.user != null) ElevatedButton(
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: AppColors.pinkColor,
                                 minimumSize: const Size(double.infinity, 45.0),

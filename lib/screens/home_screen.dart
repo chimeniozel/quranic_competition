@@ -45,8 +45,9 @@ class _HomeScreenState extends State<HomeScreen> {
                       imageAsset: "assets/images/inscription.jpeg",
                       onTap: () {
                         if (provider.competition != null) {
-                          if (provider.competition!.adultNumber != 200 ||
-                              provider.competition!.childNumber != 50) {
+                          if ((provider.competition!.adultNumber != 200 ||
+                                  provider.competition!.childNumber != 50) &&
+                              !provider.competition!.firstRoundIsPublished!) {
                             // Navigate to the inscription screen
                             Navigator.push(
                               context,
@@ -54,6 +55,19 @@ class _HomeScreenState extends State<HomeScreen> {
                                 builder: (context) => const InscriptionScreen(),
                               ),
                             );
+                          } else if (provider
+                              .competition!.firstRoundIsPublished!) {
+                            final failureSnackBar = SnackBar(
+                              content:
+                                  const Text("تم قفل باب التسجيل في المسابقة"),
+                              action: SnackBarAction(
+                                label: 'تراجع',
+                                onPressed: () {},
+                              ),
+                              backgroundColor: AppColors.yellowColor,
+                            );
+                            ScaffoldMessenger.of(context)
+                                .showSnackBar(failureSnackBar);
                           } else {
                             final failureSnackBar = SnackBar(
                               content: const Text(
@@ -85,7 +99,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   const SizedBox(width: 8.0),
                   Expanded(
                     child: CusttomCard(
-                      text: "أرشيف المسابقات",
+                      text: "أرشيف المسابقة",
                       imageAsset: "assets/images/archive.jpeg",
                       onTap: () {
                         // Navigate to the inscription screen

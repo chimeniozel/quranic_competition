@@ -5,15 +5,13 @@ import 'package:quranic_competition/models/inscription.dart';
 import 'package:quranic_competition/models/jurys_inscription.dart';
 import 'package:quranic_competition/models/note_result.dart';
 import 'package:quranic_competition/providers/auth_provider.dart';
-import 'package:quranic_competition/screens/jury/jury_final_results.dart';
 import 'package:quranic_competition/screens/jury/jury_home_screen.dart';
 import 'package:quranic_competition/services/auth_service.dart';
 import 'package:quranic_competition/widgets/input_widget.dart';
 
 class DetailContestantScreen extends StatefulWidget {
   final Inscription? inscription;
-  final NoteModel? firsNoteModel;
-  final NoteModel? lastNoteModel;
+  final NoteModel? noteModel;
   final String competitionType;
   final String competitionVersion;
   final String competitionRound;
@@ -22,7 +20,8 @@ class DetailContestantScreen extends StatefulWidget {
     required this.inscription,
     required this.competitionType,
     required this.competitionVersion,
-    required this.competitionRound, required this.firsNoteModel, required this.lastNoteModel,
+    required this.competitionRound,
+    required this.noteModel,
   });
 
   @override
@@ -40,55 +39,32 @@ class _DetailContestantScreenState extends State<DetailContestantScreen> {
 
   @override
   void initState() {
-    if (widget.competitionRound == "التصفيات الأولى") {
       if (widget.competitionType == "adult_inscription" &&
-        widget.firsNoteModel?.noteTajwid != null &&
-        widget.firsNoteModel?.noteHousnSawtt != null &&
-        widget.firsNoteModel?.noteIltizamRiwaya != null) {
-      noteTajwidController.text = widget.firsNoteModel!.noteTajwid!.toString();
-      noteHousnSawttController.text =
-          widget.firsNoteModel!.noteHousnSawtt!.toString();
-      noteIltizamRiwayaController.text =
-          widget.firsNoteModel!.noteIltizamRiwaya!.toString();
-    }
-    if (widget.competitionType != "adult_inscription" &&
-        widget.firsNoteModel?.noteTajwid != null &&
-        widget.firsNoteModel?.noteHousnSawtt != null &&
-        widget.firsNoteModel?.noteOu4oubetSawtt != null &&
-        widget.firsNoteModel!.noteWaqfAndIbtidaa != null) {
-      noteTajwidController.text = widget.firsNoteModel!.noteTajwid!.toString();
-      noteHousnSawttController.text =
-          widget.firsNoteModel!.noteHousnSawtt!.toString();
-      noteOu4oubetSawttController.text =
-          widget.firsNoteModel!.noteOu4oubetSawtt!.toString();
-      noteWaqfAndIbtidaaController.text =
-          widget.firsNoteModel!.noteWaqfAndIbtidaa!.toString();
-    }
-    } else {
-      if (widget.competitionType == "adult_inscription" &&
-        widget.lastNoteModel?.noteTajwid != null &&
-        widget.lastNoteModel?.noteHousnSawtt != null &&
-        widget.lastNoteModel?.noteIltizamRiwaya != null) {
-      noteTajwidController.text = widget.lastNoteModel!.noteTajwid!.toString();
-      noteHousnSawttController.text =
-          widget.lastNoteModel!.noteHousnSawtt!.toString();
-      noteIltizamRiwayaController.text =
-          widget.lastNoteModel!.noteIltizamRiwaya!.toString();
-    }
-    if (widget.competitionType != "adult_inscription" &&
-        widget.lastNoteModel?.noteTajwid != null &&
-        widget.lastNoteModel?.noteHousnSawtt != null &&
-        widget.lastNoteModel?.noteOu4oubetSawtt != null &&
-        widget.lastNoteModel!.noteWaqfAndIbtidaa != null) {
-      noteTajwidController.text = widget.lastNoteModel!.noteTajwid!.toString();
-      noteHousnSawttController.text =
-          widget.lastNoteModel!.noteHousnSawtt!.toString();
-      noteOu4oubetSawttController.text =
-          widget.lastNoteModel!.noteOu4oubetSawtt!.toString();
-      noteWaqfAndIbtidaaController.text =
-          widget.lastNoteModel!.noteWaqfAndIbtidaa!.toString();
-    }
-    }
+          widget.noteModel?.noteTajwid != null &&
+          widget.noteModel?.noteHousnSawtt != null &&
+          widget.noteModel?.noteIltizamRiwaya != null) {
+        noteTajwidController.text =
+            widget.noteModel!.noteTajwid!.toString();
+        noteHousnSawttController.text =
+            widget.noteModel!.noteHousnSawtt!.toString();
+        noteIltizamRiwayaController.text =
+            widget.noteModel!.noteIltizamRiwaya!.toString();
+      }
+      if (widget.competitionType != "adult_inscription" &&
+          widget.noteModel?.noteTajwid != null &&
+          widget.noteModel?.noteHousnSawtt != null &&
+          widget.noteModel?.noteOu4oubetSawtt != null &&
+          widget.noteModel?.noteWaqfAndIbtidaa != null) {
+        noteTajwidController.text =
+            widget.noteModel!.noteTajwid!.toString();
+        noteHousnSawttController.text =
+            widget.noteModel!.noteHousnSawtt!.toString();
+        noteOu4oubetSawttController.text =
+            widget.noteModel!.noteOu4oubetSawtt!.toString();
+        noteWaqfAndIbtidaaController.text =
+            widget.noteModel!.noteWaqfAndIbtidaa!.toString();
+      }
+    
     super.initState();
   }
 
@@ -329,33 +305,19 @@ class _DetailContestantScreenState extends State<DetailContestantScreen> {
                         competitionRound: widget.competitionRound,
                       );
                     }
-                    if (widget.competitionRound == "التصفيات الأولى") {
-                      // Navigate to the jury home screen
-                      Navigator.pushAndRemoveUntil(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => JuryHomeScreen(
-                            selectedType: juryInscription.isAdult!
-                                ? "adult_inscription"
-                                : "child_inscription",
-                          ),
+                    // Navigate to the jury home screen
+                    Navigator.pushAndRemoveUntil(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => JuryHomeScreen(
+                          selectedType: juryInscription.isAdult!
+                              ? "adult_inscription"
+                              : "child_inscription",
                         ),
-                        (route) => false,
-                      );
-                    } else {
-                      // Navigate to the jury home screen
-                      Navigator.pushAndRemoveUntil(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => JuryFinalResults(
-                            selectedType: juryInscription.isAdult!
-                                ? "adult_inscription"
-                                : "child_inscription",
-                          ),
-                        ),
-                        (route) => false,
-                      );
-                    }
+                      ),
+                      (route) => false,
+                    );
+
                     setState(() {
                       isLoading = false;
                     });

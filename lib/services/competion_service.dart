@@ -256,79 +256,17 @@ class CompetitionService {
     }
   }
 
-  // static Future<void> deleteUser(
-  //     {required Users user, required BuildContext context}) async {
-  //   try {
-  //     Competition? competition =
-  //         Provider.of<CompetitionProvider>(context, listen: false).competition;
-  //     await FirebaseFirestore.instance
-  //         .collection("users")
-  //         .doc(user.phoneNumber)
-  //         .delete()
-  //         .whenComplete(() async {
-  //       if (competition != null) {
-  //         QuerySnapshot<Map<String, dynamic>> querySnapshotComp =
-  //             await FirebaseFirestore.instance.collection("inscriptions").get();
-  //         for (var queryComp in querySnapshotComp.docs) {
-  //           if (queryComp.id == competition.competitionVirsion) {
-  //             QuerySnapshot<Map<String, dynamic>> querySnapshotAdults =
-  //                 await FirebaseFirestore.instance
-  //                     .collection("inscriptions")
-  //                     .doc(competition.competitionVirsion)
-  //                     .collection("adult_inscription")
-  //                     .get();
-  //             for (var queryAdult in querySnapshotAdults.docs) {
-  //               Inscription inscription =
-  //                   Inscription.fromMap(queryAdult.data());
-  //               List? firstRound = inscription.tashihMachaikhs!.firstRound;
-  //               List? finalRound = inscription.tashihMachaikhs!.finalRound;
-  //               NoteResult? firstRoundNote;
-  //               NoteResult? finalRoundNote;
-  //               for (var element in firstRound!) {
-  //                 firstRoundNote = NoteResult.fromMapAdult(element);
-  //                 if (firstRoundNote.cheikhName == user.fullName) {
-  //                   firstRound.remove(element);
-  //                 }
-  //               }
-
-  //               for (var element in finalRound!) {
-  //                 finalRoundNote = NoteResult.fromMapAdult(element);
-  //                 if (finalRoundNote.cheikhName == user.fullName) {
-  //                   finalRound.remove(element);
-  //                 }
-  //               }
-  //               await FirebaseFirestore.instance
-  //                   .collection("inscriptions")
-  //                   .doc(competition.competitionVirsion)
-  //                   .collection("adult_inscription")
-  //                   .doc(queryAdult.id)
-  //                   .update({
-  //                 "tashihMachaikhs.التصفيات_الأولى": firstRound,
-  //               });
-  //               await FirebaseFirestore.instance
-  //                   .collection("inscriptions")
-  //                   .doc(competition.competitionVirsion)
-  //                   .collection("adult_inscription")
-  //                   .doc(queryAdult.id)
-  //                   .update({
-  //                 "tashihMachaikhs.التصفيات_النهائية": finalRound,
-  //               });
-  //             }
-
-  //             // QuerySnapshot<Map<String, dynamic>> querySnapshotChilds =
-  //             //     await FirebaseFirestore.instance
-  //             //         .collection("inscriptions")
-  //             //         .doc(competition.competitionVirsion)
-  //             //         .collection("child_inscription")
-  //             //         .get();
-  //           }
-  //         }
-  //       }
-  //     });
-  //   } on FirebaseException catch (e) {
-  //     print("Error deleting user: $e");
-  //   }
-  // }
+  static Future<void> deleteUser(
+      {required String userID, required BuildContext context}) async {
+    try {
+      await FirebaseFirestore.instance
+          .collection("users")
+          .doc(userID)
+          .delete();
+    } on FirebaseException catch (e) {
+      print("Error deleting user: $e");
+    }
+  }
 
   // get images archives as a stream
   static Stream<List<String>> getImagesArchives(String competitionId) {

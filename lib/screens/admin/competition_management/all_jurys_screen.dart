@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:quranic_competition/constants/colors.dart';
 import 'package:quranic_competition/models/jury.dart';
+import 'package:quranic_competition/providers/auth_provider.dart';
+import 'package:quranic_competition/providers/competion_provider.dart';
 import 'package:quranic_competition/services/competion_service.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -22,6 +25,10 @@ class _AllJurysScreenState extends State<AllJurysScreen> {
 
   @override
   Widget build(BuildContext context) {
+    CompetitionProvider competitionProvider =
+        Provider.of<CompetitionProvider>(context, listen: false);
+    AuthProviders authProviders =
+        Provider.of<AuthProviders>(context, listen: false);
     return Scaffold(
       appBar: AppBar(
         title: const Text('أعضاء لجنة التحكيم'),
@@ -91,72 +98,76 @@ class _AllJurysScreenState extends State<AllJurysScreen> {
                             ),
                           ),
                           const SizedBox(width: 8.0), // Spacing between buttons
-                          ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor:
-                                  Colors.red, // Danger color for delete
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10.0),
+                          if (!jury.competitions!.contains(competitionProvider
+                              .competition!.competitionVirsion))
+                            ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor:
+                                    Colors.red, // Danger color for delete
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10.0),
+                                ),
                               ),
-                            ),
-                            onPressed: () {
-                              // Show confirmation dialog before deletion
-                              showDialog(
-                                context: context,
-                                builder: (context) => AlertDialog(
-                                  title: const Text('تحذير: حذف المستخدم'),
-                                  content: const Text(
-                                    'هل أنت متأكد أنك تريد حذف هذا المستخدم؟ هذا الإجراء لا يمكن التراجع عنه.',
-                                  ),
-                                  actions: [
-                                    TextButton(
-                                      onPressed: () {
-                                        Navigator.of(context)
-                                            .pop(); // Close the dialog
-                                      },
-                                      child: const Text('إلغاء'),
+                              onPressed: () {
+                                // Show confirmation dialog before deletion
+                                showDialog(
+                                  context: context,
+                                  builder: (context) => AlertDialog(
+                                    title: const Text('تحذير: حذف المستخدم'),
+                                    content: const Text(
+                                      'هل أنت متأكد أنك تريد حذف هذا المستخدم؟ هذا الإجراء لا يمكن التراجع عنه.',
                                     ),
-                                    TextButton(
-                                      style: TextButton.styleFrom(
-                                          backgroundColor: Colors.red,
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(10.0),
-                                          )),
-                                      onPressed: () async {
-                                        // Delete user from Firestore
-                                        // await CompetitionService.deleteUser(
-                                        //   user: user,
-                                        //   context: context,
-                                        // );
-                                        Navigator.of(context)
-                                            .pop(); // Close the dialog
-                                        ScaffoldMessenger.of(context)
-                                            .showSnackBar(
-                                          const SnackBar(
-                                            content:
-                                                Text('تم حذف المستخدم بنجاح.'),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () {
+                                          Navigator.of(context)
+                                              .pop(); // Close the dialog
+                                        },
+                                        child: const Text('إلغاء'),
+                                      ),
+                                      TextButton(
+                                        style: TextButton.styleFrom(
+                                            backgroundColor: Colors.red,
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(10.0),
+                                            )),
+                                        onPressed: () async {
+                                          // Delete user from Firestore
+                                          await CompetitionService.deleteUser(
+                                            userID: jury.userID!,
+                                            context: context,
+                                          );
+                                          Navigator.of(context)
+                                              .pop(); // Close the dialog
+                                          ScaffoldMessenger.of(context)
+                                              .showSnackBar(
+                                            const SnackBar(
+                                              backgroundColor:
+                                                  AppColors.greenColor,
+                                              content: Text(
+                                                  'تم حذف عضو لجنة التحكيم هذا بنجاح.'),
+                                            ),
+                                          );
+                                          // Optionally, refresh the list
+                                          setState(() {}); // Refresh the UI
+                                        },
+                                        child: const Text(
+                                          'حذف',
+                                          style: TextStyle(
+                                            color: AppColors.whiteColor,
                                           ),
-                                        );
-                                        // Optionally, refresh the list
-                                        setState(() {}); // Refresh the UI
-                                      },
-                                      child: const Text(
-                                        'حذف',
-                                        style: TextStyle(
-                                          color: AppColors.whiteColor,
                                         ),
                                       ),
-                                    ),
-                                  ],
-                                ),
-                              );
-                            },
-                            child: const Text(
-                              "حذف",
-                              style: TextStyle(color: AppColors.whiteColor),
+                                    ],
+                                  ),
+                                );
+                              },
+                              child: const Text(
+                                "حذف",
+                                style: TextStyle(color: AppColors.whiteColor),
+                              ),
                             ),
-                          ),
                         ],
                       ),
                     ],

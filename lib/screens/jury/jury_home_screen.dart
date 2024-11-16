@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:iconly/iconly.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:provider/provider.dart';
 import 'package:quranic_competition/constants/colors.dart';
@@ -9,7 +8,6 @@ import 'package:quranic_competition/models/note_result.dart';
 import 'package:quranic_competition/providers/auth_provider.dart';
 import 'package:quranic_competition/providers/competion_provider.dart';
 import 'package:quranic_competition/screens/jury/detail_contestant_screen.dart';
-import 'package:quranic_competition/screens/jury/jury_final_results.dart';
 import 'package:quranic_competition/services/auth_service.dart';
 import 'package:quranic_competition/services/inscription_service.dart';
 
@@ -43,18 +41,87 @@ class _JuryHomeScreenState extends State<JuryHomeScreen> {
       builder: (context, authProviders, child) {
         if (competitionProvider.isLoading) {
           return const Scaffold(
-              body: Center(child: CircularProgressIndicator()));
+              body: Center(
+                  child: Column(
+            children: [
+              Text("جاري تحميل بيانات المسبقة"),
+              CircularProgressIndicator(),
+            ],
+          )));
         }
 
         if (competitionProvider.competition == null) {
-          return const Scaffold(
-              body: Center(child: Text('No active competition')));
+          return Scaffold(
+            appBar: AppBar(
+              title: IconButton(
+                tooltip: "تسجيل الخروج",
+                icon: const Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      "قم بتسجيل الخروج",
+                      style: TextStyle(
+                        fontSize: 16.0,
+                      ),
+                    ),
+                    SizedBox(width: 8.0),
+                    Icon(
+                      Iconsax.logout,
+                      color: AppColors.pinkColor,
+                    ),
+                  ],
+                ),
+                onPressed: () {
+                  authProviders.logout(context);
+                },
+              ),
+            ),
+            body: const Center(
+              child: Text('لا توجد نسخة نشطة حاليا !'),
+            ),
+          );
         }
-        return authProviders.currentJury != null
+        if (competitionProvider.competition!.lastRoundIsPublished!) {
+          return Scaffold(
+            appBar: AppBar(
+              title: IconButton(
+                tooltip: "تسجيل الخروج",
+                icon: const Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      "قم بتسجيل الخروج",
+                      style: TextStyle(
+                        fontSize: 16.0,
+                      ),
+                    ),
+                    SizedBox(width: 8.0),
+                    Icon(
+                      Iconsax.logout,
+                      color: AppColors.pinkColor,
+                    ),
+                  ],
+                ),
+                onPressed: () {
+                  authProviders.logout(context);
+                },
+              ),
+            ),
+            body: const Center(
+              child: Text('تم نشر التصحيح لايمكنك لم يعد بإمكانك الدخول'),
+            ),
+          );
+        }
+        return authProviders.currentJury != null &&
+                authProviders.currentJury!.competitions!.contains(
+                    competitionProvider.competition!.competitionVirsion)
             ? Scaffold(
                 resizeToAvoidBottomInset: false,
                 appBar: AppBar(
-                  title: const Text("التصفيات الأولى"),
+                  title: Text(
+                      competitionProvider.competition!.firstRoundIsPublished!
+                          ? "النتائج النهائية"
+                          : "التصفيات الأولى"),
                   automaticallyImplyLeading: false,
                   leading: IconButton(
                     tooltip: "تسجيل الخروج",
@@ -66,41 +133,6 @@ class _JuryHomeScreenState extends State<JuryHomeScreen> {
                       authProviders.logout(context);
                     },
                   ),
-                  actions:
-                      !competitionProvider.competition!.firstRoundIsPublished!
-                          ? null
-                          : [
-                              IconButton(
-                                onPressed: () {
-                                  // Navigate to the JuryFinalResults screen
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) =>
-                                          const JuryFinalResults(),
-                                    ),
-                                  );
-                                },
-                                icon: const Row(
-                                  children: [
-                                    Text(
-                                      "النتائج النهائية",
-                                      style: TextStyle(
-                                        color: AppColors.blackColor,
-                                        fontSize: 16.0,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                    SizedBox(
-                                      width: 10.0,
-                                    ),
-                                    Icon(
-                                      IconlyLight.arrow_left_square,
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
                 ),
                 body: Padding(
                   padding: const EdgeInsets.all(8.0),
@@ -207,7 +239,10 @@ class _JuryHomeScreenState extends State<JuryHomeScreen> {
                                       .competition!.competitionVirsion
                                       .toString(),
                                   competitionType: selectedType.toString(),
-                                  competitionRound: "التصفيات الأولى",
+                                  competitionRound: competitionProvider
+                                          .competition!.firstRoundIsPublished!
+                                      ? "التصفيات النهائية"
+                                      : "التصفيات الأولى",
                                   jury: authProviders.currentJury!,
                                   successMoyenne: competitionProvider
                                       .competition!.successMoyenne!,
@@ -223,43 +258,64 @@ class _JuryHomeScreenState extends State<JuryHomeScreen> {
                                         child: CircularProgressIndicator());
                                   }
 
-                                  if (snapshot.data!.isEmpty) {
+                                  if (snapshot.data == null ||
+                                      snapshot.data!.isEmpty) {
                                     return const Center(
                                         child: Text("لا توجد بيانات"));
                                   }
 
-                                  // List<Map<String, dynamic>> inscriptions = [];
-                                  // for (var item in snapshot.data!) {
-                                  //   // Inscription inscription =
-                                  //   //     item["inscription"];
-                                  //   NoteModel? firstNotes =
-                                  //       item["firstNotes"] as NoteModel?;
-                                  //   if (firstNotes != null &&
-                                  //       !firstNotes.isCorrected!) {
-                                  //     inscriptions.add(item);
-                                  //   }
-                                  // }
+                                  // Determine the correction field based on the round
+                                  bool isFinalRound = competitionProvider
+                                      .competition!.firstRoundIsPublished!;
+                                  String correctionField = isFinalRound
+                                      ? 'isLastCorrected'
+                                      : 'isFirstCorrected';
+
+                                  // Filter the data
+                                  List<Map<String, dynamic>> correctedList =
+                                      snapshot.data!;
+                                  List<Map<String, dynamic>> notCorrectedList =
+                                      correctedList.where((map) {
+                                    JuryInscription? juryInscription =
+                                        map["juryInscription"]
+                                            as JuryInscription?;
+                                    if (juryInscription != null) {
+                                      if (juryInscription.isAdult!) {
+                                        return false;
+                                      } else {
+                                        return true;
+                                      }
+                                    } else {
+                                      if (juryInscription != null) {
+                                        return false;
+                                      } else {
+                                        return true;
+                                      }
+                                    }
+                                  }).toList();
+
+                                  // Use the filtered list if not all are corrected
+                                  List<Map<String, dynamic>> displayList =
+                                      notCorrectedList.isNotEmpty
+                                          ? notCorrectedList
+                                          : correctedList;
 
                                   return ListView.separated(
                                     scrollDirection: Axis.vertical,
                                     separatorBuilder: (context, index) =>
                                         const SizedBox(height: 15.0),
-                                    itemCount:
-                                        // inscriptions.isEmpty
-                                        //     ?
-                                        snapshot.data!.length,
-                                    // : inscriptions.length,
+                                    itemCount: displayList.length,
                                     itemBuilder: (context, index) {
                                       Map<String, dynamic> map =
-                                          // inscriptions.isEmpty
-                                          //     ?
-                                          snapshot.data![index];
-                                      // : inscriptions[index];
+                                          displayList[index];
                                       Inscription inscription =
                                           map["inscription"];
                                       JuryInscription? juryInscription =
-                                          map["juryInscription"] as JuryInscription?;
-
+                                          map["juryInscription"]
+                                              as JuryInscription?;
+                                      NoteModel? noteModel = isFinalRound
+                                          ? juryInscription?.lastNotes!
+                                          : juryInscription?.firstNotes!;
                                       return GestureDetector(
                                         onTap: () {
                                           Navigator.push(
@@ -268,8 +324,10 @@ class _JuryHomeScreenState extends State<JuryHomeScreen> {
                                               builder: (context) =>
                                                   DetailContestantScreen(
                                                 inscription: inscription,
-                                                firsNoteModel: juryInscription?.firstNotes,
-                                                lastNoteModel: juryInscription?.lastNotes,
+                                                noteModel: isFinalRound
+                                                    ? juryInscription?.lastNotes
+                                                    : juryInscription
+                                                        ?.firstNotes,
                                                 competitionType:
                                                     selectedType.toString(),
                                                 competitionVersion:
@@ -334,7 +392,7 @@ class _JuryHomeScreenState extends State<JuryHomeScreen> {
                                                                   "التجويد"),
                                                               const SizedBox(
                                                                   height: 5.0),
-                                                              Text(juryInscription?.firstNotes
+                                                              Text(noteModel
                                                                       ?.noteTajwid
                                                                       ?.toString() ??
                                                                   "0.0"),
@@ -350,7 +408,7 @@ class _JuryHomeScreenState extends State<JuryHomeScreen> {
                                                                   "حسن الصوت"),
                                                               const SizedBox(
                                                                   height: 5.0),
-                                                              Text(juryInscription?.firstNotes
+                                                              Text(noteModel
                                                                       ?.noteHousnSawtt
                                                                       ?.toString() ??
                                                                   "0.0"),
@@ -369,7 +427,7 @@ class _JuryHomeScreenState extends State<JuryHomeScreen> {
                                                                 const SizedBox(
                                                                     height:
                                                                         5.0),
-                                                                Text(juryInscription?.firstNotes
+                                                                Text(noteModel
                                                                         ?.noteIltizamRiwaya
                                                                         ?.toString() ??
                                                                     "0.0"),
@@ -388,7 +446,7 @@ class _JuryHomeScreenState extends State<JuryHomeScreen> {
                                                                 const SizedBox(
                                                                     height:
                                                                         5.0),
-                                                                Text(juryInscription?.firstNotes
+                                                                Text(noteModel
                                                                         ?.noteOu4oubetSawtt
                                                                         ?.toString() ??
                                                                     "0.0"),
@@ -407,7 +465,7 @@ class _JuryHomeScreenState extends State<JuryHomeScreen> {
                                                                 const SizedBox(
                                                                     height:
                                                                         5.0),
-                                                                Text(juryInscription?.firstNotes
+                                                                Text(noteModel
                                                                         ?.noteWaqfAndIbtidaa
                                                                         ?.toString() ??
                                                                     "0.0"),
@@ -420,42 +478,48 @@ class _JuryHomeScreenState extends State<JuryHomeScreen> {
                                                 ],
                                               ),
                                             ),
-                                            // if (isAdult &&
-                                            //     firstNotes?.isCorrected == true)
-                                            //   const Positioned(
-                                            //     top: 10,
-                                            //     right: 10,
-                                            //     child: Row(
-                                            //       children: [
-                                            //         Text("تم التصحيح",
-                                            //             style: TextStyle(
-                                            //                 color: AppColors
-                                            //                     .greenColor)),
-                                            //         SizedBox(width: 5.0),
-                                            //         Icon(Iconsax.verify5,
-                                            //             color: AppColors
-                                            //                 .greenColor),
-                                            //       ],
-                                            //     ),
-                                            //   ),
-                                            // if (!isAdult &&
-                                            //     firstNotes?.isCorrected == true)
-                                            //   const Positioned(
-                                            //     top: 10,
-                                            //     right: 10,
-                                            //     child: Row(
-                                            //       children: [
-                                            //         Text("تم التصحيح",
-                                            //             style: TextStyle(
-                                            //                 color: AppColors
-                                            //                     .greenColor)),
-                                            //         SizedBox(width: 5.0),
-                                            //         Icon(Iconsax.verify5,
-                                            //             color: AppColors
-                                            //                 .greenColor),
-                                            //       ],
-                                            //     ),
-                                            //   ),
+                                            if (juryInscription != null &&
+                                                juryInscription.isAdult! &&
+                                                juryInscription.toMapAdult()[
+                                                        correctionField] ==
+                                                    true)
+                                              const Positioned(
+                                                top: 10,
+                                                right: 10,
+                                                child: Row(
+                                                  children: [
+                                                    Text("تم التصحيح",
+                                                        style: TextStyle(
+                                                            color: AppColors
+                                                                .greenColor)),
+                                                    SizedBox(width: 5.0),
+                                                    Icon(Iconsax.verify5,
+                                                        color: AppColors
+                                                            .greenColor),
+                                                  ],
+                                                ),
+                                              ),
+                                            if (juryInscription != null &&
+                                                !juryInscription.isAdult! &&
+                                                juryInscription.toMapChild()[
+                                                        correctionField] ==
+                                                    true)
+                                              const Positioned(
+                                                top: 10,
+                                                right: 10,
+                                                child: Row(
+                                                  children: [
+                                                    Text("تم التصحيح",
+                                                        style: TextStyle(
+                                                            color: AppColors
+                                                                .greenColor)),
+                                                    SizedBox(width: 5.0),
+                                                    Icon(Iconsax.verify5,
+                                                        color: AppColors
+                                                            .greenColor),
+                                                  ],
+                                                ),
+                                              ),
                                           ],
                                         ),
                                       );
@@ -479,7 +543,10 @@ class _JuryHomeScreenState extends State<JuryHomeScreen> {
                     onPressed: () async {
                       var returnData = await AuthService.checkAllNotes(
                         cometionType: selectedType.toString(),
-                        competitionRound: "التصفيات الأولى",
+                        competitionRound: competitionProvider
+                                .competition!.firstRoundIsPublished!
+                            ? "التصفيات النهائية"
+                            : "التصفيات الأولى",
                         version: competitionProvider
                             .competition!.competitionVirsion
                             .toString(),
@@ -499,7 +566,10 @@ class _JuryHomeScreenState extends State<JuryHomeScreen> {
                             competitionProvider.competition!,
                             selectedType.toString(),
                             context,
-                            "التصفيات الأولى");
+                            competitionProvider
+                                    .competition!.firstRoundIsPublished!
+                                ? "التصفيات النهائية"
+                                : "التصفيات الأولى");
                       } else {
                         // Snackbar for failure
                         final successSnackBar = SnackBar(
@@ -525,9 +595,33 @@ class _JuryHomeScreenState extends State<JuryHomeScreen> {
                   ),
                 ),
               )
-            : const Scaffold(
-                body: Center(
-                  child: CircularProgressIndicator(),
+            : Scaffold(
+                appBar: AppBar(
+                  title: IconButton(
+                    tooltip: "تسجيل الخروج",
+                    icon: const Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          "قم بتسجيل الخروج",
+                          style: TextStyle(
+                            fontSize: 16.0,
+                          ),
+                        ),
+                        SizedBox(width: 8.0),
+                        Icon(
+                          Iconsax.logout,
+                          color: AppColors.pinkColor,
+                        ),
+                      ],
+                    ),
+                    onPressed: () {
+                      authProviders.logout(context);
+                    },
+                  ),
+                ),
+                body: const Center(
+                  child: Text("أنت لست مشرفا في النسخة الحالية"),
                 ),
               );
       },

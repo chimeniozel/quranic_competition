@@ -80,8 +80,7 @@ class _CompetitionManagementState extends State<CompetitionManagement> {
         firstRoundIsPublished: false,
         lastRoundIsPublished: false,
         competitionTypes: ["child_inscription", "adult_inscription"],
-        archiveEntry: ArchiveEntry(
-            title: "", description: "", imagesURL: [], videosURL: []),
+        archiveEntry: ArchiveEntry(imagesURL: [], videosURL: []),
       );
 
       await FirebaseFirestore.instance
@@ -269,7 +268,7 @@ class _CompetitionManagementState extends State<CompetitionManagement> {
                 ),
               ),
               const SizedBox(height: 10.0),
-              const Text('المسابقات الحالية'),
+              const Text('المسابقات السابقة'),
               const SizedBox(height: 10.0),
               Expanded(
                 child: StreamBuilder<QuerySnapshot>(

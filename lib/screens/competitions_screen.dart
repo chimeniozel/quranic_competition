@@ -16,7 +16,7 @@ class _CompetitionsScreenState extends State<CompetitionsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('المسابقات السابقة'),
+        title: const Text('النسخ السابقة'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(8.0),

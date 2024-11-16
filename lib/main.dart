@@ -27,7 +27,10 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (_) => AuthProviders()..getUser()..getJurys()),
+        ChangeNotifierProvider(
+            create: (_) => AuthProviders()
+              ..getUser()
+              ..getJurys()),
         ChangeNotifierProvider(
             create: (_) => CompetitionProvider()..getCurrentCompetition()),
       ],
@@ -63,6 +66,7 @@ class MyApp extends StatelessWidget {
           }
           if (authProviders.user != null) {
             if (authProviders.user!.role == "إداري") {
+              authProviders.setCurrentUser(authProviders.user!.userID!);
               return const CompetitionManagement();
             } else {
               return const JuryHomeScreen();

@@ -8,7 +8,7 @@ class Inscription {
   String? _residencePlace;
   String? _howMuchYouMemorize;
   String? _haveYouIhaza;
-  String? _howMuchRiwayaYouHave;
+  String? _gender;
   String? _haveYouParticipatedInACompetition;
   String? _haveYouEverWon1stTo2ndPlace;
   double? _resultFirstRound;
@@ -23,7 +23,7 @@ class Inscription {
     String? residencePlace,
     String? howMuchYouMemorize,
     String? haveYouIhaza,
-    String? howMuchRiwayaYouHave,
+    String? gender,
     String? haveYouParticipatedInACompetition,
     String? haveYouEverWon1stTo2ndPlace,
     double? resultFirstRound,
@@ -36,7 +36,7 @@ class Inscription {
         _residencePlace = residencePlace,
         _howMuchYouMemorize = howMuchYouMemorize,
         _haveYouIhaza = haveYouIhaza,
-        _howMuchRiwayaYouHave = howMuchRiwayaYouHave,
+        _gender = gender,
         _haveYouParticipatedInACompetition = haveYouParticipatedInACompetition,
         _haveYouEverWon1stTo2ndPlace = haveYouEverWon1stTo2ndPlace,
         _resultFirstRound = resultFirstRound,
@@ -51,7 +51,7 @@ class Inscription {
   String? get residencePlace => _residencePlace;
   String? get howMuchYouMemorize => _howMuchYouMemorize;
   String? get haveYouIhaza => _haveYouIhaza;
-  String? get howMuchRiwayaYouHave => _howMuchRiwayaYouHave;
+  String? get gender => _gender;
   String? get haveYouParticipatedInACompetition =>
       _haveYouParticipatedInACompetition;
   String? get haveYouEverWon1stTo2ndPlace => _haveYouEverWon1stTo2ndPlace;
@@ -88,8 +88,8 @@ class Inscription {
     _haveYouIhaza = value;
   }
 
-  set howMuchRiwayaYouHave(String? value) {
-    _howMuchRiwayaYouHave = value;
+  set gender(String? value) {
+    _gender = value;
   }
 
   set haveYouParticipatedInACompetition(String? value) {
@@ -121,7 +121,7 @@ class Inscription {
       "مكان الإقامة الحالية": _residencePlace,
       "كم تحفظ من القرآن الكريم": _howMuchYouMemorize,
       "هل حصلت على إجازة": _haveYouIhaza,
-      "كم رواية تقرأ بها": _howMuchRiwayaYouHave,
+      "الجنس": _gender,
       "هل سبق وأن شاركت في نسخة ماضية من مسابقة أهل القرآن الوتسابية":
           _haveYouParticipatedInACompetition,
       "هل سبق وأن حصلت على المراتب 1 إلى 2  في مسابقة أهل القرآن الوتسابية أو أي مسابقة أخرى":
@@ -141,7 +141,7 @@ class Inscription {
       residencePlace: map["مكان الإقامة الحالية"] as String?,
       howMuchYouMemorize: map["كم تحفظ من القرآن الكريم"] as String?,
       haveYouIhaza: map["هل حصلت على إجازة"] as String?,
-      howMuchRiwayaYouHave: map["كم رواية تقرأ بها"] as String?,
+      gender: map["الجنس"] as String?,
       haveYouParticipatedInACompetition:
           map["هل سبق وأن شاركت في نسخة ماضية من مسابقة أهل القرآن الوتسابية"]
               as String?,

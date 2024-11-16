@@ -52,9 +52,24 @@ android {
         versionName = flutterVersionName
     }
 
+    // buildTypes {
+    //     release {
+    //         signingConfig = signingConfigs.debug
+    //     }
+    // }
     buildTypes {
         release {
-            signingConfig = signingConfigs.debug
+            signingConfigs {
+                release {
+                keyAlias 'your-key-alias'
+                keyPassword '20063179'
+                storeFile file('your-key.jks')
+                storePassword '20063179'
+    }
+}
+
+            minifyEnabled true // Enable shrinking, obfuscation, and optimization
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
 }

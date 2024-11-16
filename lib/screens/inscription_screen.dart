@@ -23,7 +23,7 @@ class _InscriptionScreenState extends State<InscriptionScreen> {
   String selectedResudence = "داخل موريتانيا";
   String howMuchYouMemorize = "القرآن كاملا";
   String haveYouIhaza = "نعم";
-  String howMuchRiwayaYouHave = "رواية واحدة";
+  String gender = "ذكر";
   String haveYouParticipatedInACompetition = "نعم";
   String haveYouEverWon1stTo2ndPlace = "نعم";
   bool obscure = true;
@@ -56,9 +56,9 @@ class _InscriptionScreenState extends State<InscriptionScreen> {
     });
   }
 
-  void handleHowMuchRiwayaYouHave(String? value) {
+  void handlegender(String? value) {
     setState(() {
-      howMuchRiwayaYouHave = value!;
+      gender = value!;
     });
   }
 
@@ -421,21 +421,21 @@ class _InscriptionScreenState extends State<InscriptionScreen> {
                     children: [
                       Expanded(
                         child: ListTile(
-                          title: const Text('رواية واحدة'),
+                          title: const Text('ذكر'),
                           leading: Radio<String>(
-                            value: 'رواية واحدة',
-                            groupValue: howMuchRiwayaYouHave,
-                            onChanged: handleHowMuchRiwayaYouHave,
+                            value: 'ذكر',
+                            groupValue: gender,
+                            onChanged: handlegender,
                           ),
                         ),
                       ),
                       Expanded(
                         child: ListTile(
-                          title: const Text('أكثر من رواية'),
+                          title: const Text('أنثى'),
                           leading: Radio<String>(
-                            value: 'أكثر من رواية',
-                            groupValue: howMuchRiwayaYouHave,
-                            onChanged: handleHowMuchRiwayaYouHave,
+                            value: 'أنثى',
+                            groupValue: gender,
+                            onChanged: handlegender,
                           ),
                         ),
                       ),
@@ -530,7 +530,7 @@ class _InscriptionScreenState extends State<InscriptionScreen> {
                         residencePlace: selectedResudence,
                         howMuchYouMemorize: howMuchYouMemorize,
                         haveYouIhaza: haveYouIhaza,
-                        howMuchRiwayaYouHave: howMuchRiwayaYouHave,
+                        gender: gender,
                         haveYouParticipatedInACompetition:
                             haveYouParticipatedInACompetition,
                         haveYouEverWon1stTo2ndPlace:
