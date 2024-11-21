@@ -2,13 +2,13 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
-import 'package:quranic_competition/auth/login_screen.dart';
 import 'package:quranic_competition/constants/colors.dart';
 import 'package:quranic_competition/firebase_options.dart';
 import 'package:quranic_competition/providers/auth_provider.dart';
 import 'package:quranic_competition/providers/competion_provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:quranic_competition/screens/admin/competition_management/competition_management.dart';
+import 'package:quranic_competition/screens/admin/admin_home_screen.dart';
+import 'package:quranic_competition/screens/client/home_screen.dart';
 import 'package:quranic_competition/screens/jury/jury_home_screen.dart';
 import 'package:quranic_competition/utils/utils.dart';
 
@@ -39,6 +39,16 @@ class MyApp extends StatelessWidget {
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
           fontFamily: "Tajawal",
+          appBarTheme: const AppBarTheme(
+              titleTextStyle: TextStyle(
+                color: AppColors.whiteColor,
+                fontWeight: FontWeight.w700,
+                fontSize: 18.0,
+                fontFamily: "Tajawal",
+              ),
+              iconTheme: IconThemeData(
+                color: AppColors.whiteColor,
+              )),
           colorScheme: const ColorScheme.light(
             surface: AppColors.whiteColor,
           ),
@@ -67,12 +77,12 @@ class MyApp extends StatelessWidget {
           if (authProviders.user != null) {
             if (authProviders.user!.role == "إداري") {
               authProviders.setCurrentUser(authProviders.user!.userID!);
-              return const CompetitionManagement();
+              return const AdminHomeScreen();
             } else {
               return const JuryHomeScreen();
             }
           }
-          return const LoginScreen();
+          return const HomeScreen();
         }),
       ),
     );

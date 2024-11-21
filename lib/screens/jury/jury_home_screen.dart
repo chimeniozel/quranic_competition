@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:quranic_competition/constants/colors.dart';
 import 'package:quranic_competition/models/inscription.dart';
 import 'package:quranic_competition/models/jurys_inscription.dart';
-import 'package:quranic_competition/models/note_result.dart';
+import 'package:quranic_competition/models/note_model.dart';
 import 'package:quranic_competition/providers/auth_provider.dart';
 import 'package:quranic_competition/providers/competion_provider.dart';
 import 'package:quranic_competition/screens/jury/detail_contestant_screen.dart';
@@ -53,6 +53,7 @@ class _JuryHomeScreenState extends State<JuryHomeScreen> {
         if (competitionProvider.competition == null) {
           return Scaffold(
             appBar: AppBar(
+              backgroundColor: AppColors.primaryColor,
               title: IconButton(
                 tooltip: "تسجيل الخروج",
                 icon: const Row(
@@ -62,12 +63,13 @@ class _JuryHomeScreenState extends State<JuryHomeScreen> {
                       "قم بتسجيل الخروج",
                       style: TextStyle(
                         fontSize: 16.0,
+                        color: AppColors.whiteColor,
                       ),
                     ),
                     SizedBox(width: 8.0),
                     Icon(
                       Iconsax.logout,
-                      color: AppColors.pinkColor,
+                      color: AppColors.whiteColor,
                     ),
                   ],
                 ),
@@ -84,6 +86,7 @@ class _JuryHomeScreenState extends State<JuryHomeScreen> {
         if (competitionProvider.competition!.lastRoundIsPublished!) {
           return Scaffold(
             appBar: AppBar(
+              backgroundColor: AppColors.primaryColor,
               title: IconButton(
                 tooltip: "تسجيل الخروج",
                 icon: const Row(
@@ -93,12 +96,13 @@ class _JuryHomeScreenState extends State<JuryHomeScreen> {
                       "قم بتسجيل الخروج",
                       style: TextStyle(
                         fontSize: 16.0,
+                        color: AppColors.whiteColor,
                       ),
                     ),
                     SizedBox(width: 8.0),
                     Icon(
                       Iconsax.logout,
-                      color: AppColors.pinkColor,
+                      color: AppColors.whiteColor,
                     ),
                   ],
                 ),
@@ -116,18 +120,22 @@ class _JuryHomeScreenState extends State<JuryHomeScreen> {
                 authProviders.currentJury!.competitions!.contains(
                     competitionProvider.competition!.competitionVirsion)
             ? Scaffold(
-                resizeToAvoidBottomInset: false,
                 appBar: AppBar(
+                  backgroundColor: AppColors.primaryColor,
                   title: Text(
-                      competitionProvider.competition!.firstRoundIsPublished!
-                          ? "النتائج النهائية"
-                          : "التصفيات الأولى"),
+                    competitionProvider.competition!.firstRoundIsPublished!
+                        ? "النتائج النهائية"
+                        : "التصفيات الأولى",
+                    style: const TextStyle(
+                      color: AppColors.whiteColor,
+                    ),
+                  ),
                   automaticallyImplyLeading: false,
                   leading: IconButton(
                     tooltip: "تسجيل الخروج",
                     icon: const Icon(
                       Iconsax.logout,
-                      color: AppColors.pinkColor,
+                      color: AppColors.whiteColor,
                     ),
                     onPressed: () {
                       authProviders.logout(context);
@@ -244,8 +252,10 @@ class _JuryHomeScreenState extends State<JuryHomeScreen> {
                                       ? "التصفيات النهائية"
                                       : "التصفيات الأولى",
                                   jury: authProviders.currentJury!,
-                                  successMoyenne: competitionProvider
-                                      .competition!.successMoyenne!,
+                                  successMoyenneChild: competitionProvider
+                                      .competition!.successMoyenneChild!,
+                                  successMoyenneAdult: competitionProvider
+                                      .competition!.successMoyenneAdult!,
                                 ),
                                 builder: (context, snapshot) {
                                   if (snapshot.hasError) {
@@ -324,10 +334,7 @@ class _JuryHomeScreenState extends State<JuryHomeScreen> {
                                               builder: (context) =>
                                                   DetailContestantScreen(
                                                 inscription: inscription,
-                                                noteModel: isFinalRound
-                                                    ? juryInscription?.lastNotes
-                                                    : juryInscription
-                                                        ?.firstNotes,
+                                                noteModel: noteModel,
                                                 competitionType:
                                                     selectedType.toString(),
                                                 competitionVersion:
@@ -335,8 +342,9 @@ class _JuryHomeScreenState extends State<JuryHomeScreen> {
                                                         .competition!
                                                         .competitionVirsion
                                                         .toString(),
-                                                competitionRound:
-                                                    "التصفيات الأولى",
+                                                competitionRound: isFinalRound
+                                                    ? "التصفيات النهائية"
+                                                    : "التصفيات الأولى",
                                               ),
                                             ),
                                           );
@@ -417,7 +425,7 @@ class _JuryHomeScreenState extends State<JuryHomeScreen> {
                                                         ),
                                                       ),
                                                       if (selectedType ==
-                                                          "adult_inscription")
+                                                          "child_inscription")
                                                         Expanded(
                                                           child: Center(
                                                             child: Column(
@@ -436,7 +444,7 @@ class _JuryHomeScreenState extends State<JuryHomeScreen> {
                                                           ),
                                                         ),
                                                       if (selectedType ==
-                                                          "child_inscription")
+                                                          "adult_inscription")
                                                         Expanded(
                                                           child: Center(
                                                             child: Column(
@@ -455,7 +463,7 @@ class _JuryHomeScreenState extends State<JuryHomeScreen> {
                                                           ),
                                                         ),
                                                       if (selectedType ==
-                                                          "child_inscription")
+                                                          "adult_inscription")
                                                         Expanded(
                                                           child: Center(
                                                             child: Column(
@@ -555,14 +563,13 @@ class _JuryHomeScreenState extends State<JuryHomeScreen> {
                       bool isNoted = returnData["isNoted"];
                       List<Inscription> notedInscriptions =
                           returnData["notedInscriptions"];
-                      List<Map<String, dynamic>> dataList =
-                          returnData["dataList"];
+                      List<JuryInscription> dataList = returnData["dataList"];
                       if (isNoted && dataList.isNotEmpty) {
                         // Send notes to the admin
-                        InscriptionService.exportDataAsXlsx(
+                        InscriptionService.exportJuryDataAsXlsx(
                             notedInscriptions,
                             dataList,
-                            authProviders.currentJury!.fullName!,
+                            authProviders.currentJury!,
                             competitionProvider.competition!,
                             selectedType.toString(),
                             context,
@@ -597,6 +604,7 @@ class _JuryHomeScreenState extends State<JuryHomeScreen> {
               )
             : Scaffold(
                 appBar: AppBar(
+                  backgroundColor: AppColors.primaryColor,
                   title: IconButton(
                     tooltip: "تسجيل الخروج",
                     icon: const Row(
@@ -606,12 +614,13 @@ class _JuryHomeScreenState extends State<JuryHomeScreen> {
                           "قم بتسجيل الخروج",
                           style: TextStyle(
                             fontSize: 16.0,
+                            color: AppColors.whiteColor,
                           ),
                         ),
                         SizedBox(width: 8.0),
                         Icon(
                           Iconsax.logout,
-                          color: AppColors.pinkColor,
+                          color: AppColors.whiteColor,
                         ),
                       ],
                     ),
@@ -621,7 +630,20 @@ class _JuryHomeScreenState extends State<JuryHomeScreen> {
                   ),
                 ),
                 body: const Center(
-                  child: Text("أنت لست مشرفا في النسخة الحالية"),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Text("أنت لست مشرفا في النسخة الحالية"),
+                      SizedBox(
+                        height: 10.0,
+                      ),
+                      Text(
+                        "قم بتسجيل الخروج ثم أعد تسجيل الدخول",
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
+                  ),
                 ),
               );
       },

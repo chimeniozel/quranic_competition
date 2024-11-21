@@ -5,54 +5,66 @@ class Competition {
   String? _competitionId;
   String? _competitionVirsion;
   DateTime? _startDate;
-  // DateTime? _endDate;
   bool? _isActive;
   List? _competitionTypes;
   ArchiveEntry? _archiveEntry;
   bool? _firstRoundIsPublished;
   bool? _lastRoundIsPublished;
-  double? _successMoyenne;
+  double? _successMoyenneChild;
+  double? _successMoyenneAdult;
   int? _adultNumber;
   int? _childNumber;
+  bool? _isInscriptionOpen;
+  int? _adultNumberMax;
+  int? _childNumberMax;
 
   Competition({
     String? competitionId,
     String? competitionVirsion,
     DateTime? startDate,
-    // DateTime? endDate,
     bool? isActive,
     List? competitionTypes,
     ArchiveEntry? archiveEntry,
     bool? firstRoundIsPublished,
     bool? lastRoundIsPublished,
-    double? successMoyenne,
+    double? successMoyenneChild,
+    double? successMoyenneAdult,
     int? adultNumber,
     int? childNumber,
+    bool? isInscriptionOpen,
+    int? adultNumberMax,
+    int? childNumberMax,
   })  : _competitionId = competitionId,
         _competitionVirsion = competitionVirsion,
         _startDate = startDate,
-        // _endDate = endDate,
         _isActive = isActive,
         _competitionTypes = competitionTypes,
         _archiveEntry = archiveEntry,
         _firstRoundIsPublished = firstRoundIsPublished,
         _lastRoundIsPublished = lastRoundIsPublished,
-        _successMoyenne = successMoyenne,
+        _successMoyenneChild = successMoyenneChild,
+        _successMoyenneAdult = successMoyenneAdult,
         _adultNumber = adultNumber,
-        _childNumber = childNumber;
+        _childNumber = childNumber,
+        _isInscriptionOpen = isInscriptionOpen,
+        _adultNumberMax = adultNumberMax,
+        _childNumberMax = childNumberMax;
 
   String? get competitionId => _competitionId;
   String? get competitionVirsion => _competitionVirsion;
   DateTime? get startDate => _startDate;
-  // DateTime? get endDate => _endDate;
   bool? get isActive => _isActive;
   List? get competitionTypes => _competitionTypes;
   ArchiveEntry? get archiveEntry => _archiveEntry;
   bool? get firstRoundIsPublished => _firstRoundIsPublished;
   bool? get lastRoundIsPublished => _lastRoundIsPublished;
-  double? get successMoyenne => _successMoyenne;
+  double? get successMoyenneChild => _successMoyenneChild;
+  double? get successMoyenneAdult => _successMoyenneAdult;
   int? get adultNumber => _adultNumber;
   int? get childNumber => _childNumber;
+  bool? get isInscriptionOpen => _isInscriptionOpen;
+  int? get adultNumberMax => _adultNumberMax;
+  int? get childNumberMax => _childNumberMax;
 
   set setCompetitionId(String competitionId) {
     _competitionId = competitionId;
@@ -65,10 +77,6 @@ class Competition {
   set setStartDate(DateTime startDate) {
     _startDate = startDate;
   }
-
-  // set setEndDate(DateTime endDate) {
-  //   _endDate = endDate;
-  // }
 
   set setActive(bool isActive) {
     _isActive = isActive;
@@ -90,8 +98,12 @@ class Competition {
     _lastRoundIsPublished = value;
   }
 
-  set successMoyenne(double? successMoyenne) {
-    _successMoyenne = successMoyenne;
+  set successMoyenneChild(double? successMoyenne) {
+    _successMoyenneChild = successMoyenne;
+  }
+
+  set successMoyenneAdult(double? successMoyenne) {
+    _successMoyenneAdult = successMoyenne;
   }
 
   set adultNumber(int? adultNumber) {
@@ -102,21 +114,36 @@ class Competition {
     _childNumber = childNumber;
   }
 
+  set isInscriptionOpen(bool? value) {
+    _isInscriptionOpen = value;
+  }
+
+  set adultNumberMax(int? adultNumberMax) {
+    _adultNumberMax = adultNumberMax;
+  }
+
+  set childNumberMax(int? childNumberMax) {
+    _childNumberMax = childNumberMax;
+  }
+
 // to Map
   Map<String, dynamic> toMap() {
     return {
       'competitionId': competitionId,
       'competitionVirsion': competitionVirsion,
       'startDate': startDate,
-      // 'endDate': endDate,
       'isActive': isActive,
       'competitionTypes': competitionTypes,
       'archiveEntry': archiveEntry?.toMap(),
       "firstRoundIsPublished": _firstRoundIsPublished,
       "lastRoundIsPublished": _lastRoundIsPublished,
-      "successMoyenne": _successMoyenne,
+      "successMoyenneChild": _successMoyenneChild,
+      "successMoyenneAdult": _successMoyenneAdult,
       "adultNumber": _adultNumber,
       "childNumber": _childNumber,
+      "isInscriptionOpen": _isInscriptionOpen,
+      "adultNumberMax": _adultNumberMax,
+      "childNumberMax": _childNumberMax,
     };
   }
 
@@ -131,8 +158,12 @@ class Competition {
     _archiveEntry = ArchiveEntry.fromMap(map?['archiveEntry']);
     _firstRoundIsPublished = map?["firstRoundIsPublished"];
     _lastRoundIsPublished = map?["lastRoundIsPublished"];
-    _successMoyenne = map?["successMoyenne"];
+    _successMoyenneChild = map?["successMoyenneChild"];
+    _successMoyenneAdult = map?["successMoyenneAdult"];
     _adultNumber = map?["adultNumber"];
     _childNumber = map?["childNumber"];
+    _isInscriptionOpen = map?["isInscriptionOpen"];
+    _adultNumberMax = map?["adultNumberMax"];
+    _childNumberMax = map?["childNumberMax"];
   }
 }

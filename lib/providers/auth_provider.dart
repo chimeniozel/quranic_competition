@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:quranic_competition/models/admin.dart';
 import 'package:quranic_competition/models/jury.dart';
@@ -21,44 +20,23 @@ class AuthProviders extends ChangeNotifier {
   List<Jury>? get jurys => _jurys;
   Admin? get currentAdmin => _currentAdmin;
   Jury? get currentJury => _currentJury;
+  static const _userKey = 'user';
+  Users? _user;
 
-  Future<void> verifyPhoneNumber(String phoneNumber) async {
-    FirebaseAuth auth = FirebaseAuth.instance;
-
-    await auth.verifyPhoneNumber(
-      phoneNumber: phoneNumber,
-      verificationCompleted: (PhoneAuthCredential credential) async {
-        // Auto-retrieve or instant verification
-        await auth.signInWithCredential(credential);
-        print("User signed in: ${auth.currentUser?.uid}");
-      },
-      verificationFailed: (FirebaseAuthException e) {
-        // Handle errors
-        print("Verification failed: $e");
-      },
-      codeSent: (String verificationId, int? resendToken) {
-        // Save the verification ID so you can use it later
-        print("Code sent. Verification ID: $verificationId");
-      },
-      codeAutoRetrievalTimeout: (String verificationId) {
-        // Auto-resolution timed out...
-        print("Auto retrieval timeout. Verification ID: $verificationId");
-      },
-    );
-  }
-
+  Users? get user => _user; // Return the current user (nullable)
 // get users information
   Future<void> setCurrentUser(String userID) async {
     Map<String, dynamic>? map = await AuthService.getCurrentUser(userID);
     if (map != null && map["role"] == "إداري") {
       _currentAdmin = map["user"];
       _currentJury = null;
-      debugPrint("تم تعيين المشرف الحالي: ${_currentAdmin!.fullName}");
     } else if (map != null && map["role"] == "عضو لجنة التحكيم") {
       _currentJury = map["user"];
       _currentAdmin = null;
       debugPrint("تم تعيين المحكم الحالي: ${_currentJury!.fullName}");
     } else {
+      _currentAdmin = null;
+      _currentJury = null;
       debugPrint("المستخدم غير موجود أو لا يمتلك دور معروف");
     }
     notifyListeners();
@@ -76,11 +54,6 @@ class AuthProviders extends ChangeNotifier {
     _isLoading = false;
     notifyListeners();
   }
-
-  static const _userKey = 'user';
-  Users? _user;
-
-  Users? get user => _user; // Return the current user (nullable)
 
   // Call this function to check if the user is logged in and return the user
   Future<void> getUser() async {
@@ -110,6 +83,7 @@ class AuthProviders extends ChangeNotifier {
   // Log out by removing user data
   Future<void> logout(BuildContext context) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
+    setCurrentUser("nulllll");
     await AuthService.logoutUser(context);
     await prefs.remove(_userKey);
     _user = null;

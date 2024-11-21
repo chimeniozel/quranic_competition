@@ -14,6 +14,7 @@ class Inscription {
   double? _resultFirstRound;
   double? _resultLastRound;
   bool? _isPassedFirstRound;
+  String? _howMuchRiwayaYouHave;
 
   Inscription({
     int? idInscription,
@@ -29,6 +30,7 @@ class Inscription {
     double? resultFirstRound,
     double? resultLastRound,
     bool? isPassedFirstRound,
+    String? howMuchRiwayaYouHave,
   })  : _idInscription = idInscription,
         _fullName = fullName,
         _phoneNumber = phoneNumber,
@@ -41,7 +43,8 @@ class Inscription {
         _haveYouEverWon1stTo2ndPlace = haveYouEverWon1stTo2ndPlace,
         _resultFirstRound = resultFirstRound,
         _resultLastRound = resultLastRound,
-        _isPassedFirstRound = isPassedFirstRound;
+        _isPassedFirstRound = isPassedFirstRound,
+        _howMuchRiwayaYouHave = howMuchRiwayaYouHave;
 
   // Getters
   int? get idInscription => _idInscription;
@@ -58,6 +61,7 @@ class Inscription {
   double? get resultFirstRound => _resultFirstRound;
   double? get resultLastRound => _resultLastRound;
   bool? get isPassedFirstRound => _isPassedFirstRound;
+  String? get howMuchRiwayaYouHave => _howMuchRiwayaYouHave;
 
   // Setters
   set idInscription(int? value) {
@@ -112,6 +116,10 @@ class Inscription {
     _isPassedFirstRound = value;
   }
 
+  set howMuchRiwayaYouHave(String? value) {
+    _howMuchRiwayaYouHave = value;
+  }
+
   Map<String, dynamic> toMap() {
     return {
       "رقم التسجيل": _idInscription,
@@ -129,6 +137,7 @@ class Inscription {
       "نتائج التصفيات الأولى": _resultFirstRound,
       "نتائج التصفيات النهائية": _resultLastRound,
       "isPassedFirstRound": _isPassedFirstRound,
+      "كم رواية تقرأ بها": _howMuchRiwayaYouHave,
     };
   }
 
@@ -151,6 +160,7 @@ class Inscription {
       resultFirstRound: map["نتائج التصفيات الأولى"].toDouble(),
       resultLastRound: map["نتائج التصفيات النهائية"].toDouble(),
       isPassedFirstRound: map["isPassedFirstRound"],
+      howMuchRiwayaYouHave: map["كم رواية تقرأ بها"] as String?,
     );
   }
 

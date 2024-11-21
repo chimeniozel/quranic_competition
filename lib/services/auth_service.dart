@@ -12,6 +12,7 @@ import 'package:quranic_competition/models/jury.dart';
 import 'package:quranic_competition/models/jurys_inscription.dart';
 import 'package:quranic_competition/models/users.dart';
 import 'package:quranic_competition/providers/auth_provider.dart';
+import 'package:quranic_competition/screens/client/home_screen.dart';
 
 class AuthService {
   static FirebaseFirestore firebaseFirestore = FirebaseFirestore.instance;
@@ -70,10 +71,6 @@ class AuthService {
                 juryInscription.toMapAdult(),
               );
         } else {
-          print(
-              "========================== juryInscription firstNotes : ${juryInscription.firstNotes} ");
-          print(
-              "========================== juryInscription lastNotes : ${juryInscription.lastNotes!.toMapAdult()} ");
           await jurysInscriptionCollection
               .doc(juryInscription.idCollection)
               .update({
@@ -145,13 +142,21 @@ class AuthService {
             .where("isAdult", isEqualTo: false)
             .get();
 
-    QuerySnapshot querySnapshot = await inscriptionCollection
-        .orderBy("رقم التسجيل", descending: false)
-        .get();
+    QuerySnapshot querySnapshot;
+    if (competitionRound == "التصفيات الأولى") {
+      querySnapshot = await inscriptionCollection
+          .orderBy("رقم التسجيل", descending: false)
+          .get();
+    } else {
+      querySnapshot = await inscriptionCollection
+          .where("isPassedFirstRound", isEqualTo: true)
+          .orderBy("رقم التسجيل", descending: false)
+          .get();
+    }
 
     List<Inscription> inscriptions = [];
     List<Inscription> notedInscriptions = [];
-    List<Map<String, dynamic>> dataList = [];
+    List<JuryInscription> dataList = [];
 
     // Parse each document into an Inscription object and a map
     for (var doc in querySnapshot.docs) {
@@ -164,7 +169,7 @@ class AuthService {
                 JuryInscription.fromMapAdult(juryDoc.data());
 
             if (juryInscription.idInscription == inscription.idInscription) {
-              dataList.add(juryInscription.firstNotes!.toMapAdult()!);
+              dataList.add(juryInscription);
               notedInscriptions.add(inscription);
             }
           }
@@ -173,7 +178,7 @@ class AuthService {
             JuryInscription juryInscription =
                 JuryInscription.fromMapChild(juryDoc.data());
             if (juryInscription.idInscription == inscription.idInscription) {
-              dataList.add(juryInscription.firstNotes!.toMapChild()!);
+              dataList.add(juryInscription);
               notedInscriptions.add(inscription);
             }
           }
@@ -185,7 +190,7 @@ class AuthService {
                 JuryInscription.fromMapAdult(juryDoc.data());
             if (juryInscription.idInscription == inscription.idInscription &&
                 inscription.isPassedFirstRound!) {
-              dataList.add(juryInscription.lastNotes!.toMapAdult()!);
+              dataList.add(juryInscription);
               notedInscriptions.add(inscription);
             }
           }
@@ -195,18 +200,18 @@ class AuthService {
                 JuryInscription.fromMapChild(juryDoc.data());
             if (juryInscription.idInscription == inscription.idInscription &&
                 inscription.isPassedFirstRound!) {
-              dataList.add(juryInscription.lastNotes!.toMapChild()!);
+              dataList.add(juryInscription);
               notedInscriptions.add(inscription);
             }
           }
         }
+        print(
+            "================================= inscriptions.length : ${inscriptions.length} , dataList.length : ${dataList.length} ====================");
       }
     }
     if (inscriptions.length == dataList.length &&
         dataList.isNotEmpty &&
         inscriptions.isNotEmpty) {
-      print(
-          "=============== Inscriptions: ${inscriptions.length} , data: ${dataList.length}");
       return {
         "isNoted": true,
         "notedInscriptions": notedInscriptions,
@@ -216,27 +221,8 @@ class AuthService {
       return {
         "isNoted": false,
         "notedInscriptions": <Inscription>[],
-        "dataList": <Map<String, dynamic>>[],
+        "dataList": <JuryInscription>[],
       };
-    }
-  }
-
-  Future<void> signInWithPhoneNumber(
-      String verificationId, String smsCode) async {
-    FirebaseAuth auth = FirebaseAuth.instance;
-
-    try {
-      // Create a PhoneAuthCredential with the code
-      PhoneAuthCredential credential = PhoneAuthProvider.credential(
-          verificationId: verificationId, smsCode: smsCode);
-
-      // Sign in the user with the credential
-      UserCredential userCredential =
-          await auth.signInWithCredential(credential);
-      print("User signed in: ${userCredential.user?.uid}");
-    } on FirebaseAuthException catch (e) {
-      // Handle errors
-      print("Sign in failed: $e");
     }
   }
 
@@ -354,13 +340,13 @@ class AuthService {
     Users? existUser;
 
     var usersRef = firebaseFirestore.collection("users");
-    users =
-        await usersRef.where("phoneNumber", isEqualTo: user.phoneNumber).get();
-
-    // var users = await usersRef.doc(user.phoneNumber).get();
+    users = await usersRef
+        .where("phoneNumber", isEqualTo: user.phoneNumber)
+        .where("password", isEqualTo: user.password)
+        .where("isVerified", isEqualTo: true)
+        .get();
     if (users.docs.isNotEmpty) {
       existUser = Users.fromMap(users.docs.first.data());
-      // authProviders.setCurrentUser(existUser.userID!);
 
       if (existUser.role == "إداري") {
         loggedIn = true;
@@ -392,93 +378,17 @@ class AuthService {
     Navigator.pushAndRemoveUntil(
       context,
       MaterialPageRoute(
-        builder: (context) => const LoginScreen(),
+        builder: (context) => const HomeScreen(),
       ),
       (route) => false,
     );
   }
 
   static void showMessage(String message, BuildContext context) {
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text(message)));
-  }
-
-  static Future<bool> sendVerificationCode({
-    required String phoneNumber,
-    required BuildContext context,
-  }) async {
-    try {
-      await FirebaseAuth.instance.verifyPhoneNumber(
-        phoneNumber: phoneNumber,
-        verificationCompleted: (PhoneAuthCredential credential) async {
-          // Automatically signs in the user
-          await FirebaseAuth.instance.signInWithCredential(credential);
-        },
-        verificationFailed: (FirebaseAuthException e) {
-          // Check if the widget is still mounted before accessing context
-          if (context.mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('Verification failed: ${e.message}')),
-            );
-          }
-        },
-        codeSent: (String verificationId, int? resendToken) {
-          _verificationId = verificationId;
-          // Check if the widget is still mounted before accessing context
-          if (context.mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Verification code sent!')),
-            );
-          }
-        },
-        codeAutoRetrievalTimeout: (String verificationId) {
-          _verificationId = verificationId;
-        },
-      );
-      return true;
-    } catch (e) {
-      // Check if the widget is still mounted before accessing context
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to send verification code: $e')),
-        );
-      }
-      return false;
-    }
-  }
-
-  static Future<void> verifyCode({
-    required void Function() function,
-    required List<TextEditingController> codeControllers,
-    required BuildContext context,
-    Users? user,
-    Inscription? inscription,
-    String? competitionVirsion,
-  }) async {
-    String code = codeControllers.map((controller) => controller.text).join();
-
-    // Ensure that the code length is 4
-    if (code.length != 4) {
-      AuthService.showMessage('يرجى إدخال الرمز الكامل.', context);
-      return;
-    }
-
-    try {
-      // Create a PhoneAuthCredential with the code and verificationId
-      PhoneAuthCredential credential = PhoneAuthProvider.credential(
-        verificationId:
-            _verificationId!, // Ensure _verificationId is properly set before this point
-        smsCode: code, // Use smsCode as the parameter name
-      );
-
-      // Sign in with the credential
-      await _auth.signInWithCredential(credential).then((value) {
-        // Call the function passed to indicate success
-        function();
-        AuthService.showMessage('تم التحقق من الرقم بنجاح!', context);
-      });
-    } catch (e) {
-      AuthService.showMessage('فشل التحقق من الرمز: $e', context);
-    }
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+      ),
+    );
   }
 }

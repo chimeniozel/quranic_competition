@@ -1,14 +1,13 @@
-import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:excel/excel.dart';
 import 'package:flutter/material.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:quranic_competition/constants/colors.dart';
+import 'package:quranic_competition/models/admin.dart';
+import 'package:quranic_competition/models/archive_entry.dart';
 import 'package:quranic_competition/models/competition.dart';
 import 'package:quranic_competition/models/inscription.dart';
 import 'package:quranic_competition/models/jury.dart';
-import 'package:quranic_competition/models/note_result.dart';
+import 'package:quranic_competition/models/note_model.dart';
 import 'package:quranic_competition/models/result_model.dart';
 
 class CompetitionService {
@@ -72,25 +71,30 @@ class CompetitionService {
     // );
   }
 
-  static Future<void> updateVideosURL(
-      BuildContext context, Competition competition) async {
+  static Future<void> updateVideosURL(BuildContext context,
+      Competition competition, List<VideoEntry> videos) async {
     // Update the existing competition document in Firestore
-
+    List<Map<String, dynamic>> videosUrl = [];
+    for (var video in videos) {
+      videosUrl.add({
+        'title': video.title,
+        'url': video.url,
+      });
+    }
     await FirebaseFirestore.instance
         .collection('competitions')
         .doc(competition
             .competitionId) // Reference to the specific competition document
         .update({
-      'archiveEntry.videosURL':
-          FieldValue.arrayUnion(competition.archiveEntry!.videosURL!),
+      'archiveEntry.videosURL': FieldValue.arrayUnion(videosUrl),
     });
 
-    // ScaffoldMessenger.of(context).showSnackBar(
-    //   const SnackBar(
-    //     content: Text('تم تحديث المسابقة بنجاح'),
-    //     backgroundColor: Colors.green,
-    //   ),
-    // );
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('تم تحديث المسابقة بنجاح'),
+        backgroundColor: Colors.green,
+      ),
+    );
   }
 
 // Method to get competition from Firebase
@@ -111,104 +115,69 @@ class CompetitionService {
     }
   }
 
-  static Future<bool> hasActiveCompetition() async {
-    final QuerySnapshot snapshot = await FirebaseFirestore.instance
-        .collection('competitions')
-        .where('isActive', isEqualTo: true)
-        .get();
-
-    return snapshot.docs.isNotEmpty;
-  }
-
-  static Future<bool> checkIfCompetitionIsActive(String competitionId) async {
-    try {
-      DocumentSnapshot competitionSnapshot = await FirebaseFirestore.instance
+  static Future<bool> hasActiveCompetition({String? competitionId}) async {
+    if (competitionId == null) {
+      final QuerySnapshot snapshot = await FirebaseFirestore.instance
           .collection('competitions')
-          .doc(competitionId)
+          .where('isActive', isEqualTo: true)
           .get();
 
-      // Return the isActive state of the competition
-      return competitionSnapshot['isActive'] ?? false;
-    } catch (e) {
-      print('Error fetching competition data: $e');
-      return false;
+      return snapshot.docs.isNotEmpty;
+    } else {
+      try {
+        DocumentSnapshot competitionSnapshot = await FirebaseFirestore.instance
+            .collection('competitions')
+            .doc(competitionId)
+            .get();
+
+        // Return the isActive state of the competition
+        return competitionSnapshot['isActive'] ?? false;
+      } catch (e) {
+        print('Error fetching competition data: $e');
+        return false;
+      }
     }
   }
 
-  static Future<void> extendCompetition(
-      BuildContext context, String competitionId, DateTime endDate) async {
-    final TextEditingController daysController = TextEditingController();
-
-    // Check the current state of the competition
-    bool isActive = await checkIfCompetitionIsActive(competitionId);
-
-    if (!isActive) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('لا يمكن تمديد نسخة غير نشطة'),
-          backgroundColor: Colors.red,
-        ),
-      );
-      return;
+  static Stream<List<Jury>> getAllJurysStream() {
+    try {
+      return FirebaseFirestore.instance
+          .collection("users")
+          .where('role', isEqualTo: "عضو لجنة التحكيم")
+          .orderBy("isVerified")
+          .snapshots()
+          .map((querySnapshot) {
+        // Transform the query snapshot into a list of Jury objects
+        return querySnapshot.docs.map((doc) {
+          Map<String, dynamic> userData = doc.data();
+          return Jury.fromMap(userData);
+        }).toList();
+      });
+    } catch (e) {
+      print("Error fetching jury users stream: $e");
+      return const Stream.empty();
     }
+  }
 
-    // If the competition is active, show the extension dialog
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('تمديد المدة'),
-          content: TextField(
-            controller: daysController,
-            keyboardType: TextInputType.number,
-            decoration: const InputDecoration(
-              labelText: 'عدد الأيام',
-              hintText: 'أدخل عدد الأيام لتمديد المدة',
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: const Text('إلغاء'),
-            ),
-            TextButton(
-              onPressed: () {
-                final int? extensionDays = int.tryParse(daysController.text);
-                if (extensionDays != null && extensionDays > 0) {
-                  DateTime newEndDate =
-                      endDate.add(Duration(days: extensionDays));
-                  FirebaseFirestore.instance
-                      .collection('competitions')
-                      .doc(competitionId)
-                      .update({
-                    'endDate': newEndDate,
-                  }).then((_) {
-                    Navigator.of(context).pop();
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('تم تمديد المدة بنجاح'),
-                        backgroundColor: Colors.green,
-                      ),
-                    );
-                  }).catchError((error) {
-                    Navigator.of(context).pop();
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text('فشل التمديد: $error'),
-                        backgroundColor: Colors.red,
-                      ),
-                    );
-                  });
-                }
-              },
-              child: const Text('تمديد'),
-            ),
-          ],
-        );
-      },
-    );
+  static Stream<List<Admin>> getAllAdminsStream(String currentUserID) {
+    try {
+      return FirebaseFirestore.instance
+          .collection("users")
+          .where('role', isEqualTo: "إداري")
+          .orderBy("isVerified")
+          .where("userID", isNotEqualTo: currentUserID)
+          .snapshots()
+          .map((querySnapshot) {
+        // Transform the query snapshot into a list of Jury objects
+        return querySnapshot.docs.map((doc) {
+          Map<String, dynamic> userData = doc.data();
+          return Admin.fromMap(userData);
+        }).toList();
+      });
+    } catch (e) {
+      print("Error fetching admin users stream: $e");
+      return const Stream.empty();
+    }
   }
 
   static Future<List<Jury>> getAllJurys() async {
@@ -217,6 +186,7 @@ class CompetitionService {
           await FirebaseFirestore.instance
               .collection("users")
               .where('role', isEqualTo: "عضو لجنة التحكيم")
+              .orderBy("isVerified")
               .get();
 
       List<Jury> juryUsers = [];
@@ -256,85 +226,93 @@ class CompetitionService {
     }
   }
 
-  static Future<void> deleteUser(
-      {required String userID, required BuildContext context}) async {
+  static Future<void> deleteUser({required String userID}) async {
     try {
-      await FirebaseFirestore.instance
-          .collection("users")
-          .doc(userID)
-          .delete();
+      await FirebaseFirestore.instance.collection("users").doc(userID).delete();
     } on FirebaseException catch (e) {
       print("Error deleting user: $e");
     }
   }
 
+  static Future<void> deleteJuryFromCometition(
+      {required String juryID, required String competitionVersion}) async {
+    try {
+      await FirebaseFirestore.instance.collection("users").doc(juryID).update({
+        'competitions': FieldValue.arrayRemove([competitionVersion]),
+      });
+    } on FirebaseException catch (e) {
+      print("Error deleting jury from competition: $e");
+    }
+  }
+
+  static Future<void> verifyUser({required String userID}) async {
+    try {
+      await FirebaseFirestore.instance.collection("users").doc(userID).update({
+        'isVerified': true,
+      });
+    } on FirebaseException catch (e) {
+      print("Error verifying user: $e");
+    }
+  }
+
   // get images archives as a stream
-  static Stream<List<String>> getImagesArchives(String competitionId) {
-    return FirebaseFirestore.instance
-        .collection("competitions")
-        .doc(competitionId)
-        .snapshots()
-        .map((DocumentSnapshot<Map<String, dynamic>> snapshot) {
+  static Future<List<String>> getImagesArchives(String competitionId) async {
+    try {
+      // Fetch the document once using 'get()' instead of 'snapshots()'
+      DocumentSnapshot<Map<String, dynamic>> snapshot = await FirebaseFirestore
+          .instance
+          .collection("competitions")
+          .doc(competitionId)
+          .get();
+
       List<String> archives = [];
       if (snapshot.exists) {
-        Competition competition = Competition.fromMap(snapshot.data());
+        // Parse the competition data from the snapshot
+        Competition competition = Competition.fromMap(snapshot.data()!);
+
+        // Retrieve the images URL if available
         List<String>? imagesURL = competition.archiveEntry?.imagesURL;
 
+        // Add the images URLs to the archives list
         if (imagesURL != null) {
           archives.addAll(imagesURL);
         }
       }
       return archives;
-    }).handleError((error) {
+    } catch (error) {
       print("Error fetching archives: $error");
       return [];
-    });
+    }
   }
 
   // get videos archives as a stream
-  static Stream<List<String>> getVideosArchives(String competitionId) {
-    return FirebaseFirestore.instance
-        .collection("competitions")
-        .doc(competitionId)
-        .snapshots()
-        .map((DocumentSnapshot<Map<String, dynamic>> snapshot) {
-      List<String> archives = [];
-      if (snapshot.exists) {
-        Competition competition = Competition.fromMap(snapshot.data());
-        List<String>? videosURL = competition.archiveEntry?.videosURL;
+  static Future<List<VideoEntry>> getVideosArchives(
+      String competitionId) async {
+    try {
+      // Fetch the document once using 'get()' instead of 'snapshots()'
+      DocumentSnapshot<Map<String, dynamic>> snapshot = await FirebaseFirestore
+          .instance
+          .collection("competitions")
+          .doc(competitionId)
+          .get();
 
+      List<VideoEntry> archives = [];
+      if (snapshot.exists) {
+        // Parse the competition data from the snapshot
+        Competition competition = Competition.fromMap(snapshot.data()!);
+
+        // Retrieve the videos URL if available
+        List<VideoEntry>? videosURL = competition.archiveEntry?.videosURL;
+
+        // Add the videos URLs to the archives list
         if (videosURL != null) {
           archives.addAll(videosURL);
         }
       }
       return archives;
-    }).handleError((error) {
+    } catch (error) {
       print("Error fetching archives: $error");
       return [];
-    });
-  }
-
-  // read excel file
-  void readExcelFile() async {
-    // احصل على مسار الملف (يمكن أن يكون ملفًا محليًا أو من مجلد التنزيلات)
-    Directory directory = await getApplicationDocumentsDirectory();
-    String path =
-        '${directory.path}/test.xlsx'; // قم بتغيير المسار بناءً على موقع ملفك
-
-    // قراءة الملف
-    var file = File(path);
-    var bytes = file.readAsBytesSync();
-    var excel = Excel.decodeBytes(bytes);
-
-    // طباعة البيانات
-    for (var table in excel.tables.keys) {
-      print('Sheet: $table');
-      print('Max rows: ${excel.tables[table]!.maxRows}');
-      print('Max cols: ${excel.tables[table]!.maxColumns}');
-
-      for (var row in excel.tables[table]!.rows) {
-        print('$row');
-      }
     }
   }
 
@@ -379,7 +357,6 @@ class CompetitionService {
       for (var doc in querySnapshot.docs) {
         List<double> notes = [];
         Inscription inscription = Inscription.fromDocumentSnapshot(doc);
-
         var correctionSnapshot = await FirebaseFirestore.instance
             .collection('inscriptions')
             .doc(version)
@@ -402,7 +379,6 @@ class CompetitionService {
             }
           }
         }
-
         if (juryCollection.docs.length == notes.length) {
           double generalMoyenne = notes.reduce((double a, double b) => a + b) /
               juryCollection.docs.length;
@@ -413,17 +389,37 @@ class CompetitionService {
               idUser: inscription.idInscription);
 
           if (isAdmin) {
-            inscriptionCollection
-                .doc(inscription.idInscription.toString())
-                .update({
-              "نتائج التصفيات الأولى": generalMoyenne,
-              "isPassedFirstRound":
-                  generalMoyenne >= competition.successMoyenne! ? true : false,
-            });
-            inscription.resultFirstRound = generalMoyenne;
-            inscription.isPassedFirstRound =
-                generalMoyenne >= competition.successMoyenne! ? true : false;
-
+            if (competitionType == "adult_inscription") {
+              inscriptionCollection
+                  .doc(inscription.idInscription.toString())
+                  .update({
+                "نتائج التصفيات الأولى": generalMoyenne,
+                "isPassedFirstRound":
+                    generalMoyenne >= competition.successMoyenneAdult!
+                        ? true
+                        : false,
+              });
+              inscription.resultFirstRound = generalMoyenne;
+              inscription.isPassedFirstRound =
+                  generalMoyenne >= competition.successMoyenneAdult!
+                      ? true
+                      : false;
+            } else {
+              inscriptionCollection
+                  .doc(inscription.idInscription.toString())
+                  .update({
+                "نتائج التصفيات الأولى": generalMoyenne,
+                "isPassedFirstRound":
+                    generalMoyenne >= competition.successMoyenneChild!
+                        ? true
+                        : false,
+              });
+              inscription.resultFirstRound = generalMoyenne;
+              inscription.isPassedFirstRound =
+                  generalMoyenne >= competition.successMoyenneChild!
+                      ? true
+                      : false;
+            }
             inscriptions.add({
               "inscription": inscription,
               "result": resultModel,
@@ -442,39 +438,42 @@ class CompetitionService {
       if (query.isNotEmpty) {
         // البحث عن idUser باستخدام query
         querySnapshot = await inscriptionCollection
-            .where("نتائج التصفيات الأولى",
-                isGreaterThanOrEqualTo: competition.successMoyenne)
+            .where("isPassedFirstRound", isEqualTo: true)
             .where("رقم التسجيل", isEqualTo: int.parse(query))
             .orderBy("رقم التسجيل", descending: false)
             .get();
       } else {
         // إذا لم يكن هناك قيمة للبحث، عرض جميع الوثائق
         querySnapshot = await inscriptionCollection
-            .where("نتائج التصفيات الأولى",
-                isGreaterThanOrEqualTo: competition.successMoyenne)
+            .where("isPassedFirstRound", isEqualTo: true)
             .orderBy("رقم التسجيل", descending: false)
             .get();
       }
 
       for (var doc in querySnapshot.docs) {
+        List<double> notes = [];
         Inscription inscription = Inscription.fromDocumentSnapshot(doc);
 
-        List<double> notes = [];
         var correctionSnapshot = await FirebaseFirestore.instance
             .collection('inscriptions')
             .doc(version)
             .collection("jurysInscriptions")
             .where("idInscription", isEqualTo: inscription.idInscription)
             .get();
+
         for (var correctionDoc in correctionSnapshot.docs) {
           if (competitionType == "adult_inscription") {
-            NoteModel model =
-                NoteModel.fromMapAdult(correctionDoc["lastResult"]);
-            notes.add(model.result!);
+            if (correctionDoc["isAdult"]) {
+              NoteModel model =
+                  NoteModel.fromMapAdult(correctionDoc["lastResult"]);
+              notes.add(model.result!);
+            }
           } else {
-            NoteModel model =
-                NoteModel.fromMapChild(correctionDoc["lastResult"]);
-            notes.add(model.result!);
+            if (!correctionDoc["isAdult"]) {
+              NoteModel model =
+                  NoteModel.fromMapChild(correctionDoc["lastResult"]);
+              notes.add(model.result!);
+            }
           }
         }
 
@@ -486,17 +485,15 @@ class CompetitionService {
               fullName: inscription.fullName,
               generalMoyenne: generalMoyenne,
               idUser: inscription.idInscription);
-          print(
-              "==================== resultModel.generalMoyenne: ${resultModel.toJson()}");
+
           if (isAdmin) {
             inscriptionCollection
                 .doc(inscription.idInscription.toString())
                 .update({
               "نتائج التصفيات النهائية": generalMoyenne,
             });
-            inscription.resultFirstRound = generalMoyenne;
-            inscription.isPassedFirstRound =
-                generalMoyenne >= competition.successMoyenne! ? true : false;
+            inscription.resultLastRound = generalMoyenne;
+
             inscriptions.add({
               "inscription": inscription,
               "result": resultModel,
@@ -523,31 +520,6 @@ class CompetitionService {
     }
     return [];
   }
-
-  // static NoteResult getNoteResult(
-  //     Map<String, dynamic> element, String competitionType) {
-  //   if (competitionType == "adult_inscription") {
-  //     return NoteResult.fromMapAdult(element);
-  //   } else if (competitionType == "child_inscription") {
-  //     return NoteResult.fromMapChild(element);
-  //   } else {
-  //     throw ArgumentError("Invalid competition type: $competitionType");
-  //   }
-  // }
-
-  // static double getResult(List<dynamic> roundList, String competitionType) {
-  //   // Ensure that notes and result are properly accessed and filtered
-  //   var results = roundList
-  //       .map((element) => getNoteResult(element, competitionType))
-  //       .where(
-  //           (noteResult) => noteResult.notes != null) // Filter out null notes
-  //       .map((noteResult) => noteResult.notes!.result) // Extract the results
-  //       .whereType<double>() // Ensure only valid doubles
-  //       .toList();
-
-  //   // Return the sum of all results or 0 if the list is empty
-  //   return results.isNotEmpty ? results.reduce((a, b) => a + b) : 0.0;
-  // }
 
   static void addJuryToCompetition(
       {required Jury jury,
@@ -593,112 +565,6 @@ class CompetitionService {
     // Iterate through the users and add the jury to their inscriptions
   }
 
-  // static Future<bool> calculeResults(
-  //   String competitionVersion,
-  //   String competitionRound,
-  // ) async {
-  //   List<Inscription> inscriptions = [];
-  //   try {
-  //     CollectionReference<Map<String, dynamic>> adultQuerySnapshot =
-  //         FirebaseFirestore.instance
-  //             .collection("inscriptions")
-  //             .doc(competitionVersion)
-  //             .collection("adult_inscription");
-  //     CollectionReference<Map<String, dynamic>> childQuerySnapshot =
-  //         FirebaseFirestore.instance
-  //             .collection("inscriptions")
-  //             .doc(competitionVersion)
-  //             .collection("child_inscription");
-  //     var adultQuery = await adultQuerySnapshot.get();
-  //     var childQuery = await childQuerySnapshot.get();
-  //     int allDocs = adultQuery.docs.length + childQuery.docs.length;
-  //     // Iterate through both adult and child competition types
-  //     for (var competitionType in ["adult_inscription", "child_inscription"]) {
-  //       // Fetch documents for the given competition version and type
-  //       QuerySnapshot<Map<String, dynamic>> querySnapshot =
-  //           await FirebaseFirestore.instance
-  //               .collection("inscriptions")
-  //               .doc(competitionVersion)
-  //               .collection(competitionType)
-  //               .get();
-
-  //       for (var doc in querySnapshot.docs) {
-  //         Inscription inscription = Inscription.fromMap(doc.data());
-
-  //         // Select the appropriate round list
-  //         List<dynamic>? roundList = competitionRound == "التصفيات الأولى"
-  //             ? inscription.tashihMachaikhs?.firstRound
-  //             : inscription.tashihMachaikhs?.finalRound;
-
-  //         if (roundList != null) {
-  //           // Count the number of corrected elements in the list
-  //           int correctedCount = roundList
-  //               .map((element) => getNoteResult(element, competitionType))
-  //               .where((noteResult) => noteResult.isCorrected ?? false)
-  //               .length;
-
-  //           // Add to the inscriptions list if all elements are corrected
-  //           if (correctedCount == roundList.length) {
-  //             inscriptions.add(inscription);
-  //           }
-  //         }
-  //       }
-  //     }
-
-  //     // Check if the number of processed inscriptions matches expectations
-  //     print(
-  //         "======================== \n $allDocs ================ ${inscriptions.length} inscriptions found.");
-
-  //     if (allDocs == inscriptions.length) {
-  //       for (var doc in adultQuery.docs) {
-  //         Inscription inscr = Inscription.fromDocumentSnapshot(doc);
-  //         // Select the appropriate round list
-  //         List? roundList = competitionRound == "التصفيات الأولى"
-  //             ? inscr.tashihMachaikhs?.firstRound
-  //             : inscr.tashihMachaikhs?.finalRound;
-  //         double roundNote = getResult(roundList!, "adult_inscription");
-  //         double roundMoyenne = roundNote / roundList.length;
-  //         FirebaseFirestore.instance
-  //             .collection("inscriptions")
-  //             .doc(competitionVersion)
-  //             .collection("adult_inscription")
-  //             .doc(doc.id)
-  //             .update({
-  //           "نتائج التصفيات الأولى": roundMoyenne,
-  //         });
-  //       }
-  //       for (var doc in childQuery.docs) {
-  //         Inscription inscr = Inscription.fromDocumentSnapshot(doc);
-  //         // Select the appropriate round list
-  //         List? roundList = competitionRound == "التصفيات الأولى"
-  //             ? inscr.tashihMachaikhs?.firstRound
-  //             : inscr.tashihMachaikhs?.finalRound;
-  //         double roundNote = getResult(roundList!, "child_inscription");
-  //         double roundMoyenne = roundNote / roundList.length;
-  //         FirebaseFirestore.instance
-  //             .collection("inscriptions")
-  //             .doc(competitionVersion)
-  //             .collection("child_inscription")
-  //             .doc(doc.id)
-  //             .update(
-  //           {
-  //             "نتائج التصفيات الأولى": roundMoyenne,
-  //           },
-  //         );
-  //       }
-  //     }
-
-  //     // Return true if all inscriptions have been added successfully
-  //     return allDocs == inscriptions.length;
-  //   } on FirebaseException catch (e) {
-  //     print("Error fetching inscriptions: ${e.message}");
-  //     return false;
-  //   } catch (e) {
-  //     print("Unexpected error: $e");
-  //     return false;
-  //   }
-  // }
-
   // Publish results
   static Future publishResults({
     required Competition competition,
@@ -719,35 +585,50 @@ class CompetitionService {
             .collection("jurysInscriptions")
             .where("isLastCorrected", isEqualTo: true)
             .get();
-    QuerySnapshot<Map<String, dynamic>> inscriptionsAdult =
+    QuerySnapshot<Map<String, dynamic>> inscriptionsAdultFirst =
         await FirebaseFirestore.instance
             .collection("inscriptions")
             .doc(competition.competitionVirsion)
             .collection("adult_inscription")
             .get();
-    QuerySnapshot<Map<String, dynamic>> inscriptionsChild =
+    QuerySnapshot<Map<String, dynamic>> inscriptionsChildFirst =
         await FirebaseFirestore.instance
             .collection("inscriptions")
             .doc(competition.competitionVirsion)
             .collection("child_inscription")
             .get();
+    QuerySnapshot<Map<String, dynamic>> inscriptionsAdultLast =
+        await FirebaseFirestore.instance
+            .collection("inscriptions")
+            .doc(competition.competitionVirsion)
+            .collection("adult_inscription")
+            .where("isPassedFirstRound", isEqualTo: true)
+            .get();
+    QuerySnapshot<Map<String, dynamic>> inscriptionsChildLast =
+        await FirebaseFirestore.instance
+            .collection("inscriptions")
+            .doc(competition.competitionVirsion)
+            .collection("child_inscription")
+            .where("isPassedFirstRound", isEqualTo: true)
+            .get();
     QuerySnapshot<Map<String, dynamic>> usersQuery = await FirebaseFirestore
         .instance
         .collection("users")
         .where("role", isNotEqualTo: "إداري")
+        .where("competitions", arrayContains: competition.competitionVirsion)
         .get();
-    int nbInscriptions =
-        inscriptionsAdult.docs.length + inscriptionsChild.docs.length;
+    int nbInscriptionsFirst =
+        inscriptionsAdultFirst.docs.length + inscriptionsChildFirst.docs.length;
+    int nbInscriptionsLast =
+        inscriptionsAdultLast.docs.length + inscriptionsChildLast.docs.length;
     int nbJurys = 0;
-    print(
-        "========================== = = =  ${juryInscriptionsFirst.docs.length}  = = = =    ========================");
+
     if (competitionRound == "التصفيات الأولى") {
-      nbJurys = juryInscriptionsFirst.docs.length ~/ nbInscriptions;
+      nbJurys = juryInscriptionsFirst.docs.length ~/ nbInscriptionsFirst;
     } else {
-      nbJurys = juryInscriptionsLast.docs.length ~/ nbInscriptions;
+      nbJurys = juryInscriptionsLast.docs.length ~/ nbInscriptionsLast;
     }
-    print(
-        "===================== nbJurys : $nbJurys  ====== users : ${usersQuery.docs.length}");
+
     if (nbJurys == usersQuery.docs.length) {
       DocumentReference<Map<String, dynamic>> querySnapshot = FirebaseFirestore
           .instance

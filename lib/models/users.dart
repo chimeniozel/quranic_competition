@@ -6,7 +6,7 @@ class Users {
   String _phoneNumber;
   String _password;
   String? _role;
-  // bool? _isFinishedCorrecting;
+  bool? _isVerified;
 
   Users({
     String? userID,
@@ -14,12 +14,13 @@ class Users {
     required String phoneNumber,
     required String password,
     String? role,
+    bool? isVerified ,
   })  : _userID = userID,
         _fullName = fullName,
         _phoneNumber = phoneNumber,
         _role = role,
-        _password = password;
-  // _isFinishedCorrecting = isFinishedCorrecting;
+        _password = password,
+  _isVerified = isVerified;
 
   // Getters
   String? get userID => _userID;
@@ -27,7 +28,7 @@ class Users {
   String get phoneNumber => _phoneNumber;
   String get password => _password;
   String? get role => _role;
-  // bool? get isFinishedCorrecting => _isFinishedCorrecting;
+  bool? get isVerified => _isVerified;
 
   // Setters
   set userID(String? id) {
@@ -50,9 +51,9 @@ class Users {
     _role = role;
   }
 
-  // set isFinishedCorrecting(bool? finished) {
-  //   _isFinishedCorrecting = finished;
-  // }
+  set isVerified(bool? isVerified) {
+    _isVerified = isVerified;
+  }
 
   // Convert a Users object to a map
   Map<String, dynamic> toMap() {
@@ -62,7 +63,7 @@ class Users {
       'phoneNumber': _phoneNumber,
       'password': _password,
       'role': _role,
-      // 'isFinishedCorrecting': _isFinishedCorrecting,
+      'isVerified': _isVerified,
     };
   }
 
@@ -74,7 +75,7 @@ class Users {
       phoneNumber: map['phoneNumber'],
       password: map['password'],
       role: map['role'],
-      // isFinishedCorrecting: map['isFinishedCorrecting'],
+      isVerified: map['isVerified'],
     );
   }
 
@@ -87,7 +88,7 @@ class Users {
       phoneNumber: data['phoneNumber'],
       password: data['password'],
       role: data['role'],
-      // isFinishedCorrecting: data['isFinishedCorrecting'],
+      isVerified: data['isVerified'],
     );
   }
 }

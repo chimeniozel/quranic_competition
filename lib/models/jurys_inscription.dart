@@ -1,4 +1,4 @@
-import 'package:quranic_competition/models/note_result.dart';
+import 'package:quranic_competition/models/note_model.dart';
 
 class JuryInscription {
   String? _idCollection;
@@ -55,20 +55,6 @@ class JuryInscription {
   set isLastCorrected(bool? value) => _isLastCorrected = value;
 
   // Convert to map for adult contestants
-  Map<String, dynamic> toMapAdult() {
-    return {
-      'idCollection': _idCollection,
-      'idJury': _idJury,
-      'idInscription': _idInscription,
-      'firstResult': _firstNotes?.toMapAdult(),
-      'lastResult': _lastNotes?.toMapAdult(),
-      'isAdult': _isAdult,
-      'isFirstCorrected': _isFirstCorrected,
-      'isLastCorrected': _isLastCorrected,
-    };
-  }
-
-  // Convert to map for child contestants
   Map<String, dynamic> toMapChild() {
     return {
       'idCollection': _idCollection,
@@ -82,25 +68,21 @@ class JuryInscription {
     };
   }
 
-  // Factory constructor to create a JuryInscription instance from map for adult contestants
-  factory JuryInscription.fromMapAdult(Map<String, dynamic> map) {
-    return JuryInscription(
-      idCollection: map['idCollection'] as String?,
-      idJury: map['idJury'] as String,
-      idInscription: map['idInscription'] as int,
-      firstNotes: map['firstResult'] != null
-          ? NoteModel.fromMapAdult(map['firstResult'] as Map<String, dynamic>)
-          : null,
-      lastNotes: map['lastResult'] != null
-          ? NoteModel.fromMapAdult(map['lastResult'] as Map<String, dynamic>)
-          : null,
-          isAdult: map['isAdult'] as bool?,
-          isFirstCorrected: map['isFirstCorrected'] as bool?,
-      isLastCorrected: map['isLastCorrected'] as bool?,
-    );
+  // Convert to map for child contestants
+  Map<String, dynamic> toMapAdult() {
+    return {
+      'idCollection': _idCollection,
+      'idJury': _idJury,
+      'idInscription': _idInscription,
+      'firstResult': _firstNotes?.toMapAdult(),
+      'lastResult': _lastNotes?.toMapAdult(),
+      'isAdult': _isAdult,
+      'isFirstCorrected': _isFirstCorrected,
+      'isLastCorrected': _isLastCorrected,
+    };
   }
 
-  // Factory constructor to create a JuryInscription instance from map for child contestants
+  // Factory constructor to create a JuryInscription instance from map for adult contestants
   factory JuryInscription.fromMapChild(Map<String, dynamic> map) {
     return JuryInscription(
       idCollection: map['idCollection'] as String?,
@@ -111,6 +93,24 @@ class JuryInscription {
           : null,
       lastNotes: map['lastResult'] != null
           ? NoteModel.fromMapChild(map['lastResult'] as Map<String, dynamic>)
+          : null,
+          isAdult: map['isAdult'] as bool?,
+          isFirstCorrected: map['isFirstCorrected'] as bool?,
+      isLastCorrected: map['isLastCorrected'] as bool?,
+    );
+  }
+
+  // Factory constructor to create a JuryInscription instance from map for child contestants
+  factory JuryInscription.fromMapAdult(Map<String, dynamic> map) {
+    return JuryInscription(
+      idCollection: map['idCollection'] as String?,
+      idJury: map['idJury'] as String,
+      idInscription: map['idInscription'] as int,
+      firstNotes: map['firstResult'] != null
+          ? NoteModel.fromMapAdult(map['firstResult'] as Map<String, dynamic>)
+          : null,
+      lastNotes: map['lastResult'] != null
+          ? NoteModel.fromMapAdult(map['lastResult'] as Map<String, dynamic>)
           : null,
           isAdult: map['isAdult'] as bool?,
           isFirstCorrected: map['isFirstCorrected'] as bool?,

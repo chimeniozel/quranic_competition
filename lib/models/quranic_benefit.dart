@@ -92,6 +92,37 @@ class QuranicBenefit {
     }
   }
 
+  // update the benefit
+  static Future<void> updateQuranicBenefit(
+      QuranicBenefit quranicBenefit, BuildContext context) async {
+    try {
+      // Update the document with its ID
+      await FirebaseFirestore.instance
+          .collection("quranic_benefits")
+          .doc(quranicBenefit.idBenefit)
+          .update(quranicBenefit.toMap());
+
+      // Show success SnackBar
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('تمت تعديل الفائدة بنجاح'),
+          backgroundColor: AppColors.greenColor,
+          duration: Duration(seconds: 2),
+        ),
+      );
+    } catch (e) {
+      // Show error SnackBar
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('فشل في تعديل الفائدة'),
+          backgroundColor: AppColors.pinkColor,
+          duration: Duration(seconds: 2),
+        ),
+      );
+      print("Error adding Quranic benefit: $e");
+    }
+  }
+
   static Stream<List<QuranicBenefit>> getAllQuranicBenefits() {
     return FirebaseFirestore.instance
         .collection("quranic_benefits")
