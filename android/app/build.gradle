@@ -52,9 +52,21 @@ android {
         versionName = flutterVersionName
     }
 
+    signingConfigs {
+        release {
+            storeFile file('C:/Users/chimeni/Documents/test/quranic_competition/release-key.jks') // Path to your keystore
+            storePassword '20063179' // Replace with your keystore password
+            keyAlias 'my-key-alias' // Replace with your key alias
+            keyPassword '20063179' // Replace with your key password
+        }
+    }
+
     buildTypes {
         release {
-            signingConfig = signingConfigs.debug
+            signingConfig signingConfigs.release
+            minifyEnabled true
+            shrinkResources true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
 }

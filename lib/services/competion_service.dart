@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:quranic_competition/constants/colors.dart';
+import 'package:quranic_competition/models/about_us_model.dart';
 import 'package:quranic_competition/models/admin.dart';
 import 'package:quranic_competition/models/archive_entry.dart';
 import 'package:quranic_competition/models/competition.dart';
@@ -120,6 +121,26 @@ class CompetitionService {
         backgroundColor: Colors.green,
       ),
     );
+  }
+
+  static Future<AboutUsModel?> getAboutUs() async {
+    try {
+      DocumentSnapshot<Map<String, dynamic>> documentSnapshot =
+          await FirebaseFirestore.instance
+              .collection("about_us")
+              .doc("k934z1vhO6LgWEFxex81")
+              .get();
+
+      if (documentSnapshot.exists) {
+        Map<String, dynamic> aboutUsModel = documentSnapshot.data()!;
+        return AboutUsModel.fromMap(aboutUsModel);
+      } else {
+        return null;
+      }
+    } on FirebaseException catch (e) {
+      print("Error fetching about us: $e");
+      return null;
+    }
   }
 
 // Method to get competition from Firebase

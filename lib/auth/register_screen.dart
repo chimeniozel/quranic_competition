@@ -7,6 +7,7 @@ import 'package:quranic_competition/auth/otp_verification_screen.dart';
 import 'package:quranic_competition/constants/colors.dart';
 import 'package:quranic_competition/models/admin.dart';
 import 'package:quranic_competition/models/jury.dart';
+import 'package:quranic_competition/services/auth_service.dart';
 import 'package:quranic_competition/widgets/input_widget.dart';
 
 class RegisterScreen extends StatefulWidget {
@@ -241,18 +242,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               role: selectedRole!,
                               isVerified: false,
                             );
-                            // Navigate to otp screen verfication
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => OtpVerificationScreen(
-                                  phoneNumber:
-                                      "+222${phoneNumberController.text}",
-                                  admin: admin,
-                                  jury: null,
-                                ),
-                              ),
-                            );
+                            await AuthService.registerUser(
+                                admin: admin, context: context);
                           } else {
                             jury = Jury(
                               fullName: fullNameController.text,
@@ -262,18 +253,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               role: selectedRole,
                               isVerified: false,
                             );
-                            // Navigate to otp screen verfication
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => OtpVerificationScreen(
-                                  phoneNumber:
-                                      "+222${phoneNumberController.text}",
-                                  jury: jury,
-                                  admin: null,
-                                ),
-                              ),
-                            );
+                            await AuthService.registerUser(
+                                jury: jury, context: context);
                           }
                         }
                       }

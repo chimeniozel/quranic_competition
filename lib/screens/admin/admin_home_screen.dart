@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:quranic_competition/constants/colors.dart';
 import 'package:quranic_competition/providers/auth_provider.dart';
 import 'package:quranic_competition/providers/competion_provider.dart';
+import 'package:quranic_competition/screens/admin/about_us/update_about_us.dart';
 import 'package:quranic_competition/screens/admin/benefits/quranic_benefit_screen.dart';
 import 'package:quranic_competition/screens/admin/competition/competition_management.dart';
 import 'package:quranic_competition/screens/admin/users/all_admins_screen.dart';
@@ -403,39 +404,81 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                     const SizedBox(
                       height: 5.0,
                     ),
-                    GestureDetector(
-                      onTap: () {
-                        // Navigate to the competition managment
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const QuranicBenefitScreen(),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: GestureDetector(
+                            onTap: () {
+                              // Navigate to the competition managment
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => const QuranicBenefitScreen(),
+                                ),
+                              );
+                            },
+                            child: Container(
+                              width: 150,
+                              padding: const EdgeInsets.all(
+                                10.0,
+                              ),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  Image.asset(
+                                    'assets/images/فوائد قرآنية.png',
+                                    width: 70,
+                                  ),
+                                  const SizedBox(
+                                    height: 10.0,
+                                  ),
+                                  const Text(
+                                    'فوائد قرآنية',
+                                    style: TextStyle(fontSize: 14.0),
+                                  ),
+                                ],
+                              ),
+                            ),
                           ),
-                        );
-                      },
-                      child: Container(
-                        width: 150,
-                        padding: const EdgeInsets.all(
-                          10.0,
                         ),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Image.asset(
-                              'assets/images/فوائد قرآنية.png',
-                              width: 70,
+                        Expanded(
+                          child: GestureDetector(
+                            onTap: () {
+                              // Navigate to the competition managment
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => const UpdateAboutUs(),
+                                ),
+                              );
+                            },
+                            child: Container(
+                              width: 150,
+                              padding: const EdgeInsets.all(
+                                10.0,
+                              ),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  Image.asset(
+                                    'assets/images/about-us.png',
+                                    width: 70,
+                                  ),
+                                  const SizedBox(
+                                    height: 10.0,
+                                  ),
+                                  const Text(
+                                    'من نحن',
+                                    style: TextStyle(fontSize: 14.0),
+                                  ),
+                                ],
+                              ),
                             ),
-                            const SizedBox(
-                              height: 10.0,
-                            ),
-                            const Text(
-                              'فوائد قرآنية',
-                              style: TextStyle(fontSize: 14.0),
-                            ),
-                          ],
+                          ),
                         ),
-                      ),
+                      ],
                     ),
                   ],
                 ),
