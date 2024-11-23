@@ -27,7 +27,7 @@ if (flutterVersionName == null) {
 }
 
 android {
-    namespace = "com.example.quranic_competition"
+    namespace = "com.chemeni.quranic_competition"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
@@ -45,7 +45,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.example.quranic_competition"
+        applicationId = "com.chemeni.quranic_competition"
         minSdk = 23
         targetSdk = 34
         versionCode = flutterVersionCode.toInteger()

@@ -64,7 +64,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '395894434800',
     projectId: 'quranic-competition-app',
     storageBucket: 'quranic-competition-app.appspot.com',
-    iosBundleId: 'com.example.quranicCompetition',
+    iosBundleId: 'com.chemeni.quranicCompetition',
   );
 
   static const FirebaseOptions macos = FirebaseOptions(
@@ -73,7 +73,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '395894434800',
     projectId: 'quranic-competition-app',
     storageBucket: 'quranic-competition-app.appspot.com',
-    iosBundleId: 'com.example.quranicCompetition',
+    iosBundleId: 'com.chemeni.quranicCompetition',
   );
 
   static const FirebaseOptions windows = FirebaseOptions(

@@ -44,12 +44,10 @@ class _ImagesArchiveScreenState extends State<ImagesArchiveScreen> {
 
   @override
   Widget build(BuildContext context) {
-    CompetitionProvider provider =
-        Provider.of<CompetitionProvider>(context, listen: false);
     return Scaffold(
       appBar: AppBar(
         backgroundColor: AppColors.primaryColor,
-        title: Text('صور ${provider.competition!.competitionVirsion}'),
+        title: Text('صور ${widget.competition.competitionVirsion}'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(8.0),

@@ -36,13 +36,11 @@ class VideoArchiveScreenState extends State<VideoArchiveScreen> {
   Widget build(BuildContext context) {
     final AuthProviders authProvider =
         Provider.of<AuthProviders>(context, listen: false);
-    CompetitionProvider provider =
-        Provider.of<CompetitionProvider>(context, listen: false);
     return Scaffold(
         appBar: AppBar(
           backgroundColor: AppColors.primaryColor,
-          title: Text(
-              "روابط فيديوهات ${provider.competition!.competitionVirsion}"),
+          title:
+              Text("روابط فيديوهات ${widget.competition.competitionVirsion}"),
         ),
         body: Padding(
           padding: const EdgeInsets.all(

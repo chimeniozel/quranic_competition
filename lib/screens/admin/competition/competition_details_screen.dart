@@ -221,8 +221,8 @@ class _CompetitionDetailsScreenState extends State<CompetitionDetailsScreen> {
             ),
             if (selectedType != null)
               Expanded(
-                child: FutureBuilder<List<Inscription>>(
-                  future: InscriptionService.fetchContestants(
+                child: StreamBuilder<List<Inscription>>(
+                  stream: InscriptionService.fetchContestantsStream(
                       competition: competition,
                       competitionType: selectedType!,
                       query: query),
@@ -246,43 +246,82 @@ class _CompetitionDetailsScreenState extends State<CompetitionDetailsScreen> {
                               if (competition.isActive!) {
                                 await showDialog(
                                   context: context,
-                                  builder: (context) => StatefulBuilder(
-                                    builder: (context, setState) => AlertDialog(
-                                      title: const Text(
-                                        'تحذير: حذف المتسابق',
-                                        style: TextStyle(
-                                            color: Colors
-                                                .red), // Change title color to red
-                                      ),
-                                      content: const Text(
-                                        'هل أنت متأكد أنك تريد حذف هذا المتسابق ؟ هذا الإجراء لا يمكن التراجع عنه.',
-                                      ),
-                                      actions: [
-                                        TextButton(
-                                          onPressed: () {
-                                            Navigator.of(context)
-                                                .pop(); // Close the dialog
-                                          },
-                                          child: const Text('إلغاء'),
-                                        ),
-                                        TextButton(
-                                          style: TextButton.styleFrom(
-                                              backgroundColor: Colors
-                                                  .red, // Set background color to red
-                                              shape: RoundedRectangleBorder(
-                                                borderRadius:
-                                                    BorderRadius.circular(10.0),
-                                              )),
-                                          onPressed: () {},
-                                          child: const Text(
-                                            'حذف',
-                                            style: TextStyle(
-                                                color: Colors
-                                                    .white), // Set text color to white,
-                                          ),
-                                        ),
-                                      ],
+                                  builder: (context) => AlertDialog(
+                                    title: const Text(
+                                      'تحذير: حذف المتسابق',
+                                      style: TextStyle(
+                                          color: Colors
+                                              .red), // Change title color to red
                                     ),
+                                    content: const Text(
+                                      'هل أنت متأكد أنك تريد حذف هذا المتسابق ؟ هذا الإجراء لا يمكن التراجع عنه.',
+                                    ),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () {
+                                          Navigator.of(context)
+                                              .pop(); // Close the dialog
+                                        },
+                                        child: const Text('إلغاء'),
+                                      ),
+                                      TextButton(
+                                        style: TextButton.styleFrom(
+                                            backgroundColor: Colors
+                                                .red, // Set background color to red
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(10.0),
+                                            )),
+                                        onPressed: () async {
+                                          await InscriptionService
+                                                  .deleteInscription(
+                                                      inscription: inscription,
+                                                      inscriptionType:
+                                                          selectedType!,
+                                                      version: widget
+                                                          .competition
+                                                          .competitionVirsion!)
+                                              .whenComplete(() {
+                                            ScaffoldMessenger.of(context)
+                                                .showSnackBar(
+                                              SnackBar(
+                                                content: const Text(
+                                                    "تم حذف المتسابق بنجاح!"),
+                                                action: SnackBarAction(
+                                                  label: 'إخفاء',
+                                                  onPressed: () {},
+                                                ),
+                                                backgroundColor:
+                                                    AppColors.greenColor,
+                                              ),
+                                            );
+                                            setState(() {
+                                              // Refresh the list
+                                            });
+                                          }).catchError((error) {
+                                            final failureSnackBar = SnackBar(
+                                              content: const Text(
+                                                  "حدث خطأ أثناء حذف المتسابق!"),
+                                              action: SnackBarAction(
+                                                label: 'تراجع',
+                                                onPressed: () {},
+                                              ),
+                                              backgroundColor:
+                                                  AppColors.pinkColor,
+                                            );
+                                            ScaffoldMessenger.of(context)
+                                                .showSnackBar(failureSnackBar);
+                                          });
+                                          Navigator.pop(context);
+                                        },
+                                        child: const Text(
+                                          'حذف',
+                                          style: TextStyle(
+                                              color: Colors
+                                                  .white), // Set text color to white,
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 );
                               } else {

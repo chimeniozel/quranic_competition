@@ -379,6 +379,47 @@ class InscriptionService {
     return inscriptions;
   }
 
+  static Stream<List<Inscription>> fetchContestantsStream({
+    required Competition competition,
+    required String competitionType,
+    String? query,
+  }) {
+    // الرجوع إلى مجموعة البيانات بناءً على نوع المسابقة والإصدار
+    CollectionReference collectionRef = FirebaseFirestore.instance
+        .collection('inscriptions')
+        .doc(competition.competitionVirsion)
+        .collection(competitionType);
+
+    if (query != null && query.isNotEmpty) {
+      // تصفية البيانات بناءً على رقم الهاتف إذا كانت هناك استعلامات
+      return collectionRef
+          .orderBy("رقم التسجيل", descending: false)
+          .snapshots()
+          .map((snapshot) {
+        // تصفية النتائج بناءً على استعلام البحث
+        var filteredDocs = snapshot.docs.where((doc) =>
+            doc['رقم الهاتف'] != null &&
+            doc['رقم الهاتف']
+                .toString()
+                .toLowerCase()
+                .contains(query.toLowerCase()));
+        return filteredDocs
+            .map((doc) => Inscription.fromDocumentSnapshot(doc))
+            .toList();
+      });
+    } else {
+      // جلب البيانات بدون تصفية
+      return collectionRef
+          .orderBy("رقم التسجيل", descending: false)
+          .snapshots()
+          .map((snapshot) {
+        return snapshot.docs
+            .map((doc) => Inscription.fromDocumentSnapshot(doc))
+            .toList();
+      });
+    }
+  }
+
   static Future<void> exportJuryDataAsXlsx(
       List<Inscription> notedInscriptions,
       List<JuryInscription> dataList,
@@ -777,6 +818,44 @@ class InscriptionService {
           backgroundColor: Colors.red,
         ),
       );
+    }
+  }
+
+  static Future deleteInscription({
+    required Inscription inscription,
+    required String inscriptionType,
+    required String version,
+  }) async {
+    try {
+      var doc = await FirebaseFirestore.instance
+          .collection("inscriptions")
+          .doc(version)
+          .collection(inscriptionType)
+          .doc(inscription.idInscription!.toString())
+          .get();
+      if (doc.exists) {
+        await FirebaseFirestore.instance
+            .collection("inscriptions")
+            .doc(version)
+            .collection(inscriptionType)
+            .doc(inscription.idInscription!.toString())
+            .delete();
+        print("================== تم حذف المتسابق بنجاح");
+      } else {
+        // ScaffoldMessenger.of(context).showSnackBar(
+        //   SnackBar(
+        //     content: const Text("المتسابق غير موجود!"),
+        //     action: SnackBarAction(
+        //       label: 'إخفاء',
+        //       onPressed: () {},
+        //     ),
+        //     backgroundColor: AppColors.greenColor,
+        //   ),
+        // );
+        print("================== المتسابق غير موجود");
+      }
+    } catch (e) {
+      print("================== $e");
     }
   }
 }
