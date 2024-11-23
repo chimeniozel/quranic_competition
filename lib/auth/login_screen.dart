@@ -10,7 +10,6 @@ import 'package:quranic_competition/models/jury.dart';
 import 'package:quranic_competition/models/users.dart';
 import 'package:quranic_competition/providers/auth_provider.dart';
 import 'package:quranic_competition/screens/admin/admin_home_screen.dart';
-import 'package:quranic_competition/screens/admin/competition/competition_management.dart';
 import 'package:quranic_competition/screens/jury/jury_home_screen.dart';
 import 'package:quranic_competition/services/auth_service.dart';
 import 'package:quranic_competition/widgets/input_widget.dart';
