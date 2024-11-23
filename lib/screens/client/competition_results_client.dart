@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:provider/provider.dart';
 import 'package:quranic_competition/constants/colors.dart';
-import 'package:quranic_competition/models/inscription.dart';
 import 'package:quranic_competition/models/result_model.dart';
 import 'package:quranic_competition/providers/competion_provider.dart';
 import 'package:quranic_competition/services/competion_service.dart';
@@ -233,7 +232,6 @@ class _CompetitionResultsClientState extends State<CompetitionResultsClient> {
                           itemBuilder: (context, index) {
                             Map<String, dynamic> map =
                                 snapshotInscription.data![index];
-                            Inscription inscription = map["inscription"];
                             ResultModel? resultModel =
                                 map["result"] as ResultModel?;
                             return Container(

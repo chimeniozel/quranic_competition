@@ -16,10 +16,7 @@ import 'package:quranic_competition/screens/client/home_screen.dart';
 
 class AuthService {
   static FirebaseFirestore firebaseFirestore = FirebaseFirestore.instance;
-  static final FirebaseAuth _auth = FirebaseAuth.instance;
   static AuthProviders authProviders = AuthProviders();
-
-  static String? _verificationId;
 
   static Future<Map<String, dynamic>?> getCurrentUser(String userID) async {
     var usersRef = firebaseFirestore.collection("users");

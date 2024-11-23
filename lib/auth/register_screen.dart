@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:iconly/iconly.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:quranic_competition/auth/login_screen.dart';
-import 'package:quranic_competition/auth/otp_verification_screen.dart';
 import 'package:quranic_competition/constants/colors.dart';
 import 'package:quranic_competition/models/admin.dart';
 import 'package:quranic_competition/models/jury.dart';
