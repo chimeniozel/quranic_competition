@@ -224,7 +224,8 @@ class InscriptionService {
       required String competitionRound,
       required double successMoyenneChild,
       required double successMoyenneAdult,
-      required Jury jury}) async* {
+      required Jury jury,
+      required String query}) async* {
     try {
       // Reference to the inscriptions collection
       CollectionReference inscriptionCollection = FirebaseFirestore.instance
@@ -235,25 +236,47 @@ class InscriptionService {
       // Fetch query snapshots based on competition round
       QuerySnapshot querySnapshot;
       if (competitionRound == "التصفيات الأولى") {
-        querySnapshot = await inscriptionCollection
-            .orderBy("رقم التسجيل", descending: false)
-            .get();
-        querySnapshot = await inscriptionCollection
-            .orderBy("رقم التسجيل", descending: false)
-            .get();
-      } else {
-        if (competitionType == "adult_inscription") {
+        if (query != "") {
           querySnapshot = await inscriptionCollection
-              .where("نتائج التصفيات الأولى",
-                  isGreaterThanOrEqualTo: successMoyenneAdult)
+              .where("رقم التسجيل", isEqualTo: int.parse(query))
               .orderBy("رقم التسجيل", descending: false)
               .get();
         } else {
           querySnapshot = await inscriptionCollection
-              .where("نتائج التصفيات الأولى",
-                  isGreaterThanOrEqualTo: successMoyenneChild)
               .orderBy("رقم التسجيل", descending: false)
               .get();
+        }
+      } else {
+        if (query != "") {
+          if (competitionType == "adult_inscription") {
+            querySnapshot = await inscriptionCollection
+                .where("نتائج التصفيات الأولى",
+                    isGreaterThanOrEqualTo: successMoyenneAdult)
+                .where("رقم التسجيل", isEqualTo: int.parse(query))
+                .orderBy("رقم التسجيل", descending: false)
+                .get();
+          } else {
+            querySnapshot = await inscriptionCollection
+                .where("نتائج التصفيات الأولى",
+                    isGreaterThanOrEqualTo: successMoyenneChild)
+                .where("رقم التسجيل", isEqualTo: int.parse(query))
+                .orderBy("رقم التسجيل", descending: false)
+                .get();
+          }
+        } else {
+          if (competitionType == "adult_inscription") {
+            querySnapshot = await inscriptionCollection
+                .where("نتائج التصفيات الأولى",
+                    isGreaterThanOrEqualTo: successMoyenneAdult)
+                .orderBy("رقم التسجيل", descending: false)
+                .get();
+          } else {
+            querySnapshot = await inscriptionCollection
+                .where("نتائج التصفيات الأولى",
+                    isGreaterThanOrEqualTo: successMoyenneChild)
+                .orderBy("رقم التسجيل", descending: false)
+                .get();
+          }
         }
       }
 

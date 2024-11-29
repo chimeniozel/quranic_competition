@@ -22,6 +22,8 @@ class JuryHomeScreen extends StatefulWidget {
 class _JuryHomeScreenState extends State<JuryHomeScreen> {
   String? selectedType;
 
+  String query = "";
+
   @override
   void initState() {
     if (widget.selectedType != null) {
@@ -240,7 +242,53 @@ class _JuryHomeScreenState extends State<JuryHomeScreen> {
                               ],
                             ),
                             const SizedBox(height: 16.0),
-                            Flexible(
+                            if (selectedType != null)
+                              TextFormField(
+                                keyboardType: TextInputType.number,
+                                decoration: InputDecoration(
+                                  contentPadding: const EdgeInsets.all(10.0),
+                                  labelText: 'البحث عن متسابق',
+                                  hintText: 'البحث عن متسابق',
+                                  labelStyle: const TextStyle(
+                                    color: Colors.black,
+                                    fontSize: 14.0,
+                                    fontWeight: FontWeight.w400,
+                                  ),
+                                  hintStyle: const TextStyle(
+                                    color: Colors.grey,
+                                    fontSize: 14.0,
+                                  ),
+                                  prefixIcon: const Icon(
+                                    Iconsax.search_normal,
+                                    color: Colors.black,
+                                    size: 18,
+                                  ),
+                                  // suffixIcon: widget.suffixIcon,
+                                  enabledBorder: OutlineInputBorder(
+                                    borderSide: BorderSide(
+                                        color: Colors.grey.shade200, width: 2),
+                                    borderRadius: BorderRadius.circular(10.0),
+                                  ),
+                                  floatingLabelStyle: const TextStyle(
+                                    color: Colors.black,
+                                    fontSize: 18.0,
+                                  ),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderSide: const BorderSide(
+                                        color: Colors.black, width: 1.5),
+                                    borderRadius: BorderRadius.circular(10.0),
+                                  ),
+                                ),
+                                onChanged: (value) {
+                                  setState(() {
+                                    query = value;
+                                  });
+                                },
+                              ),
+                            const SizedBox(
+                              height: 10.0,
+                            ),
+                            Expanded(
                               child: StreamBuilder<List<Map<String, dynamic>>>(
                                 stream: InscriptionService.streamContestants(
                                   version: competitionProvider
@@ -256,6 +304,7 @@ class _JuryHomeScreenState extends State<JuryHomeScreen> {
                                       .competition!.successMoyenneChild!,
                                   successMoyenneAdult: competitionProvider
                                       .competition!.successMoyenneAdult!,
+                                  query: query,
                                 ),
                                 builder: (context, snapshot) {
                                   if (snapshot.hasError) {
