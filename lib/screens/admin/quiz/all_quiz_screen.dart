@@ -1,7 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:iconly/iconly.dart';
-import 'package:iconsax/iconsax.dart';
 import 'package:quranic_competition/constants/colors.dart';
 import 'package:quranic_competition/models/quiz_model.dart';
 import 'package:quranic_competition/screens/admin/quiz/add_quiz_screen.dart';
@@ -30,7 +29,7 @@ class _AllQuizScreenState extends State<AllQuizScreen> {
           .snapshots()
           .map((snapshot) => snapshot.docs
               .map((doc) =>
-                  QuizModel.fromMap(doc.data() as Map<String, dynamic>))
+                  QuizModel.fromMap(doc.data(),),)
               .toList());
     } catch (e) {
       debugPrint("Error fetching quiz data: $e");

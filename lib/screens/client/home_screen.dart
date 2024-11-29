@@ -10,7 +10,6 @@ import 'package:quranic_competition/screens/admin/quiz/levels_screen.dart';
 import 'package:quranic_competition/screens/client/competition_results_client.dart';
 import 'package:quranic_competition/screens/client/competitions_screen.dart';
 import 'package:quranic_competition/screens/client/inscription_screen.dart';
-import 'package:quranic_competition/screens/admin/quiz/quiz_screen.dart';
 import 'package:quranic_competition/screens/client/tajweed/tajweed_screen.dart';
 import 'package:quranic_competition/widgets/custtom_card.dart';
 

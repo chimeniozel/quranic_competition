@@ -2,19 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:provider/provider.dart';
 import 'package:quranic_competition/constants/colors.dart';
-import 'package:quranic_competition/models/archive_entry.dart';
 import 'package:quranic_competition/providers/auth_provider.dart';
 import 'package:quranic_competition/providers/competion_provider.dart';
 import 'package:quranic_competition/screens/admin/about_us/update_about_us.dart';
 import 'package:quranic_competition/screens/admin/benefits/quranic_benefit_screen.dart';
 import 'package:quranic_competition/screens/admin/competition/competition_management.dart';
-import 'package:quranic_competition/screens/admin/quiz/add_quiz_screen.dart';
 import 'package:quranic_competition/screens/admin/quiz/levels_screen.dart';
 import 'package:quranic_competition/screens/admin/users/all_admins_screen.dart';
 import 'package:quranic_competition/screens/admin/users/all_jurys_screen.dart';
 import 'package:quranic_competition/screens/client/competitions_screen.dart';
-import 'package:quranic_competition/screens/admin/quiz/quiz_screen.dart';
-import 'package:quranic_competition/screens/client/tajweed/video/edit_tajweed_video_screen.dart';
 import 'package:quranic_competition/screens/client/tajweed/tajweed_screen.dart';
 
 class AdminHomeScreen extends StatefulWidget {
