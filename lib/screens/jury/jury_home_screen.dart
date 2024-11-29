@@ -112,7 +112,7 @@ class _JuryHomeScreenState extends State<JuryHomeScreen> {
               ),
             ),
             body: const Center(
-              child: Text('تم نشر التصحيح لايمكنك لم يعد بإمكانك الدخول'),
+              child: Text('تم نشر التصحيح لم يعد بإمكانك الدخول'),
             ),
           );
         }

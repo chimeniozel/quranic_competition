@@ -2,12 +2,12 @@ import 'package:permission_handler/permission_handler.dart';
 
 Future<void> performExternalStorageTask() async {
   // Check and request permission if not already granted
-  if (await Permission.manageExternalStorage.isGranted) {
+  if (await Permission.storage.isGranted) {
     // Permission is granted; proceed with the main task
     await yourMainTask();
   } else {
     // Request the permission
-    var status = await Permission.manageExternalStorage.request();
+    var status = await Permission.storage.request();
 
     if (status.isGranted) {
       // Permission granted; proceed with the main task

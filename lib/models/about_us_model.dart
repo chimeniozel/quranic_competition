@@ -1,5 +1,5 @@
 class AboutUsModel {
-  String? _idAboutUs;
+  final String? _idAboutUs;
   String? _description;
   String? _facebookUrl;
   String? _youtubeUrl;

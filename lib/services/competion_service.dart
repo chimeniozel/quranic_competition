@@ -9,6 +9,7 @@ import 'package:quranic_competition/models/inscription.dart';
 import 'package:quranic_competition/models/jury.dart';
 import 'package:quranic_competition/models/note_model.dart';
 import 'package:quranic_competition/models/result_model.dart';
+import 'package:quranic_competition/models/tajweed_post_model.dart';
 
 class CompetitionService {
   // Reference to the competitions collection in Firestore
@@ -715,5 +716,75 @@ class CompetitionService {
         ),
       );
     }
+  }
+
+  static Stream<List<VideoEntry>> getTajweedVideoEntries() {
+    return FirebaseFirestore.instance
+        .collection("ahkam_tajweed_videos")
+        .snapshots()
+        .map(
+          (snapshot) => snapshot.docs
+              .map((doc) => VideoEntry.fromMap(doc.data()))
+              .toList(),
+        );
+  }
+
+  static Stream<List<TajweedPostModel>> getTajweedPost() {
+    return FirebaseFirestore.instance
+        .collection("tajweed_post")
+        .snapshots()
+        .map(
+          (snapshot) => snapshot.docs
+              .map((doc) => TajweedPostModel.fromMap(doc.data()))
+              .toList(),
+        );
+  }
+
+  static Future<void> addTajweedPost(
+      TajweedPostModel model, BuildContext context) async {
+    await FirebaseFirestore.instance
+        .collection("tajweed_post")
+        .add(model.toMap())
+        .then(
+      (DocumentReference docRef) async {
+        await FirebaseFirestore.instance
+            .collection("tajweed_post")
+            .doc(docRef.id)
+            .update({
+          "id": docRef.id,
+        }).whenComplete(
+          () {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text(
+                  'تمت إضافة المنشور بنجاح .',
+                ),
+                backgroundColor: AppColors.greenColor,
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  static Future<void> updateTajweedPost(
+      TajweedPostModel model, BuildContext context) async {
+    await FirebaseFirestore.instance
+        .collection("tajweed_post")
+        .doc(model.id)
+        .update(model.toMap())
+        .whenComplete(
+      () {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(
+              'تمت تعديل المنشور بنجاح .',
+            ),
+            backgroundColor: AppColors.greenColor,
+          ),
+        );
+      },
+    );
   }
 }

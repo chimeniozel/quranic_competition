@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:quranic_competition/constants/colors.dart';
 import 'package:quranic_competition/models/competition.dart';
-import 'package:quranic_competition/providers/competion_provider.dart';
 import 'package:quranic_competition/screens/admin/archives/review_competion.dart';
 import 'package:quranic_competition/services/competion_service.dart';
 

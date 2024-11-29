@@ -2,14 +2,20 @@ import 'package:flutter/material.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:provider/provider.dart';
 import 'package:quranic_competition/constants/colors.dart';
+import 'package:quranic_competition/models/archive_entry.dart';
 import 'package:quranic_competition/providers/auth_provider.dart';
 import 'package:quranic_competition/providers/competion_provider.dart';
 import 'package:quranic_competition/screens/admin/about_us/update_about_us.dart';
 import 'package:quranic_competition/screens/admin/benefits/quranic_benefit_screen.dart';
 import 'package:quranic_competition/screens/admin/competition/competition_management.dart';
+import 'package:quranic_competition/screens/admin/quiz/add_quiz_screen.dart';
+import 'package:quranic_competition/screens/admin/quiz/levels_screen.dart';
 import 'package:quranic_competition/screens/admin/users/all_admins_screen.dart';
 import 'package:quranic_competition/screens/admin/users/all_jurys_screen.dart';
 import 'package:quranic_competition/screens/client/competitions_screen.dart';
+import 'package:quranic_competition/screens/admin/quiz/quiz_screen.dart';
+import 'package:quranic_competition/screens/client/tajweed/video/edit_tajweed_video_screen.dart';
+import 'package:quranic_competition/screens/client/tajweed/tajweed_screen.dart';
 
 class AdminHomeScreen extends StatefulWidget {
   const AdminHomeScreen({super.key});
@@ -92,153 +98,162 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                       ),
                     ),
                     const SizedBox(height: 16.0),
-                    if (competitionProvider.competition != null)
-                      Container(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
+                    Container(
+                      padding: const EdgeInsets.all(8.0),
+                      child: competitionProvider.competition != null
+                          ? Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Expanded(
-                                  child: Column(
-                                    children: [
-                                      Text(
-                                        "${competitionProvider.hommeAdultNumber + competitionProvider.hommeChildNumber}",
-                                        style: const TextStyle(
-                                          fontSize: 22.0,
-                                          color: AppColors.whiteColor,
-                                          fontWeight: FontWeight.bold,
-                                        ),
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      child: Column(
+                                        children: [
+                                          Text(
+                                            "${competitionProvider.hommeAdultNumber + competitionProvider.hommeChildNumber}",
+                                            style: const TextStyle(
+                                              fontSize: 22.0,
+                                              color: AppColors.whiteColor,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                          const Text(
+                                            "إجمالي عدد الذكور",
+                                            style: TextStyle(
+                                              color: AppColors.whiteColor,
+                                            ),
+                                          ),
+                                        ],
                                       ),
-                                      const Text(
-                                        "إجمالي عدد الذكور",
-                                        style: TextStyle(
-                                          color: AppColors.whiteColor,
-                                        ),
+                                    ),
+                                    Expanded(
+                                      child: Column(
+                                        children: [
+                                          Text(
+                                            "${competitionProvider.femmeAdultNumber + competitionProvider.femmeChildNumber}",
+                                            style: const TextStyle(
+                                              fontSize: 22.0,
+                                              color: AppColors.whiteColor,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                          const Text(
+                                            "إجمالي عدد الإناث",
+                                            style: TextStyle(
+                                              color: AppColors.whiteColor,
+                                            ),
+                                          ),
+                                        ],
                                       ),
-                                    ],
-                                  ),
+                                    ),
+                                  ],
                                 ),
-                                Expanded(
-                                  child: Column(
-                                    children: [
-                                      Text(
-                                        "${competitionProvider.femmeAdultNumber + competitionProvider.femmeChildNumber}",
-                                        style: const TextStyle(
-                                          fontSize: 22.0,
-                                          color: AppColors.whiteColor,
-                                          fontWeight: FontWeight.bold,
-                                        ),
+                                const SizedBox(height: 8.0),
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      child: Column(
+                                        children: [
+                                          Text(
+                                            "${competitionProvider.hommeAdultNumber}",
+                                            style: const TextStyle(
+                                              fontSize: 22.0,
+                                              color: AppColors.whiteColor,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                          const Text(
+                                            "من الكبار",
+                                            style: TextStyle(
+                                              color: AppColors.whiteColor,
+                                            ),
+                                          ),
+                                        ],
                                       ),
-                                      const Text(
-                                        "إجمالي عدد الإناث",
-                                        style: TextStyle(
-                                          color: AppColors.whiteColor,
-                                        ),
+                                    ),
+                                    Expanded(
+                                      child: Column(
+                                        children: [
+                                          Text(
+                                            "${competitionProvider.femmeAdultNumber}",
+                                            style: const TextStyle(
+                                              fontSize: 22.0,
+                                              color: AppColors.whiteColor,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                          const Text(
+                                            "من الكبار",
+                                            style: TextStyle(
+                                              color: AppColors.whiteColor,
+                                            ),
+                                          ),
+                                        ],
                                       ),
-                                    ],
-                                  ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 8.0),
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      child: Column(
+                                        children: [
+                                          Text(
+                                            "${competitionProvider.hommeChildNumber}",
+                                            style: const TextStyle(
+                                              fontSize: 22.0,
+                                              color: AppColors.whiteColor,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                          const Text(
+                                            "من الصغار",
+                                            style: TextStyle(
+                                              color: AppColors.whiteColor,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    Expanded(
+                                      child: Column(
+                                        children: [
+                                          Text(
+                                            "${competitionProvider.femmeChildNumber}",
+                                            style: const TextStyle(
+                                              fontSize: 22.0,
+                                              color: AppColors.whiteColor,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                          const Text(
+                                            "من الصغار",
+                                            style: TextStyle(
+                                              color: AppColors.whiteColor,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ],
+                            )
+                          : const Center(
+                              child: Text(
+                                'لا توجد مسابقة نشطة حاليا',
+                                style: TextStyle(
+                                  color: AppColors.whiteColor,
+                                  fontSize: 18.0,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
                             ),
-                            const SizedBox(height: 8.0),
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: Column(
-                                    children: [
-                                      Text(
-                                        "${competitionProvider.hommeAdultNumber}",
-                                        style: const TextStyle(
-                                          fontSize: 22.0,
-                                          color: AppColors.whiteColor,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                      const Text(
-                                        "من الكبار",
-                                        style: TextStyle(
-                                          color: AppColors.whiteColor,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                Expanded(
-                                  child: Column(
-                                    children: [
-                                      Text(
-                                        "${competitionProvider.femmeAdultNumber}",
-                                        style: const TextStyle(
-                                          fontSize: 22.0,
-                                          color: AppColors.whiteColor,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                      const Text(
-                                        "من الكبار",
-                                        style: TextStyle(
-                                          color: AppColors.whiteColor,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 8.0),
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: Column(
-                                    children: [
-                                      Text(
-                                        "${competitionProvider.hommeChildNumber}",
-                                        style: const TextStyle(
-                                          fontSize: 22.0,
-                                          color: AppColors.whiteColor,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                      const Text(
-                                        "من الصغار",
-                                        style: TextStyle(
-                                          color: AppColors.whiteColor,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                Expanded(
-                                  child: Column(
-                                    children: [
-                                      Text(
-                                        "${competitionProvider.femmeChildNumber}",
-                                        style: const TextStyle(
-                                          fontSize: 22.0,
-                                          color: AppColors.whiteColor,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                      const Text(
-                                        "من الصغار",
-                                        style: TextStyle(
-                                          color: AppColors.whiteColor,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
+                    ),
                   ],
                 ),
               ),
-              const SizedBox(height: 16.0),
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Column(
@@ -413,7 +428,8 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => const QuranicBenefitScreen(),
+                                  builder: (context) =>
+                                      const QuranicBenefitScreen(),
                                 ),
                               );
                             },
@@ -480,9 +496,87 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                         ),
                       ],
                     ),
+                    const SizedBox(
+                      height: 5.0,
+                    ),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: GestureDetector(
+                            onTap: () {
+                              // Navigate to the competition managment
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) =>
+                                        const TajweedScreen()),
+                              );
+                            },
+                            child: Container(
+                              width: 150,
+                              padding: const EdgeInsets.all(
+                                10.0,
+                              ),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  Image.asset(
+                                    'assets/images/tejweed.png',
+                                    width: 70,
+                                  ),
+                                  const SizedBox(
+                                    height: 10.0,
+                                  ),
+                                  const Text(
+                                    'أحكام التجويد',
+                                    style: TextStyle(fontSize: 14.0),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                        Expanded(
+                          child: GestureDetector(
+                            onTap: () {
+                              // Navigate to the competition managment
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => LevelsScreen()),
+                              );
+                            },
+                            child: Container(
+                              width: 150,
+                              padding: const EdgeInsets.all(
+                                10.0,
+                              ),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  Image.asset(
+                                    'assets/images/أسئلة_وأجوبة_عن_القرآن_الكريم.jpeg',
+                                    width: 70,
+                                  ),
+                                  const SizedBox(
+                                    height: 10.0,
+                                  ),
+                                  const Text(
+                                    'أسئلة وأجوبة في القرآن',
+                                    style: TextStyle(fontSize: 14.0),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ],
                 ),
-              )
+              ),
             ],
           ),
         ),

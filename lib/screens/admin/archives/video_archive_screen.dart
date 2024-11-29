@@ -6,7 +6,6 @@ import 'package:quranic_competition/constants/colors.dart';
 import 'package:quranic_competition/models/archive_entry.dart';
 import 'package:quranic_competition/models/competition.dart';
 import 'package:quranic_competition/providers/auth_provider.dart';
-import 'package:quranic_competition/providers/competion_provider.dart';
 import 'package:quranic_competition/screens/admin/archives/edit_video_screen.dart';
 import 'package:quranic_competition/services/competion_service.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -125,7 +124,7 @@ class VideoArchiveScreenState extends State<VideoArchiveScreen> {
                                   _launchURL(video.url!);
                                 },
                                 icon: const Icon(
-                                  Iconsax.edit,
+                                  Iconsax.arrow_left_2,
                                 ),
                               ),
                             if (authProvider.currentAdmin != null)

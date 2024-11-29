@@ -6,9 +6,12 @@ import 'package:quranic_competition/constants/colors.dart';
 import 'package:quranic_competition/providers/competion_provider.dart';
 import 'package:quranic_competition/screens/admin/about_us/about_us_screen.dart';
 import 'package:quranic_competition/screens/admin/benefits/quranic_benefit_screen.dart';
+import 'package:quranic_competition/screens/admin/quiz/levels_screen.dart';
 import 'package:quranic_competition/screens/client/competition_results_client.dart';
 import 'package:quranic_competition/screens/client/competitions_screen.dart';
 import 'package:quranic_competition/screens/client/inscription_screen.dart';
+import 'package:quranic_competition/screens/admin/quiz/quiz_screen.dart';
+import 'package:quranic_competition/screens/client/tajweed/tajweed_screen.dart';
 import 'package:quranic_competition/widgets/custtom_card.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -193,17 +196,12 @@ class _HomeScreenState extends State<HomeScreen> {
                         text: "أحكام التجويد",
                         imageAsset: "assets/images/tejweed.png",
                         onTap: () {
-                          final failureSnackBar = SnackBar(
-                            content:
-                                const Text("هذه الخاصية لا تزال قيد الإنشاء"),
-                            action: SnackBarAction(
-                              label: 'تراجع',
-                              onPressed: () {},
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const TajweedScreen(),
                             ),
-                            backgroundColor: AppColors.yellowColor,
                           );
-                          ScaffoldMessenger.of(context)
-                              .showSnackBar(failureSnackBar);
                         },
                       ),
                     ),
@@ -218,7 +216,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         text: "فوائد قرآنية",
                         imageAsset: "assets/images/فوائد قرآنية.png",
                         onTap: () {
-                          // Navigate to the inscription screen
+                          // Navigate to the benefits screen
                           Navigator.push(
                             context,
                             MaterialPageRoute(
@@ -236,17 +234,12 @@ class _HomeScreenState extends State<HomeScreen> {
                         imageAsset:
                             "assets/images/أسئلة_وأجوبة_عن_القرآن_الكريم.jpeg",
                         onTap: () {
-                          final failureSnackBar = SnackBar(
-                            content:
-                                const Text("هذه الخاصية لا تزال قيد الإنشاء"),
-                            action: SnackBarAction(
-                              label: 'تراجع',
-                              onPressed: () {},
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => LevelsScreen(),
                             ),
-                            backgroundColor: AppColors.yellowColor,
                           );
-                          ScaffoldMessenger.of(context)
-                              .showSnackBar(failureSnackBar);
                         },
                       ),
                     ),

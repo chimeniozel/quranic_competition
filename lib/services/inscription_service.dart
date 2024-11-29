@@ -1,5 +1,5 @@
 import 'dart:typed_data';
-
+import 'package:path_provider/path_provider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:excel/excel.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -13,7 +13,6 @@ import 'package:quranic_competition/models/note_model.dart';
 import 'package:quranic_competition/models/result_model.dart';
 import 'dart:io';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:open_filex/open_filex.dart';
 
 class InscriptionService {
@@ -701,15 +700,14 @@ class InscriptionService {
   static Future<void> exportInscriptionsAsXlsx(
     List<Inscription> inscriptions,
     Competition competition,
-    String competionType,
+    String competitionType,
     BuildContext context,
   ) async {
     var excel = Excel.createExcel();
     Sheet sheetObject = excel['Sheet1'];
 
     // Create header row
-    List<String> headers = [];
-    headers = [
+    List<String> headers = [
       "رقم التسجيل",
       "الاسم الثلاثي",
       "رقم الهاتف",
@@ -717,38 +715,33 @@ class InscriptionService {
       "مكان الإقامة الحالية",
       "كم تحفظ من القرآن الكريم",
       "هل حصلت على إجازة",
-      "كم رواية تقرأ بها"
-          "الجنس",
+      "كم رواية تقرأ بها",
+      "الجنس",
       "هل سبق وأن شاركت في نسخة ماضية من مسابقة أهل القرآن الوتسابية",
       "هل سبق وأن حصلت على المراتب 1 إلى 2  في مسابقة أهل القرآن الوتسابية أو أي مسابقة أخرى",
     ];
-    List<CellValue?> cellHeaders = [];
-    for (var header in headers) {
-      cellHeaders.add(TextCellValue(header));
-    }
+    List<CellValue?> cellHeaders =
+        headers.map((header) => TextCellValue(header)).toList();
     sheetObject.appendRow(cellHeaders);
 
     // Add data rows
     for (Inscription inscription in inscriptions) {
-      List<CellValue> cells = [];
-
-      // Add number of subscribers
-      cells.add(TextCellValue(inscription.idInscription!.toString()));
-      cells.add(TextCellValue(inscription.fullName.toString()));
-      cells.add(TextCellValue(inscription.phoneNumber!.toString()));
-      cells.add(TextCellValue(inscription.birthDate.toString()));
-      cells.add(TextCellValue(inscription.residencePlace.toString()));
-      cells.add(TextCellValue(inscription.howMuchYouMemorize.toString()));
-      cells.add(TextCellValue(inscription.haveYouIhaza.toString()));
-      cells.add(TextCellValue(inscription.howMuchRiwayaYouHave.toString()));
-      cells.add(TextCellValue(inscription.gender.toString()));
-      cells.add(TextCellValue(
-          inscription.haveYouParticipatedInACompetition.toString()));
-      cells.add(
-          TextCellValue(inscription.haveYouEverWon1stTo2ndPlace.toString()));
-
+      List<CellValue> cells = [
+        TextCellValue(inscription.idInscription?.toString() ?? ''),
+        TextCellValue(inscription.fullName ?? ''),
+        TextCellValue(inscription.phoneNumber ?? ''),
+        TextCellValue(inscription.birthDate?.toString() ?? ''),
+        TextCellValue(inscription.residencePlace ?? ''),
+        TextCellValue(inscription.howMuchYouMemorize ?? ''),
+        TextCellValue(inscription.haveYouIhaza ?? ''),
+        TextCellValue(inscription.howMuchRiwayaYouHave ?? ''),
+        TextCellValue(inscription.gender ?? ''),
+        TextCellValue(inscription.haveYouParticipatedInACompetition ?? ''),
+        TextCellValue(inscription.haveYouEverWon1stTo2ndPlace ?? ''),
+      ];
       sheetObject.appendRow(cells);
     }
+
     // Convert the Excel file to bytes
     List<int>? fileBytes = excel.encode();
     if (fileBytes == null) {
@@ -762,54 +755,36 @@ class InscriptionService {
     }
 
     try {
-      // Request storage permissions
-      if (await Permission.manageExternalStorage.request().isGranted) {
-        String fileName;
-        if (competionType == "child_inscription") {
-          fileName = "لائحة المسجلين فئة الصغار.xlsx";
-        } else {
-          fileName = "لائحة المسجلين فئة الكبار.xlsx";
-        }
-
-        // Determine directory based on platform
-        Directory? downloadsDirectory;
-        if (Platform.isAndroid) {
-          downloadsDirectory = Directory('/storage/emulated/0/Download');
-        } else if (Platform.isIOS) {
-          downloadsDirectory = await getApplicationDocumentsDirectory();
-        }
-
-        // If directory does not exist, fallback to external storage
-        if (downloadsDirectory == null || !downloadsDirectory.existsSync()) {
-          downloadsDirectory = await getExternalStorageDirectory();
-        }
-
-        // Construct file path
-        String filePath = "${downloadsDirectory!.path}/$fileName";
-        File file = File(filePath);
-
-        // Create the file if it does not exist, or replace it if it does
-        await file.create(recursive: true);
-        await file.writeAsBytes(fileBytes);
-
-        // Show success message and open file
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Text('تم حفظ الملف في التنزيلات'),
-            action: SnackBarAction(
-              label: 'فتح',
-              onPressed: () async {
-                await OpenFilex.open(file.path);
-              },
-            ),
-            backgroundColor: AppColors.yellowColor,
-          ),
-        );
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("فشل في الحصول على إذن التخزين.")),
-        );
+      // Get app's external directory
+      // Directory directory = await getApplicationDocumentsDirectory();
+      // Determine directory based on platform
+      Directory? downloadsDirectory;
+      if (Platform.isAndroid) {
+        downloadsDirectory = Directory('/storage/emulated/0/Download');
+      } else if (Platform.isIOS) {
+        downloadsDirectory = await getApplicationDocumentsDirectory();
       }
+      String fileName = competitionType == "child_inscription"
+          ? "لائحة المسجلين فئة الصغار.xlsx"
+          : "لائحة المسجلين فئة الكبار.xlsx";
+      String filePath = "${downloadsDirectory?.path}/$fileName";
+
+      // Save the file
+      File file = File(filePath);
+      await file.writeAsBytes(fileBytes);
+
+      // Share the file
+      // Share.shareXFiles(
+      //   [XFile(filePath)],
+      //   text: fileName,
+      // );
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('تم حفظ الملف في ${downloadsDirectory?.path}'),
+          backgroundColor: AppColors.greenColor,
+        ),
+      );
     } catch (e) {
       print("Error saving file: $e");
       ScaffoldMessenger.of(context).showSnackBar(
