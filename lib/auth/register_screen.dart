@@ -31,7 +31,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   List<String> roles = ["إداري", "عضو لجنة التحكيم"];
 
-  String? selectedRole;
+  String selectedRole = "عضو لجنة التحكيم";
 
   bool isLoading = false;
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
@@ -72,7 +72,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       ),
                     ),
                     child: DropdownButton(
-                        hint: const Text("اختر دورك"),
+                        // hint: const Text("اختر دورك"),
                         underline: Container(),
                         isExpanded: true,
                         value: selectedRole,
@@ -86,7 +86,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             .toList(),
                         onChanged: (value) {
                           setState(() {
-                            selectedRole = value;
+                            selectedRole = value!;
                           });
                         }),
                   ),
@@ -238,8 +238,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               fullName: fullNameController.text,
                               phoneNumber: phoneNumberController.text,
                               password: passwordController.text,
-                              role: selectedRole!,
+                              role: selectedRole,
                               isVerified: false,
+                              isSuperAdmin: false,
                             );
                             await AuthService.registerUser(
                                 admin: admin, context: context);
