@@ -244,7 +244,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             );
                             await AuthService.registerUser(
                                 admin: admin, context: context);
-                          } else {
+                          } else if (selectedRole == "عضو لجنة التحكيم") {
                             jury = Jury(
                               fullName: fullNameController.text,
                               phoneNumber: phoneNumberController.text,

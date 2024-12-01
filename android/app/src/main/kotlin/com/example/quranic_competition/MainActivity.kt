@@ -1,4 +1,4 @@
-package com.chemeni.quranic_competition
+package com.example.quranic_competition
 
 import io.flutter.embedding.android.FlutterActivity
 
