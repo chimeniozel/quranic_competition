@@ -732,6 +732,10 @@ class CompetitionService {
   static Stream<List<TajweedPostModel>> getTajweedPost() {
     return FirebaseFirestore.instance
         .collection("tajweed_post")
+        .orderBy(
+          "createdAt",
+          descending: true,
+        )
         .snapshots()
         .map(
           (snapshot) => snapshot.docs

@@ -6,6 +6,7 @@ import 'package:quranic_competition/constants/colors.dart';
 import 'package:quranic_competition/models/tajweed_post_model.dart';
 import 'package:quranic_competition/providers/auth_provider.dart';
 import 'package:quranic_competition/screens/client/tajweed/post/add_tajweed_post_screen.dart';
+import 'package:quranic_competition/screens/client/tajweed/post/tajweed_post_review.dart';
 import 'package:quranic_competition/services/competion_service.dart';
 
 class TajweedPostScreen extends StatefulWidget {
@@ -23,7 +24,7 @@ class _TajweedPostScreenState extends State<TajweedPostScreen> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: AppColors.primaryColor,
-        title: Text('المناشير التجويدية'),
+        title: const Text('المناشير التجويدية'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(
@@ -54,7 +55,15 @@ class _TajweedPostScreenState extends State<TajweedPostScreen> {
                 TajweedPostModel model = videoEntry[index];
                 return GestureDetector(
                   onTap: () {
-                    // _launchURL(video.url!);
+                    // Navigate to the TajweedPostReview
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => TajweedPostReview(
+                          model: model,
+                        ),
+                      ),
+                    );
                   },
                   child: Container(
                     padding: const EdgeInsets.all(
@@ -93,6 +102,17 @@ class _TajweedPostScreenState extends State<TajweedPostScreen> {
                                 style: const TextStyle(
                                   fontSize: 14.0,
                                   fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              const SizedBox(
+                                height: 5.0,
+                              ),
+                              Text(
+                                model.content,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(
+                                  fontSize: 12.0,
                                 ),
                               ),
                             ],

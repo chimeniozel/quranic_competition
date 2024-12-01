@@ -36,7 +36,7 @@ class _AddTajweedPostScreenState extends State<AddTajweedPostScreen> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: AppColors.primaryColor,
-        title: Text('إضافة منشور'),
+        title: const Text('إضافة منشور'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(8.0),
