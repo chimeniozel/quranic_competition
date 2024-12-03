@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:provider/provider.dart';
 import 'package:quranic_competition/constants/colors.dart';
-import 'package:quranic_competition/constants/utils.dart';
+import 'package:quranic_competition/utils/utils.dart';
 import 'package:quranic_competition/models/quranic_benefit.dart';
 import 'package:quranic_competition/providers/auth_provider.dart';
 import 'package:quranic_competition/screens/admin/benefits/add_quranic_benefit_screen.dart';

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:quranic_competition/constants/colors.dart';
-import 'package:quranic_competition/constants/utils.dart';
+import 'package:quranic_competition/utils/utils.dart';
 import 'package:quranic_competition/models/competition.dart';
 import 'package:quranic_competition/models/inscription.dart';
 import 'package:quranic_competition/screens/admin/competition/add_competition_screen.dart';

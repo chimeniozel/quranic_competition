@@ -303,63 +303,85 @@ class CompetitionService {
   }
 
   // get images archives as a stream
-  static Future<List<String>> getImagesArchives(String competitionId) async {
+  static Future<List<String>> getPaginatedImagesArchives(
+    String competitionId, {
+    int limit = 15,
+    required int lastImage,
+  }) async {
     try {
-      // Fetch the document once using 'get()' instead of 'snapshots()'
+      // Fetch the document once using 'get()'
       DocumentSnapshot<Map<String, dynamic>> snapshot = await FirebaseFirestore
           .instance
           .collection("competitions")
           .doc(competitionId)
           .get();
 
-      List<String> archives = [];
-      if (snapshot.exists) {
-        // Parse the competition data from the snapshot
-        Competition competition = Competition.fromMap(snapshot.data()!);
-
-        // Retrieve the images URL if available
-        List<String>? imagesURL = competition.archiveEntry?.imagesURL;
-
-        // Add the images URLs to the archives list
-        if (imagesURL != null) {
-          archives.addAll(imagesURL);
-        }
+      if (!snapshot.exists) {
+        return [];
       }
-      return archives;
+
+      // Parse the competition data from the snapshot
+      Competition competition = Competition.fromMap(snapshot.data()!);
+
+      // Retrieve the images URLs if available
+      List<String>? imagesURL = competition.archiveEntry?.imagesURL;
+
+      if (imagesURL == null || imagesURL.isEmpty) {
+        return [];
+      }
+
+      // Apply pagination to images
+      int startIndex = lastImage != 0 ? lastImage + 1 : 0;
+
+      List<String> paginatedImages =
+          imagesURL.skip(startIndex).take(limit).toList();
+
+      return paginatedImages;
     } catch (error) {
-      print("Error fetching archives: $error");
+      print("Error fetching paginated archives: $error");
       return [];
     }
   }
 
   // get videos archives as a stream
-  static Stream<List<VideoEntry>> getVideosArchivesStream(
-      String competitionId) {
-    return FirebaseFirestore.instance
-        .collection("competitions")
-        .doc(competitionId)
-        .snapshots()
-        .map((snapshot) {
-      if (snapshot.exists) {
-        try {
-          // Parse the competition data from the snapshot
-          Competition competition = Competition.fromMap(snapshot.data()!);
+  static Future<List<VideoEntry>> getVideosArchivesStream(
+    String competitionId, {
+    int limit = 15,
+    int? lastVideo,
+  }) async {
+    try {
+      // Fetch the document once using 'get()'
+      DocumentSnapshot<Map<String, dynamic>> snapshot = await FirebaseFirestore
+          .instance
+          .collection("competitions")
+          .doc(competitionId)
+          .get();
 
-          // Retrieve the videos URL if available
-          List<VideoEntry>? videosURL = competition.archiveEntry?.videosURL;
-
-          // Return the list of video entries or an empty list
-          return videosURL ?? <VideoEntry>[];
-        } catch (error) {
-          print("Error parsing competition data: $error");
-          return <VideoEntry>[];
-        }
-      } else {
-        return <VideoEntry>[];
+      if (!snapshot.exists) {
+        return [];
       }
-    }).handleError((error) {
-      print("Error fetching archives stream: $error");
-    });
+
+      // Parse the competition data from the snapshot
+      Competition competition = Competition.fromMap(snapshot.data()!);
+
+      // Retrieve the images URLs if available
+      List<VideoEntry>? videosURL = competition.archiveEntry?.videosURL;
+
+      if (videosURL == null || videosURL.isEmpty) {
+        return [];
+      }
+
+      // Apply pagination to images
+      int startIndex = lastVideo != 0 ? lastVideo! + 1 : 0;
+
+      List<VideoEntry> paginatedVideos =
+          videosURL.skip(startIndex).take(limit).toList();
+
+      return paginatedVideos;
+    } catch (error) {
+      print("Error fetching paginated archives: $error");
+      return [];
+    }
   }
 
   static Future<List<Map<String, dynamic>>> getResults({

@@ -11,7 +11,7 @@ import 'package:quranic_competition/screens/admin/quiz/levels_screen.dart';
 import 'package:quranic_competition/screens/admin/users/all_admins_screen.dart';
 import 'package:quranic_competition/screens/admin/users/all_jurys_screen.dart';
 import 'package:quranic_competition/screens/client/competitions_screen.dart';
-import 'package:quranic_competition/screens/client/tajweed/tajweed_screen.dart';
+import 'package:quranic_competition/screens/admin/tajweed/tajweed_screen.dart';
 
 class AdminHomeScreen extends StatefulWidget {
   const AdminHomeScreen({super.key});

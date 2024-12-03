@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:quranic_competition/constants/colors.dart';
 import 'package:quranic_competition/models/about_us_model.dart';
+import 'package:quranic_competition/providers/auth_provider.dart';
 import 'package:quranic_competition/services/competion_service.dart';
+import 'package:quranic_competition/auth/login_screen.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class AboutUsScreen extends StatelessWidget {
@@ -22,10 +25,31 @@ class AboutUsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    AuthProviders authProvider =
+        Provider.of<AuthProviders>(context, listen: false);
     return Scaffold(
       appBar: AppBar(
         backgroundColor: AppColors.primaryColor,
         title: const Text("من نحن"),
+        actions: authProvider.currentAdmin == null
+            ? [
+                TextButton(
+                  onPressed: () {
+                    // Navigate to the competitions screen
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const LoginScreen(),
+                      ),
+                    );
+                  },
+                  child: const Text(
+                    "تسجيل دخول الإدارة",
+                    style: TextStyle(color: Colors.white),
+                  ),
+                ),
+              ]
+            : null,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),

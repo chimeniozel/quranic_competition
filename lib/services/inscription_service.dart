@@ -14,6 +14,7 @@ import 'package:quranic_competition/models/result_model.dart';
 import 'dart:io';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:open_filex/open_filex.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class InscriptionService {
 // Get the next ID, unique per version and competition type
@@ -665,48 +666,61 @@ class InscriptionService {
 
     try {
       // Request storage permissions
-      if (await Permission.manageExternalStorage.request().isGranted) {
-        String fileName = (competitionType == "child_inscription")
-            ? "$competitionRound فئة الصغار.xlsx"
-            : "$competitionRound فئة الكبار.xlsx";
+      // if (await Permission.manageExternalStorage.request().isGranted) {
+      String fileName = (competitionType == "child_inscription")
+          ? "$competitionRound فئة الصغار.xlsx"
+          : "$competitionRound فئة الكبار.xlsx";
+      String ref = (competitionRound == "التصفيات الأولى")
+          ? "${competition.competitionVirsion}/نتائج التصفيات/التصفيات الأولى/$fileName"
+          : "${competition.competitionVirsion}/نتائج التصفيات/التصفيات النهائية/$fileName";
 
-        // Determine directory based on platform
-        Directory? downloadsDirectory;
-        if (Platform.isAndroid) {
-          downloadsDirectory = Directory('/storage/emulated/0/Download');
-        } else if (Platform.isIOS) {
-          downloadsDirectory = await getApplicationDocumentsDirectory();
-        }
+      // Reference to Firebase Storage
+      Reference storageRef = FirebaseStorage.instance.ref().child(ref);
 
-        // If directory does not exist, fallback to external storage
-        if (downloadsDirectory == null || !downloadsDirectory.existsSync()) {
-          downloadsDirectory = await getExternalStorageDirectory();
-        }
+      // Upload the file (this will automatically replace the old file if it exists)
+      UploadTask uploadTask = storageRef.putData(Uint8List.fromList(fileBytes));
 
-        // Construct file path
-        String filePath = "${downloadsDirectory!.path}/$fileName";
-        File file = File(filePath);
+      // Optionally, show a progress indicator
+      uploadTask.snapshotEvents.listen((TaskSnapshot snapshot) {
+        double progress = snapshot.bytesTransferred / snapshot.totalBytes;
+        int percentage = (progress * 100).round();
 
-        // Create the file if it does not exist, or replace it if it does
-        await file.create(recursive: true);
-        await file.writeAsBytes(fileBytes);
-
-        // Show success message and open file
+        // Show a SnackBar with the upload progress
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: const Text('تم حفظ الملف في التنزيلات'),
-            action: SnackBarAction(
-              label: 'فتح',
-              onPressed: () async {
-                await OpenFilex.open(file.path);
-              },
-            ),
-            backgroundColor: Colors.green,
+            content: Text("تم إكمال التحميل بنسبة $percentage%."),
+            backgroundColor: AppColors.yellowColor,
+            duration: const Duration(
+              milliseconds: 500,
+            ), // Short duration to update frequently
           ),
         );
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("فشل في الحصول على إذن التخزين.")),
+      });
+
+      // Wait for the upload to complete
+      await uploadTask;
+
+      // Show success SnackBar
+      final successSnackBar = SnackBar(
+        content: const Text('تم الإرسال بنجاح'),
+        action: SnackBarAction(
+          label: 'تراجع',
+          onPressed: () {
+            // Perform some action
+          },
+        ),
+        duration: const Duration(seconds: 2),
+        backgroundColor: AppColors.greenColor,
+      );
+      ScaffoldMessenger.of(context).showSnackBar(successSnackBar);
+
+      String url = await uploadTask.snapshot.ref.getDownloadURL();
+      final Uri uri = Uri.parse(url);
+      if (await canLaunchUrl(uri)) {
+        await launchUrl(
+          uri,
+          mode: LaunchMode
+              .externalApplication, // Ensures it opens in the Facebook app if available
         );
       }
     } catch (e) {
@@ -778,36 +792,62 @@ class InscriptionService {
     }
 
     try {
-      // Get app's external directory
-      // Directory directory = await getApplicationDocumentsDirectory();
-      // Determine directory based on platform
-      Directory? downloadsDirectory;
-      if (Platform.isAndroid) {
-        downloadsDirectory = Directory('/storage/emulated/0/Download');
-      } else if (Platform.isIOS) {
-        downloadsDirectory = await getApplicationDocumentsDirectory();
-      }
+      // Define the file name based on competition type
       String fileName = competitionType == "child_inscription"
-          ? "لائحة المسجلين فئة الصغار.xlsx"
-          : "لائحة المسجلين فئة الكبار.xlsx";
-      String filePath = "${downloadsDirectory?.path}/$fileName";
+          ? "لائحة المسجلين فئة الصغار - ${competition.competitionVirsion}.xlsx"
+          : "لائحة المسجلين فئة الكبار - ${competition.competitionVirsion}.xlsx";
 
-      // Save the file
-      File file = File(filePath);
-      await file.writeAsBytes(fileBytes);
+      // Reference to Firebase Storage
+      Reference storageRef = FirebaseStorage.instance
+          .ref()
+          .child("${competition.competitionVirsion}/لائحة المسجلين/$fileName");
 
-      // Share the file
-      // Share.shareXFiles(
-      //   [XFile(filePath)],
-      //   text: fileName,
-      // );
+      // Upload the file (this will automatically replace the old file if it exists)
+      UploadTask uploadTask = storageRef.putData(Uint8List.fromList(fileBytes));
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('تم حفظ الملف في ${downloadsDirectory?.path}'),
-          backgroundColor: AppColors.greenColor,
+      // Optionally, show a progress indicator
+      uploadTask.snapshotEvents.listen((TaskSnapshot snapshot) {
+        double progress = snapshot.bytesTransferred / snapshot.totalBytes;
+        int percentage = (progress * 100).round();
+
+        // Show a SnackBar with the upload progress
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("تم إكمال التحميل بنسبة $percentage%."),
+            backgroundColor: AppColors.yellowColor,
+            duration: const Duration(
+              milliseconds: 500,
+            ), // Short duration to update frequently
+          ),
+        );
+      });
+
+      // Wait for the upload to complete
+      await uploadTask;
+
+      // Show success SnackBar
+      final successSnackBar = SnackBar(
+        content: const Text('تم الإرسال بنجاح'),
+        action: SnackBarAction(
+          label: 'تراجع',
+          onPressed: () {
+            // Perform some action
+          },
         ),
+        duration: const Duration(seconds: 2),
+        backgroundColor: AppColors.greenColor,
       );
+      ScaffoldMessenger.of(context).showSnackBar(successSnackBar);
+
+      String url = await uploadTask.snapshot.ref.getDownloadURL();
+      final Uri uri = Uri.parse(url);
+      if (await canLaunchUrl(uri)) {
+        await launchUrl(
+          uri,
+          mode: LaunchMode
+              .externalApplication, // Ensures it opens in the Facebook app if available
+        );
+      }
     } catch (e) {
       print("Error saving file: $e");
       ScaffoldMessenger.of(context).showSnackBar(
@@ -840,16 +880,6 @@ class InscriptionService {
             .delete();
         print("================== تم حذف المتسابق بنجاح");
       } else {
-        // ScaffoldMessenger.of(context).showSnackBar(
-        //   SnackBar(
-        //     content: const Text("المتسابق غير موجود!"),
-        //     action: SnackBarAction(
-        //       label: 'إخفاء',
-        //       onPressed: () {},
-        //     ),
-        //     backgroundColor: AppColors.greenColor,
-        //   ),
-        // );
         print("================== المتسابق غير موجود");
       }
     } catch (e) {

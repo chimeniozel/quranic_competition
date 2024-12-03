@@ -13,21 +13,55 @@ import 'package:url_launcher/url_launcher.dart';
 class VideoArchiveScreen extends StatefulWidget {
   final Competition competition;
   const VideoArchiveScreen({super.key, required this.competition});
+
   @override
-  VideoArchiveScreenState createState() => VideoArchiveScreenState();
+  _VideoArchiveScreenState createState() => _VideoArchiveScreenState();
 }
 
-class VideoArchiveScreenState extends State<VideoArchiveScreen> {
-  Future<void> _launchURL(String url) async {
-    final Uri uri = Uri.parse(url);
-    if (await canLaunchUrl(uri)) {
-      await launchUrl(
-        uri,
-        mode: LaunchMode
-            .externalApplication, // Ensures it opens in the Facebook app if available
+class _VideoArchiveScreenState extends State<VideoArchiveScreen> {
+  final List<VideoEntry> _videos = [];
+  int? _lastVideo = 0;
+  bool _isLoading = false;
+  bool _hasMore = true;
+  static const int _limit = 15;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadVideos(); // Initial load
+  }
+
+  Future<void> _loadVideos() async {
+    if (_isLoading) return;
+
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      List<VideoEntry> newVideos =
+          await CompetitionService.getVideosArchivesStream(
+        widget.competition.competitionId!,
+        limit: _limit,
+        lastVideo: _lastVideo,
       );
-    } else {
-      throw 'Could not launch $url';
+
+      if (newVideos.isNotEmpty) {
+        setState(() {
+          _videos.addAll(newVideos);
+          _lastVideo = _videos.indexOf(_videos.last);
+        });
+      } else {
+        setState(() {
+          _hasMore = false;
+        });
+      }
+    } catch (error) {
+      print("Error loading videos: $error");
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
     }
   }
 
@@ -35,52 +69,43 @@ class VideoArchiveScreenState extends State<VideoArchiveScreen> {
   Widget build(BuildContext context) {
     final AuthProviders authProvider =
         Provider.of<AuthProviders>(context, listen: false);
+
     return Scaffold(
-        appBar: AppBar(
-          backgroundColor: AppColors.primaryColor,
-          title:
-              Text("روابط فيديوهات ${widget.competition.competitionVirsion}"),
-        ),
-        body: Padding(
-          padding: const EdgeInsets.all(
-            8.0,
-          ),
-          child: StreamBuilder<List<VideoEntry>>(
-              stream: CompetitionService.getVideosArchivesStream(
-                  widget.competition.competitionId!),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(
-                    child: CircularProgressIndicator(),
-                  ); // Show loading indicator while waiting
-                } else if (snapshot.hasError) {
-                  return Center(
-                    child: Text('Error: ${snapshot.error}'),
-                  ); // Show error if any
-                } else if (!snapshot.hasData ||
-                    (snapshot.data as List).isEmpty) {
-                  return const Center(
-                    child: Text('لا تتوفر أرشيفات الفيديو'),
-                  ); // Handle empty data case
-                }
-
-                List<VideoEntry>? videoEntry = snapshot.data;
-
-                return ListView.builder(
-                  itemCount: videoEntry!.length,
+      appBar: AppBar(
+        backgroundColor: AppColors.primaryColor,
+        title: Text("روابط فيديوهات ${widget.competition.competitionVirsion}"),
+      ),
+      body: NotificationListener<ScrollNotification>(
+        onNotification: (ScrollNotification scrollInfo) {
+          if (!_isLoading &&
+              _hasMore &&
+              scrollInfo.metrics.pixels == scrollInfo.metrics.maxScrollExtent) {
+            _loadVideos();
+            return true;
+          }
+          return false;
+        },
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: _videos.isEmpty && !_isLoading
+              ? const Center(
+                  child: Text('لا تتوفر أرشيفات الفيديو'),
+                )
+              : ListView.builder(
+                  itemCount: _videos.length + (_hasMore ? 1 : 0),
                   itemBuilder: (context, index) {
-                    VideoEntry video = videoEntry[index];
+                    if (index == _videos.length) {
+                      return const Center(child: CircularProgressIndicator());
+                    }
+
+                    VideoEntry video = _videos[index];
                     return GestureDetector(
                       onTap: () {
                         _launchURL(video.url!);
                       },
                       child: Container(
-                        padding: const EdgeInsets.all(
-                          8.0,
-                        ),
-                        margin: const EdgeInsets.symmetric(
-                          vertical: 2.0,
-                        ),
+                        padding: const EdgeInsets.all(8.0),
+                        margin: const EdgeInsets.symmetric(vertical: 2.0),
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(10.0),
                           color: AppColors.whiteColor,
@@ -105,7 +130,6 @@ class VideoArchiveScreenState extends State<VideoArchiveScreen> {
                             Expanded(
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
-                                mainAxisAlignment: MainAxisAlignment.start,
                                 children: [
                                   Text(
                                     video.title!,
@@ -123,9 +147,7 @@ class VideoArchiveScreenState extends State<VideoArchiveScreen> {
                                 onPressed: () {
                                   _launchURL(video.url!);
                                 },
-                                icon: const Icon(
-                                  Iconsax.arrow_left_2,
-                                ),
+                                icon: const Icon(Iconsax.arrow_left_2),
                               ),
                             if (authProvider.currentAdmin != null)
                               Row(
@@ -159,8 +181,7 @@ class VideoArchiveScreenState extends State<VideoArchiveScreen> {
                                             actions: <Widget>[
                                               TextButton(
                                                 onPressed: () {
-                                                  Navigator.of(context)
-                                                      .pop(); // Close the dialog
+                                                  Navigator.of(context).pop();
                                                 },
                                                 child: const Text("إلغاء"),
                                               ),
@@ -171,7 +192,7 @@ class VideoArchiveScreenState extends State<VideoArchiveScreen> {
                                                       .collection(
                                                           'competitions')
                                                       .doc(widget.competition
-                                                          .competitionId) // Reference to the specific competition document
+                                                          .competitionId)
                                                       .update({
                                                     'archiveEntry.videosURL':
                                                         FieldValue.arrayRemove(
@@ -202,8 +223,18 @@ class VideoArchiveScreenState extends State<VideoArchiveScreen> {
                       ),
                     );
                   },
-                );
-              }),
-        ));
+                ),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _launchURL(String url) async {
+    final Uri uri = Uri.parse(url);
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    } else {
+      throw 'Could not launch $url';
+    }
   }
 }

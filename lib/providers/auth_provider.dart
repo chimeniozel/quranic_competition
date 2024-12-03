@@ -83,10 +83,11 @@ class AuthProviders extends ChangeNotifier {
   // Log out by removing user data
   Future<void> logout(BuildContext context) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    _currentAdmin = null;
-    _currentJury = null;
+    
     await AuthService.logoutUser(context);
     await prefs.remove(_userKey);
+    _currentAdmin = null;
+    _currentJury = null;
     _user = null;
     notifyListeners();
   }

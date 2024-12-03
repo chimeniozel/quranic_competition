@@ -7,17 +7,17 @@ import 'package:quranic_competition/firebase_options.dart';
 import 'package:quranic_competition/providers/auth_provider.dart';
 import 'package:quranic_competition/providers/competion_provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:quranic_competition/providers/connectivity_provider.dart';
 import 'package:quranic_competition/screens/admin/admin_home_screen.dart';
 import 'package:quranic_competition/screens/client/home_screen.dart';
 import 'package:quranic_competition/screens/jury/jury_home_screen.dart';
-import 'package:quranic_competition/utils/utils.dart';
+import 'package:quranic_competition/widgets/connectivity_widget.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  performExternalStorageTask();
   runApp(const MyApp());
 }
 
@@ -33,6 +33,7 @@ class MyApp extends StatelessWidget {
               ..getJurys()),
         ChangeNotifierProvider(
             create: (_) => CompetitionProvider()..getCurrentCompetition()),
+        ChangeNotifierProvider(create: (_) => ConnectivityProvider()),
       ],
       child: MaterialApp(
         title: 'Quranic Competition App',
@@ -65,25 +66,35 @@ class MyApp extends StatelessWidget {
           GlobalCupertinoLocalizations.delegate,
           GlobalWidgetsLocalizations.delegate
         ],
-        home: Consumer2<CompetitionProvider, AuthProviders>(
-            builder: (context, competitionProvider, authProviders, child) {
-          if (competitionProvider.isLoading || authProviders.isLoading) {
-            return const Scaffold(
-              body: Center(
-                child: CircularProgressIndicator(),
-              ),
-            );
-          }
-          if (authProviders.user != null) {
-            if (authProviders.user!.role == "إداري") {
-              authProviders.setCurrentUser(authProviders.user!.userID!);
-              return const AdminHomeScreen();
-            } else {
-              return const JuryHomeScreen();
+        builder: (context, child) {
+          final connectivityProvider = Provider.of<ConnectivityProvider>(
+            context,
+            listen: true,
+          );
+          connectivityProvider.setScaffoldContext(context);
+          return child!;
+        },
+        home: ConnectivityWidget(
+          child: Consumer2<CompetitionProvider, AuthProviders>(
+              builder: (context, competitionProvider, authProviders, child) {
+            if (competitionProvider.isLoading || authProviders.isLoading) {
+              return const Scaffold(
+                body: Center(
+                  child: CircularProgressIndicator(),
+                ),
+              );
             }
-          }
-          return const HomeScreen();
-        }),
+            if (authProviders.user != null) {
+              if (authProviders.user!.role == "إداري") {
+                authProviders.setCurrentUser(authProviders.user!.userID!);
+                return const AdminHomeScreen();
+              } else {
+                return const JuryHomeScreen();
+              }
+            }
+            return const HomeScreen();
+          }),
+        ),
       ),
     );
   }

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:provider/provider.dart';
-import 'package:quranic_competition/auth/login_screen.dart';
 import 'package:quranic_competition/constants/colors.dart';
 import 'package:quranic_competition/providers/competion_provider.dart';
 import 'package:quranic_competition/screens/admin/about_us/about_us_screen.dart';
@@ -10,7 +9,7 @@ import 'package:quranic_competition/screens/admin/quiz/levels_screen.dart';
 import 'package:quranic_competition/screens/client/competition_results_client.dart';
 import 'package:quranic_competition/screens/client/competitions_screen.dart';
 import 'package:quranic_competition/screens/client/inscription_screen.dart';
-import 'package:quranic_competition/screens/client/tajweed/tajweed_screen.dart';
+import 'package:quranic_competition/screens/admin/tajweed/tajweed_screen.dart';
 import 'package:quranic_competition/widgets/custtom_card.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -32,23 +31,6 @@ class _HomeScreenState extends State<HomeScreen> {
           'مسابقة أهل القرآن الواتسابية',
           style: TextStyle(color: Colors.white),
         ),
-        actions: [
-          TextButton(
-            onPressed: () {
-              // Navigate to the competitions screen
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const LoginScreen(),
-                ),
-              );
-            },
-            child: const Text(
-              "تسجيل الدخول",
-              style: TextStyle(color: Colors.white),
-            ),
-          ),
-        ],
       ),
       body: Consumer<CompetitionProvider>(builder: (context, provider, child) {
         return SingleChildScrollView(
