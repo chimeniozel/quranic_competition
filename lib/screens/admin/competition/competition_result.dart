@@ -423,8 +423,9 @@ class CompetitionResultsState extends State<CompetitionResults> {
       ),
       bottomNavigationBar: selectedRound != null && selectedType != null
           ? StatefulBuilder(builder: (context, setState) {
-              return Padding(
+              return Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                margin: const EdgeInsets.only(bottom: 33),
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.primaryColor,
