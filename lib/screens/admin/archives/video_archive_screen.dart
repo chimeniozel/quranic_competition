@@ -163,6 +163,8 @@ class _VideoArchiveScreenState extends State<VideoArchiveScreen> {
                                           ),
                                         ),
                                       );
+                                      _loadVideos();
+                                      setState(() {});
                                     },
                                     icon: const Icon(
                                       Iconsax.edit,
