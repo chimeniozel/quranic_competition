@@ -30,7 +30,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(
             create: (_) => AuthProviders()
               ..getUser()
-              ..getJurys()),
+              ),
         ChangeNotifierProvider(
             create: (_) => CompetitionProvider()..getCurrentCompetition()),
         ChangeNotifierProvider(create: (_) => ConnectivityProvider()),

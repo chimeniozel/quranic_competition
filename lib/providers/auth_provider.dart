@@ -16,8 +16,8 @@ class AuthProviders extends ChangeNotifier {
   Jury? _currentJury;
   bool _isLoading = false;
   bool get isLoading => _isLoading;
-  List<Jury>? _jurys;
-  List<Jury>? get jurys => _jurys;
+  // List<Jury>? _jurys;
+  // List<Jury>? get jurys => _jurys;
   Admin? get currentAdmin => _currentAdmin;
   Jury? get currentJury => _currentJury;
   static const _userKey = 'user';
@@ -42,21 +42,10 @@ class AuthProviders extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> getJurys() async {
-    _isLoading = true;
-    notifyListeners();
-    try {
-      _jurys = await CompetitionService.getAllJurys();
-      notifyListeners();
-    } catch (e) {
-      print(e);
-    }
-    _isLoading = false;
-    notifyListeners();
-  }
-
   // Call this function to check if the user is logged in and return the user
   Future<void> getUser() async {
+    _isLoading = true;
+    notifyListeners();
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? userJson = prefs.getString(_userKey);
 
@@ -66,6 +55,7 @@ class AuthProviders extends ChangeNotifier {
     } else {
       _user = null; // No user found in SharedPreferences
     }
+    _isLoading = false;
     notifyListeners(); // Notify listeners to rebuild the widget
   }
 
@@ -83,7 +73,7 @@ class AuthProviders extends ChangeNotifier {
   // Log out by removing user data
   Future<void> logout(BuildContext context) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    
+
     await AuthService.logoutUser(context);
     await prefs.remove(_userKey);
     _currentAdmin = null;

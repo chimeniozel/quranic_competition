@@ -217,8 +217,6 @@ class _CompetitionResultsClientState extends State<CompetitionResultsClient> {
                       competitionType: selectedType,
                       competitionRound: selectedRound!,
                       query: query,
-                      version:
-                          provider.competition!.competitionVersion.toString(),
                     ),
                     builder: (context, snapshotInscription) {
                       if (snapshotInscription.connectionState ==

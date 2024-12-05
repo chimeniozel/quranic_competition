@@ -2,7 +2,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:quranic_competition/constants/colors.dart';
-import 'package:quranic_competition/models/archive_entry.dart';
 import 'package:quranic_competition/models/tajweed_video_model.dart';
 import 'package:quranic_competition/widgets/input_widget.dart';
 

@@ -251,26 +251,19 @@ class CompetitionService {
     }
   }
 
-  static Future<List<Jury>> getCompetitionJurys(
-      String competitionVersion) async {
+  static Stream<List<Jury>> getCompetitionJurys(String competitionVersion) {
     try {
-      QuerySnapshot<Map<String, dynamic>> querySnapshot =
-          await FirebaseFirestore.instance
-              .collection("users")
-              .where('competitions', arrayContains: competitionVersion)
-              .get();
-
-      List<Jury> juryUsers = [];
-      for (var doc in querySnapshot.docs) {
-        Map<String, dynamic> userData = doc.data();
-        Jury user = Jury.fromMap(userData);
-        juryUsers.add(user);
-      }
-
-      return juryUsers;
+      return FirebaseFirestore.instance
+          .collection("users")
+          .where('competitions', arrayContains: competitionVersion)
+          .snapshots()
+          .map(
+            (snapshot) =>
+                snapshot.docs.map((doc) => Jury.fromMap(doc.data())).toList(),
+          );
     } on FirebaseException catch (e) {
       print("Error fetching jury users: $e");
-      return [];
+      return const Stream.empty();
     }
   }
 
@@ -437,7 +430,6 @@ class CompetitionService {
   }
 
   static Future<List<Map<String, dynamic>>> getResults({
-    required String version,
     required String competitionType,
     required String competitionRound,
     required bool isAdmin,
@@ -446,7 +438,7 @@ class CompetitionService {
   }) async {
     CollectionReference inscriptionCollection = FirebaseFirestore.instance
         .collection('inscriptions')
-        .doc(version)
+        .doc(competition.competitionId)
         .collection(competitionType);
     var conpetitionDoc = await FirebaseFirestore.instance
         .collection("competitions")
@@ -455,7 +447,7 @@ class CompetitionService {
     QuerySnapshot<Map<String, dynamic>> juryCollection = await FirebaseFirestore
         .instance
         .collection('users')
-        .where("competitions", arrayContains: version)
+        .where("competitions", arrayContains: competition.competitionVersion)
         .get();
     QuerySnapshot? querySnapshot;
     List<Map<String, dynamic>> inscriptions = [];
@@ -479,7 +471,7 @@ class CompetitionService {
         Inscription inscription = Inscription.fromDocumentSnapshot(doc);
         var correctionSnapshot = await FirebaseFirestore.instance
             .collection('inscriptions')
-            .doc(version)
+            .doc(competition.competitionId)
             .collection("jurysInscriptions")
             .where("idInscription", isEqualTo: inscription.idInscription)
             .get();
@@ -576,7 +568,7 @@ class CompetitionService {
 
         var correctionSnapshot = await FirebaseFirestore.instance
             .collection('inscriptions')
-            .doc(version)
+            .doc(competition.competitionId)
             .collection("jurysInscriptions")
             .where("idInscription", isEqualTo: inscription.idInscription)
             .get();
@@ -735,7 +727,7 @@ class CompetitionService {
         .instance
         .collection("users")
         .where("role", isNotEqualTo: "إداري")
-        .where("competitions", arrayContains: competition.competitionId)
+        .where("competitions", arrayContains: competition.competitionVersion)
         .get();
     int nbInscriptionsFirst =
         inscriptionsAdultFirst.docs.length + inscriptionsChildFirst.docs.length;
@@ -744,9 +736,9 @@ class CompetitionService {
     int nbJurys = 0;
 
     if (competitionRound == "التصفيات الأولى") {
-      nbJurys = juryInscriptionsFirst.docs.length ~/ nbInscriptionsFirst;
+      nbJurys = nbInscriptionsFirst != 0 ? juryInscriptionsFirst.docs.length ~/ nbInscriptionsFirst : 0;
     } else {
-      nbJurys = juryInscriptionsLast.docs.length ~/ nbInscriptionsLast;
+      nbJurys = nbInscriptionsLast != 0 ? juryInscriptionsLast.docs.length ~/ nbInscriptionsLast : 0;
     }
 
     if (nbJurys == usersQuery.docs.length) {

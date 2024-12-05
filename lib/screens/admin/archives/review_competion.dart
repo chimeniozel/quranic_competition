@@ -1,9 +1,7 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:quranic_competition/constants/colors.dart';
 import 'package:quranic_competition/providers/auth_provider.dart';
-import 'package:quranic_competition/widgets/video_widget.dart';
 
 class ReviewCompetion extends StatefulWidget {
   final String itemUrl;

@@ -73,7 +73,6 @@ class CompetitionResultsState extends State<CompetitionResults> {
                         await CompetitionService.getResults(
                           isAdmin: true,
                           competition: competition,
-                          version: competition.competitionVersion!,
                           competitionType: "adult_inscription",
                           competitionRound: "التصفيات الأولى",
                           query: query,
@@ -81,7 +80,6 @@ class CompetitionResultsState extends State<CompetitionResults> {
                         await CompetitionService.getResults(
                           isAdmin: true,
                           competition: competition,
-                          version: competition.competitionVersion!,
                           competitionType: "child_inscription",
                           competitionRound: "التصفيات الأولى",
                           query: query,
@@ -121,7 +119,6 @@ class CompetitionResultsState extends State<CompetitionResults> {
                         await CompetitionService.getResults(
                           isAdmin: true,
                           competition: competition,
-                          version: competition.competitionVersion!,
                           competitionType: "adult_inscription",
                           competitionRound: "التصفيات النهائية",
                           query: query,
@@ -129,7 +126,6 @@ class CompetitionResultsState extends State<CompetitionResults> {
                         await CompetitionService.getResults(
                           isAdmin: true,
                           competition: competition,
-                          version: competition.competitionVersion!,
                           competitionType: "child_inscription",
                           competitionRound: "التصفيات النهائية",
                           query: query,
@@ -302,7 +298,6 @@ class CompetitionResultsState extends State<CompetitionResults> {
                   future: CompetitionService.getResults(
                     isAdmin: true,
                     competition: competition,
-                    version: competition.competitionVersion!,
                     competitionType: selectedType!,
                     competitionRound: selectedRound!,
                     query: query,
@@ -446,7 +441,6 @@ class CompetitionResultsState extends State<CompetitionResults> {
                         await CompetitionService.getResults(
                       isAdmin: true,
                       competition: competition,
-                      version: competition.competitionVersion!,
                       competitionType: selectedType!,
                       competitionRound: selectedRound!,
                       query: query,
