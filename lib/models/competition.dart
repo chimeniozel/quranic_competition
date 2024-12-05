@@ -3,7 +3,7 @@ import 'package:quranic_competition/models/archive_entry.dart';
 
 class Competition {
   String? _competitionId;
-  String? _competitionVirsion;
+  String? _competitionVersion;
   DateTime? _startDate;
   bool? _isActive;
   List? _competitionTypes;
@@ -20,7 +20,7 @@ class Competition {
 
   Competition({
     String? competitionId,
-    String? competitionVirsion,
+    String? competitionVersion,
     DateTime? startDate,
     bool? isActive,
     List? competitionTypes,
@@ -35,7 +35,7 @@ class Competition {
     int? adultNumberMax,
     int? childNumberMax,
   })  : _competitionId = competitionId,
-        _competitionVirsion = competitionVirsion,
+        _competitionVersion = competitionVersion,
         _startDate = startDate,
         _isActive = isActive,
         _competitionTypes = competitionTypes,
@@ -51,7 +51,7 @@ class Competition {
         _childNumberMax = childNumberMax;
 
   String? get competitionId => _competitionId;
-  String? get competitionVirsion => _competitionVirsion;
+  String? get competitionVersion => _competitionVersion;
   DateTime? get startDate => _startDate;
   bool? get isActive => _isActive;
   List? get competitionTypes => _competitionTypes;
@@ -70,8 +70,8 @@ class Competition {
     _competitionId = competitionId;
   }
 
-  set setCompetitionVirsion(String competitionVirsion) {
-    _competitionVirsion = competitionVirsion;
+  set setcompetitionVersion(String competitionVersion) {
+    _competitionVersion = competitionVersion;
   }
 
   set setStartDate(DateTime startDate) {
@@ -130,7 +130,7 @@ class Competition {
   Map<String, dynamic> toMap() {
     return {
       'competitionId': competitionId,
-      'competitionVirsion': competitionVirsion,
+      'competitionVersion': competitionVersion,
       'startDate': startDate,
       'isActive': isActive,
       'competitionTypes': competitionTypes,
@@ -150,9 +150,8 @@ class Competition {
   // from Map
   Competition.fromMap(Map<String, dynamic>? map) {
     _competitionId = map?['competitionId'];
-    _competitionVirsion = map?['competitionVirsion'];
+    _competitionVersion = map?['competitionVersion'];
     _startDate = (map?['startDate'] as Timestamp?)?.toDate();
-    // _endDate = (map?['endDate'] as Timestamp?)?.toDate();
     _isActive = map?['isActive'];
     _competitionTypes = map?['competitionTypes'];
     _archiveEntry = ArchiveEntry.fromMap(map?['archiveEntry']);

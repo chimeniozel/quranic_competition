@@ -13,13 +13,13 @@ class DetailContestantScreen extends StatefulWidget {
   final Inscription? inscription;
   final NoteModel? noteModel;
   final String competitionType;
-  final String competitionVersion;
+  final String competitionId;
   final String competitionRound;
   const DetailContestantScreen({
     super.key,
     required this.inscription,
     required this.competitionType,
-    required this.competitionVersion,
+    required this.competitionId,
     required this.competitionRound,
     required this.noteModel,
   });
@@ -272,7 +272,7 @@ class _DetailContestantScreenState extends State<DetailContestantScreen> {
 
                     // update inscription is corrected for first round and last round
                     AuthService.addJuryInscriptionNotes(
-                      competitionVersion: widget.competitionVersion,
+                      competitionId: widget.competitionId,
                       juryInscription: juryInscription,
                       isAdult: false,
                       context: context,
@@ -319,7 +319,7 @@ class _DetailContestantScreenState extends State<DetailContestantScreen> {
                       );
                     }
                     AuthService.addJuryInscriptionNotes(
-                      competitionVersion: widget.competitionVersion,
+                      competitionId: widget.competitionId,
                       juryInscription: juryInscription,
                       isAdult: true,
                       context: context,

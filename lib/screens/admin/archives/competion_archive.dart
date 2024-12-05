@@ -26,7 +26,7 @@ class _CompetionArchiveState extends State<CompetionArchive> {
         backgroundColor: AppColors.primaryColor,
         toolbarHeight: 60,
         title: Text(
-          widget.competition.competitionVirsion.toString(),
+          widget.competition.competitionVersion.toString(),
         ),
         actions: [
           if (authProvider.user != null)
@@ -37,8 +37,8 @@ class _CompetionArchiveState extends State<CompetionArchive> {
                   MaterialPageRoute(
                     builder: (context) => UploadArchive(
                       competition: widget.competition,
-                      competitionVirsion:
-                          widget.competition.competitionVirsion.toString(),
+                      competitionVersion:
+                          widget.competition.competitionVersion.toString(),
                     ),
                   ),
                 );

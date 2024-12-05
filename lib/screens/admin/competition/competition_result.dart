@@ -46,7 +46,7 @@ class CompetitionResultsState extends State<CompetitionResults> {
         backgroundColor: AppColors.primaryColor,
         toolbarHeight: 60.0,
         title: Text(
-          "نتائج ${widget.competition.competitionVirsion.toString()}",
+          "نتائج ${widget.competition.competitionVersion.toString()}",
           style: const TextStyle(
             fontSize: 18.0,
           ),
@@ -73,7 +73,7 @@ class CompetitionResultsState extends State<CompetitionResults> {
                         await CompetitionService.getResults(
                           isAdmin: true,
                           competition: competition,
-                          version: competition.competitionVirsion!,
+                          version: competition.competitionVersion!,
                           competitionType: "adult_inscription",
                           competitionRound: "التصفيات الأولى",
                           query: query,
@@ -81,7 +81,7 @@ class CompetitionResultsState extends State<CompetitionResults> {
                         await CompetitionService.getResults(
                           isAdmin: true,
                           competition: competition,
-                          version: competition.competitionVirsion!,
+                          version: competition.competitionVersion!,
                           competitionType: "child_inscription",
                           competitionRound: "التصفيات الأولى",
                           query: query,
@@ -121,7 +121,7 @@ class CompetitionResultsState extends State<CompetitionResults> {
                         await CompetitionService.getResults(
                           isAdmin: true,
                           competition: competition,
-                          version: competition.competitionVirsion!,
+                          version: competition.competitionVersion!,
                           competitionType: "adult_inscription",
                           competitionRound: "التصفيات النهائية",
                           query: query,
@@ -129,7 +129,7 @@ class CompetitionResultsState extends State<CompetitionResults> {
                         await CompetitionService.getResults(
                           isAdmin: true,
                           competition: competition,
-                          version: competition.competitionVirsion!,
+                          version: competition.competitionVersion!,
                           competitionType: "child_inscription",
                           competitionRound: "التصفيات النهائية",
                           query: query,
@@ -302,7 +302,7 @@ class CompetitionResultsState extends State<CompetitionResults> {
                   future: CompetitionService.getResults(
                     isAdmin: true,
                     competition: competition,
-                    version: competition.competitionVirsion!,
+                    version: competition.competitionVersion!,
                     competitionType: selectedType!,
                     competitionRound: selectedRound!,
                     query: query,
@@ -446,7 +446,7 @@ class CompetitionResultsState extends State<CompetitionResults> {
                         await CompetitionService.getResults(
                       isAdmin: true,
                       competition: competition,
-                      version: competition.competitionVirsion!,
+                      version: competition.competitionVersion!,
                       competitionType: selectedType!,
                       competitionRound: selectedRound!,
                       query: query,

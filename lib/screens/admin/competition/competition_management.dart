@@ -7,6 +7,7 @@ import 'package:quranic_competition/models/competition.dart';
 import 'package:quranic_competition/providers/auth_provider.dart';
 import 'package:quranic_competition/screens/admin/competition/add_competition_screen.dart';
 import 'package:quranic_competition/screens/admin/competition/competition_details_screen.dart';
+import 'package:quranic_competition/services/competion_service.dart';
 
 class CompetitionManagementScreen extends StatefulWidget {
   const CompetitionManagementScreen({super.key});
@@ -58,7 +59,7 @@ class _CompetitionManagementScreenState
                       itemBuilder: (context, index) {
                         Competition competition = Competition.fromMap(
                             competitions[index].data() as Map<String, dynamic>);
-                        var competitionId = competitions[index].id;
+                        // var competitionId = competitions[index].id;
 
                         return GestureDetector(
                           onLongPress: () {
@@ -93,80 +94,33 @@ class _CompetitionManagementScreenState
                                         )),
                                     onPressed: () async {
                                       if (!competition.isActive!) {
-                                        // Delete the competition from Firestore
-                                        var doc = await FirebaseFirestore
-                                            .instance
-                                            .collection("inscriptions")
-                                            // .get();
-                                            .doc(competition.competitionVirsion)
-                                            .collection("adult_inscription")
-                                            .get();
-                                        for (var element in doc.docs) {
-                                          await FirebaseFirestore.instance
-                                              .collection("inscriptions")
-                                              .doc(element.id)
-                                              .delete();
-                                        }
-                                        print("id : ${doc.docs.length}");
-                                        FirebaseFirestore.instance
-                                            .collection('inscriptions')
-                                            .doc(competition.competitionVirsion)
-                                            .delete()
-                                            .whenComplete(() async {
-                                          // var docAdult = await FirebaseFirestore
-                                          //     .instance
-                                          //     .collection('counters')
-                                          //     .doc(
-                                          //         "${competition.competitionVirsion}-adult_inscription")
-                                          //     .get();
-                                          // var docChild = await FirebaseFirestore
-                                          //     .instance
-                                          //     .collection('counters')
-                                          //     .doc(
-                                          //         "${competition.competitionVirsion}-child_inscription")
-                                          //     .get();
-                                          // if (docAdult.exists) {
-                                          //   FirebaseFirestore.instance
-                                          //       .collection('counters')
-                                          //       .doc(
-                                          //           "${competition.competitionVirsion}-adult_inscription")
-                                          //       .delete();
-                                          // }
-                                          // if (docChild.exists) {
-                                          //   FirebaseFirestore.instance
-                                          //       .collection('counters')
-                                          //       .doc(
-                                          //           "${competition.competitionVirsion}-child_inscription")
-                                          //       .delete();
-                                          // }
-                                          // FirebaseFirestore.instance
-                                          //     .collection('competitions')
-                                          //     .doc(competitionId)
-                                          //     .delete()
-                                          //     .then((_) {
-                                          //   Navigator.of(context)
-                                          //       .pop(); // Close the dialog
-                                          //   ScaffoldMessenger.of(context)
-                                          //       .showSnackBar(
-                                          //     const SnackBar(
-                                          //       content: Text(
-                                          //           'تم حذف المسابقة بنجاح'),
-                                          //       backgroundColor:
-                                          //           AppColors.greenColor,
-                                          //     ),
-                                          //   );
-                                          // }).catchError((error) {
-                                          //   ScaffoldMessenger.of(context)
-                                          //       .showSnackBar(
-                                          //     SnackBar(
-                                          //       content: Text(
-                                          //           'خطأ في الحذف: $error'),
-                                          //       backgroundColor:
-                                          //           AppColors.grayColor,
-                                          //     ),
-                                          //   );
-                                          // });
-                                        });
+                                        CompetitionService.deleteCompetition(
+                                                competition: competition)
+                                            .then((_) {
+                                          Navigator.of(context)
+                                              .pop(); // Close the dialog
+                                          ScaffoldMessenger.of(context)
+                                              .showSnackBar(
+                                            const SnackBar(
+                                              content:
+                                                  Text('تم حذف المسابقة بنجاح'),
+                                              backgroundColor:
+                                                  AppColors.greenColor,
+                                            ),
+                                          );
+                                        }).catchError(
+                                          (error) {
+                                            ScaffoldMessenger.of(context)
+                                                .showSnackBar(
+                                              SnackBar(
+                                                content: Text(
+                                                    'خطأ في الحذف: $error'),
+                                                backgroundColor:
+                                                    AppColors.grayColor,
+                                              ),
+                                            );
+                                          },
+                                        );
                                       } else {
                                         Navigator.of(context)
                                             .pop(); // Close the dialog
@@ -230,7 +184,7 @@ class _CompetitionManagementScreenState
                                   children: [
                                     Expanded(
                                       child: Text(
-                                        competition.competitionVirsion
+                                        competition.competitionVersion
                                             .toString(),
                                       ),
                                     ),
@@ -250,7 +204,8 @@ class _CompetitionManagementScreenState
                                               onPressed: () {
                                                 FirebaseFirestore.instance
                                                     .collection('competitions')
-                                                    .doc(competitionId)
+                                                    .doc(competition
+                                                        .competitionId)
                                                     .update({
                                                   'isActive': false,
                                                 }).then((_) {

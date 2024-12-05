@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:quranic_competition/constants/colors.dart';
@@ -39,7 +40,7 @@ class _CompetitionDetailsScreenState extends State<CompetitionDetailsScreen> {
         backgroundColor: AppColors.primaryColor,
         toolbarHeight: 60,
         title: Text(
-          competition.competitionVirsion.toString(),
+          competition.competitionVersion.toString(),
           style: const TextStyle(
             fontSize: 16.0,
             fontWeight: FontWeight.bold,
@@ -280,9 +281,9 @@ class _CompetitionDetailsScreenState extends State<CompetitionDetailsScreen> {
                                                       inscription: inscription,
                                                       inscriptionType:
                                                           selectedType!,
-                                                      version: widget
+                                                      competitionId: widget
                                                           .competition
-                                                          .competitionVirsion!)
+                                                          .competitionId!)
                                               .whenComplete(() {
                                             ScaffoldMessenger.of(context)
                                                 .showSnackBar(

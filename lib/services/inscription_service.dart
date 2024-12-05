@@ -17,7 +17,7 @@ class InscriptionService {
   static Future<int> getNextId(
       Competition competition, String competitionType) async {
     final counterDoc = FirebaseFirestore.instance.collection('counters').doc(
-        '${competition.competitionVirsion}-$competitionType'); // Unique per version and type
+        '${competition.competitionId}-$competitionType'); // Unique per version and type
 
     final snapshot = await counterDoc.get();
 
@@ -34,10 +34,10 @@ class InscriptionService {
 
   // Get the current number of inscriptions for the given type and version
   static Future<int> getCurrentCount(
-      String version, String competitionType) async {
+      {required String competitionId, required String competitionType}) async {
     final querySnapshot = await FirebaseFirestore.instance
         .collection('inscriptions')
-        .doc(version)
+        .doc(competitionId)
         .collection(competitionType)
         .get();
 
@@ -88,7 +88,8 @@ class InscriptionService {
 
       // Get the current count for the type/version
       int currentCount = await getCurrentCount(
-          competition.competitionVirsion!, competitionType);
+          competitionId: competition.competitionId!,
+          competitionType: competitionType);
 
       // Check limits (children: 50, adults: 100)
       if ((competitionType == "child_inscription" &&
@@ -104,13 +105,9 @@ class InscriptionService {
         return false;
       }
 
-      // Get a unique ID for the new inscription
-      int newId = await getNextId(competition, competitionType);
-      inscription.idInscription = newId;
-
       // Check if the inscription already exists (by phone number)
       var data = await inscriptions
-          .doc(competition.competitionVirsion)
+          .doc(competition.competitionId)
           .collection(competitionType)
           .where("رقم الهاتف", isEqualTo: inscription.phoneNumber)
           .get();
@@ -127,9 +124,12 @@ class InscriptionService {
         );
         ScaffoldMessenger.of(context).showSnackBar(duplicateSnackBar);
       } else {
+        // Get a unique ID for the new inscription
+        int newId = await getNextId(competition, competitionType);
+        inscription.idInscription = newId;
         // Add the new inscription to Firestore
         await inscriptions
-            .doc(competition.competitionVirsion)
+            .doc(competition.competitionId)
             .collection(competitionType)
             .doc(inscription.idInscription.toString())
             .set(inscription.toMap())
@@ -216,7 +216,7 @@ class InscriptionService {
   }
 
   static Stream<List<Map<String, dynamic>>> streamContestants(
-      {required String version,
+      {required String competitionId,
       required String competitionType,
       required String competitionRound,
       required double successMoyenneChild,
@@ -227,7 +227,7 @@ class InscriptionService {
       // Reference to the inscriptions collection
       CollectionReference inscriptionCollection = FirebaseFirestore.instance
           .collection('inscriptions')
-          .doc(version)
+          .doc(competitionId)
           .collection(competitionType);
 
       // Fetch query snapshots based on competition round
@@ -288,7 +288,7 @@ class InscriptionService {
           QuerySnapshot<Map<String, dynamic>> docSnapshot =
               await FirebaseFirestore.instance
                   .collection('inscriptions')
-                  .doc(version)
+                  .doc(competitionId)
                   .collection("jurysInscriptions")
                   .where("idInscription", isEqualTo: inscription.idInscription)
                   .where("idJury", isEqualTo: jury.userID!)
@@ -367,7 +367,7 @@ class InscriptionService {
     if (query != "") {
       childSnapshot = await FirebaseFirestore.instance
           .collection('inscriptions')
-          .doc(competition!.competitionVirsion)
+          .doc(competition!.competitionId)
           .collection(competitionType!)
           .orderBy("رقم التسجيل", descending: false)
           .get();
@@ -386,7 +386,7 @@ class InscriptionService {
     } else {
       childSnapshot = await FirebaseFirestore.instance
           .collection('inscriptions')
-          .doc(competition!.competitionVirsion)
+          .doc(competition!.competitionId)
           .collection(competitionType!)
           .orderBy("رقم التسجيل", descending: false)
           .get();
@@ -406,7 +406,7 @@ class InscriptionService {
     // الرجوع إلى مجموعة البيانات بناءً على نوع المسابقة والإصدار
     CollectionReference collectionRef = FirebaseFirestore.instance
         .collection('inscriptions')
-        .doc(competition.competitionVirsion)
+        .doc(competition.competitionId)
         .collection(competitionType);
 
     if (query != null && query.isNotEmpty) {
@@ -554,7 +554,7 @@ class InscriptionService {
 
         // Reference to Firebase Storage
         Reference storageRef = FirebaseStorage.instance.ref().child(
-            "${competition.competitionVirsion}/تصحيح لجنة التحكيم/$copmetitionRound/الشيخ ${jury.fullName}/$fileName");
+            "${competition.competitionVersion}/تصحيح لجنة التحكيم/$copmetitionRound/الشيخ ${jury.fullName}/$fileName");
 
         // Upload the file (this will automatically replace the old file if it exists)
         UploadTask uploadTask =
@@ -667,8 +667,8 @@ class InscriptionService {
           ? "$competitionRound فئة الصغار.xlsx"
           : "$competitionRound فئة الكبار.xlsx";
       String ref = (competitionRound == "التصفيات الأولى")
-          ? "${competition.competitionVirsion}/نتائج التصفيات/التصفيات الأولى/$fileName"
-          : "${competition.competitionVirsion}/نتائج التصفيات/التصفيات النهائية/$fileName";
+          ? "${competition.competitionVersion}/نتائج التصفيات/التصفيات الأولى/$fileName"
+          : "${competition.competitionVersion}/نتائج التصفيات/التصفيات النهائية/$fileName";
 
       // Reference to Firebase Storage
       Reference storageRef = FirebaseStorage.instance.ref().child(ref);
@@ -790,13 +790,13 @@ class InscriptionService {
     try {
       // Define the file name based on competition type
       String fileName = competitionType == "child_inscription"
-          ? "لائحة المسجلين فئة الصغار - ${competition.competitionVirsion}.xlsx"
-          : "لائحة المسجلين فئة الكبار - ${competition.competitionVirsion}.xlsx";
+          ? "لائحة المسجلين فئة الصغار - ${competition.competitionVersion}.xlsx"
+          : "لائحة المسجلين فئة الكبار - ${competition.competitionVersion}.xlsx";
 
       // Reference to Firebase Storage
       Reference storageRef = FirebaseStorage.instance
           .ref()
-          .child("${competition.competitionVirsion}/لائحة المسجلين/$fileName");
+          .child("${competition.competitionVersion}/لائحة المسجلين/$fileName");
 
       // Upload the file (this will automatically replace the old file if it exists)
       UploadTask uploadTask = storageRef.putData(Uint8List.fromList(fileBytes));
@@ -858,19 +858,19 @@ class InscriptionService {
   static Future deleteInscription({
     required Inscription inscription,
     required String inscriptionType,
-    required String version,
+    required String competitionId,
   }) async {
     try {
       var doc = await FirebaseFirestore.instance
           .collection("inscriptions")
-          .doc(version)
+          .doc(competitionId)
           .collection(inscriptionType)
           .doc(inscription.idInscription!.toString())
           .get();
       if (doc.exists) {
         await FirebaseFirestore.instance
             .collection("inscriptions")
-            .doc(version)
+            .doc(competitionId)
             .collection(inscriptionType)
             .doc(inscription.idInscription!.toString())
             .delete();

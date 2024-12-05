@@ -138,7 +138,7 @@ class _AllJurysScreenState extends State<AllJurysScreen> {
                           ),
                           const SizedBox(width: 8.0), // Spacing between buttons
                           if (!jury.competitions!.contains(competitionProvider
-                              .competition?.competitionVirsion))
+                              .competition?.competitionVersion))
                             TextButton(
                               style: ElevatedButton.styleFrom(
                                 backgroundColor:

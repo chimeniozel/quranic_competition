@@ -90,32 +90,32 @@ class CompetitionProvider with ChangeNotifier {
   Future<void> _fetchParticipantCounts() async {
     if (_competition == null) return;
 
-    final competitionVersion = _competition!.competitionVirsion;
+    final competitionId = _competition!.competitionId;
 
     try {
       final hommeAdultCountQuery = await FirebaseFirestore.instance
           .collection("inscriptions")
-          .doc(competitionVersion)
+          .doc(competitionId)
           .collection("adult_inscription")
           .where("الجنس", isEqualTo: "ذكر")
           .get();
 
       final femmeAdultCountQuery = await FirebaseFirestore.instance
           .collection("inscriptions")
-          .doc(competitionVersion)
+          .doc(competitionId)
           .collection("adult_inscription")
           .where("الجنس", isNotEqualTo: "ذكر")
           .get();
       final hommeChildCountQuery = await FirebaseFirestore.instance
           .collection("inscriptions")
-          .doc(competitionVersion)
+          .doc(competitionId)
           .collection("child_inscription")
           .where("الجنس", isEqualTo: "ذكر")
           .get();
 
       final femmeChildCountQuery = await FirebaseFirestore.instance
           .collection("inscriptions")
-          .doc(competitionVersion)
+          .doc(competitionId)
           .collection("child_inscription")
           .where("الجنس", isNotEqualTo: "ذكر")
           .get();
@@ -136,12 +136,12 @@ class CompetitionProvider with ChangeNotifier {
   void _listenToParticipantChanges() {
     if (_competition == null) return;
 
-    final competitionVersion = _competition!.competitionVirsion;
+    final competitionId = _competition!.competitionId;
 
     // Listen to changes in adult participants
     FirebaseFirestore.instance
         .collection("inscriptions")
-        .doc(competitionVersion)
+        .doc(competitionId)
         .collection("adult_inscription")
         .snapshots()
         .listen((snapshot) {
@@ -160,7 +160,7 @@ class CompetitionProvider with ChangeNotifier {
     // Listen to changes in child participants
     FirebaseFirestore.instance
         .collection("inscriptions")
-        .doc(competitionVersion)
+        .doc(competitionId)
         .collection("child_inscription")
         .snapshots()
         .listen((snapshot) {

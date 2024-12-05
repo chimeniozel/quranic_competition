@@ -73,7 +73,7 @@ class _VideoArchiveScreenState extends State<VideoArchiveScreen> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: AppColors.primaryColor,
-        title: Text("روابط فيديوهات ${widget.competition.competitionVirsion}"),
+        title: Text("روابط فيديوهات ${widget.competition.competitionVersion}"),
       ),
       body: NotificationListener<ScrollNotification>(
         onNotification: (ScrollNotification scrollInfo) {

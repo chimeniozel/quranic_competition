@@ -122,7 +122,7 @@ class _JuryHomeScreenState extends State<JuryHomeScreen> {
         }
         return authProviders.currentJury != null &&
                 authProviders.currentJury!.competitions!.contains(
-                    competitionProvider.competition!.competitionVirsion)
+                    competitionProvider.competition!.competitionVersion)
             ? Scaffold(
                 appBar: AppBar(
                   backgroundColor: AppColors.primaryColor,
@@ -293,8 +293,8 @@ class _JuryHomeScreenState extends State<JuryHomeScreen> {
                             Expanded(
                               child: StreamBuilder<List<Map<String, dynamic>>>(
                                 stream: InscriptionService.streamContestants(
-                                  version: competitionProvider
-                                      .competition!.competitionVirsion
+                                  competitionId: competitionProvider
+                                      .competition!.competitionId
                                       .toString(),
                                   competitionType: selectedType.toString(),
                                   competitionRound: competitionProvider
@@ -386,10 +386,10 @@ class _JuryHomeScreenState extends State<JuryHomeScreen> {
                                                 noteModel: noteModel,
                                                 competitionType:
                                                     selectedType.toString(),
-                                                competitionVersion:
+                                                competitionId:
                                                     competitionProvider
                                                         .competition!
-                                                        .competitionVirsion
+                                                        .competitionId
                                                         .toString(),
                                                 competitionRound: isFinalRound
                                                     ? "التصفيات النهائية"
@@ -608,7 +608,7 @@ class _JuryHomeScreenState extends State<JuryHomeScreen> {
                             ? "التصفيات النهائية"
                             : "التصفيات الأولى",
                         version: competitionProvider
-                            .competition!.competitionVirsion
+                            .competition!.competitionVersion
                             .toString(),
                         userID: authProviders.currentJury!.userID!,
                       );

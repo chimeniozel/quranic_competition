@@ -87,7 +87,7 @@ class _ArchiveScreenState extends State<ArchiveScreen> {
                             children: [
                               Expanded(
                                 child: Text(
-                                    competition.competitionVirsion.toString()),
+                                    competition.competitionVersion.toString()),
                               ),
                             ],
                           ),

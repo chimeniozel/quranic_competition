@@ -29,7 +29,7 @@ class _JuryResultsFilesState extends State<JuryResultsFiles> {
         isLoading = true;
       });
       String basePath =
-          "/${widget.competition.competitionVirsion}/تصحيح لجنة التحكيم/$competitionRound";
+          "/${widget.competition.competitionVersion}/تصحيح لجنة التحكيم/$competitionRound";
 
       Reference storageRef = FirebaseStorage.instance.ref().child(basePath);
       ListResult result = await storageRef.listAll();
@@ -109,7 +109,7 @@ class _JuryResultsFilesState extends State<JuryResultsFiles> {
     try {
       // Construct the full path to the file in Firebase Storage
       String filePath =
-          "/${widget.competition.competitionVirsion}/تصحيح لجنة التحكيم/${selectedText!}/$participantName/$fileName";
+          "/${widget.competition.competitionVersion}/تصحيح لجنة التحكيم/${selectedText!}/$participantName/$fileName";
       Reference fileRef = FirebaseStorage.instance.ref().child(filePath);
 
       // Delete the file

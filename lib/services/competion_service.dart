@@ -281,6 +281,68 @@ class CompetitionService {
     }
   }
 
+  static Future<void> deleteCompetition(
+      {required Competition competition}) async {
+    try {
+      // Delete the competition from Firestore
+      var docAdult = await FirebaseFirestore.instance
+          .collection("inscriptions")
+          .doc(competition.competitionId)
+          .collection("adult_inscription")
+          .get();
+      var docChild = await FirebaseFirestore.instance
+          .collection("inscriptions")
+          .doc(competition.competitionId)
+          .collection("child_inscription")
+          .get();
+
+      for (var element in docAdult.docs) {
+        await FirebaseFirestore.instance
+            .collection("inscriptions")
+            .doc(competition.competitionId)
+            .collection("adult_inscription")
+            .doc(element.id)
+            .delete();
+      }
+
+      for (var element in docChild.docs) {
+        await FirebaseFirestore.instance
+            .collection("inscriptions")
+            .doc(competition.competitionId)
+            .collection("child_inscription")
+            .doc(element.id)
+            .delete();
+      }
+
+      var docAdultCounter = await FirebaseFirestore.instance
+          .collection('counters')
+          .doc("${competition.competitionId}-adult_inscription")
+          .get();
+      var docChildCounter = await FirebaseFirestore.instance
+          .collection('counters')
+          .doc("${competition.competitionId}-child_inscription")
+          .get();
+      if (docAdultCounter.exists) {
+        FirebaseFirestore.instance
+            .collection('counters')
+            .doc("${competition.competitionId}-adult_inscription")
+            .delete();
+      }
+      if (docChildCounter.exists) {
+        FirebaseFirestore.instance
+            .collection('counters')
+            .doc("${competition.competitionId}-child_inscription")
+            .delete();
+      }
+      FirebaseFirestore.instance
+          .collection('competitions')
+          .doc(competition.competitionId)
+          .delete();
+    } on FirebaseException catch (e) {
+      print("Error deleting user: $e");
+    }
+  }
+
   static Future<void> deleteJuryFromCometition(
       {required String juryID, required String competitionVersion}) async {
     try {
@@ -642,40 +704,40 @@ class CompetitionService {
     QuerySnapshot<Map<String, dynamic>> juryInscriptionsFirst =
         await FirebaseFirestore.instance
             .collection("inscriptions")
-            .doc(competition.competitionVirsion)
+            .doc(competition.competitionId)
             .collection("jurysInscriptions")
             .where("isFirstCorrected", isEqualTo: true)
             .get();
     QuerySnapshot<Map<String, dynamic>> juryInscriptionsLast =
         await FirebaseFirestore.instance
             .collection("inscriptions")
-            .doc(competition.competitionVirsion)
+            .doc(competition.competitionId)
             .collection("jurysInscriptions")
             .where("isLastCorrected", isEqualTo: true)
             .get();
     QuerySnapshot<Map<String, dynamic>> inscriptionsAdultFirst =
         await FirebaseFirestore.instance
             .collection("inscriptions")
-            .doc(competition.competitionVirsion)
+            .doc(competition.competitionId)
             .collection("adult_inscription")
             .get();
     QuerySnapshot<Map<String, dynamic>> inscriptionsChildFirst =
         await FirebaseFirestore.instance
             .collection("inscriptions")
-            .doc(competition.competitionVirsion)
+            .doc(competition.competitionId)
             .collection("child_inscription")
             .get();
     QuerySnapshot<Map<String, dynamic>> inscriptionsAdultLast =
         await FirebaseFirestore.instance
             .collection("inscriptions")
-            .doc(competition.competitionVirsion)
+            .doc(competition.competitionId)
             .collection("adult_inscription")
             .where("isPassedFirstRound", isEqualTo: true)
             .get();
     QuerySnapshot<Map<String, dynamic>> inscriptionsChildLast =
         await FirebaseFirestore.instance
             .collection("inscriptions")
-            .doc(competition.competitionVirsion)
+            .doc(competition.competitionId)
             .collection("child_inscription")
             .where("isPassedFirstRound", isEqualTo: true)
             .get();
@@ -683,7 +745,7 @@ class CompetitionService {
         .instance
         .collection("users")
         .where("role", isNotEqualTo: "إداري")
-        .where("competitions", arrayContains: competition.competitionVirsion)
+        .where("competitions", arrayContains: competition.competitionId)
         .get();
     int nbInscriptionsFirst =
         inscriptionsAdultFirst.docs.length + inscriptionsChildFirst.docs.length;

@@ -43,7 +43,7 @@ class AuthService {
   }
 
   static Future<void> addJuryInscriptionNotes(
-      {required String competitionVersion,
+      {required String competitionId,
       required String competitionRound,
       required JuryInscription juryInscription,
       required bool isAdult,
@@ -51,7 +51,7 @@ class AuthService {
     // Reference to the collection where you want to store the JurysInscription
     CollectionReference jurysInscriptionCollection = FirebaseFirestore.instance
         .collection("inscriptions")
-        .doc(competitionVersion)
+        .doc(competitionId)
         .collection('jurysInscriptions');
     try {
       // Generate a unique ID for the document

@@ -25,7 +25,7 @@ class _CompetitionJurysState extends State<CompetitionJurys> {
       appBar: AppBar(
         backgroundColor: AppColors.primaryColor,
         title: Text(
-          competition.competitionVirsion.toString(),
+          competition.competitionVersion.toString(),
         ),
       ),
       body: Padding(
@@ -84,7 +84,7 @@ class _CompetitionJurysState extends State<CompetitionJurys> {
             Expanded(
               child: FutureBuilder<List<Jury>>(
                 future: CompetitionService.getCompetitionJurys(
-                    competition.competitionVirsion.toString()),
+                    competition.competitionVersion.toString()),
                 builder: (context, snapshot) {
                   if (snapshot.hasData && snapshot.data!.isNotEmpty) {
                     return ListView.builder(
@@ -175,7 +175,7 @@ class _CompetitionJurysState extends State<CompetitionJurys> {
                                                         juryID: jury.userID!,
                                                         competitionVersion:
                                                             competition
-                                                                .competitionVirsion!);
+                                                                .competitionVersion!);
                                                 Navigator.of(context)
                                                     .pop(); // Close the dialog
                                                 ScaffoldMessenger.of(context)
@@ -264,7 +264,7 @@ class _CompetitionJurysState extends State<CompetitionJurys> {
                     CompetitionService.addJuryToCompetition(
                       context: context,
                       comptetitionVersion:
-                          competition.competitionVirsion.toString(),
+                          competition.competitionVersion.toString(),
                       jury: selectedJury!,
                     );
                     setState(() {

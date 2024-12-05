@@ -62,7 +62,7 @@ class _ImagesArchiveScreenState extends State<ImagesArchiveScreen> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: AppColors.primaryColor,
-        title: Text('صور ${widget.competition.competitionVirsion}'),
+        title: Text('صور ${widget.competition.competitionVersion}'),
       ),
       body: NotificationListener<ScrollNotification>(
         onNotification: (ScrollNotification scrollInfo) {

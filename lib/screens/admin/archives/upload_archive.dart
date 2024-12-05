@@ -14,9 +14,9 @@ import 'package:flick_video_player/flick_video_player.dart';
 
 class UploadArchive extends StatefulWidget {
   final Competition competition;
-  final String competitionVirsion;
+  final String competitionVersion;
   const UploadArchive(
-      {super.key, required this.competition, required this.competitionVirsion});
+      {super.key, required this.competition, required this.competitionVersion});
 
   @override
   UploadArchiveState createState() => UploadArchiveState();
@@ -48,7 +48,7 @@ class UploadArchiveState extends State<UploadArchive> {
 
         // Upload to Firebase Storage with progress tracking
         UploadTask uploadTask = _storage
-            .ref('${competition.competitionVirsion}/images/$fileName')
+            .ref('${competition.competitionVersion}/images/$fileName')
             .putFile(file);
 
         // Listen to the upload progress

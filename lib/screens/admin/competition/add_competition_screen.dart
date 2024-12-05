@@ -17,7 +17,7 @@ class AddCompetitionScreen extends StatefulWidget {
 }
 
 class _AddCompetitionScreenState extends State<AddCompetitionScreen> {
-  TextEditingController competitionVirsionController = TextEditingController();
+  TextEditingController competitionVersionController = TextEditingController();
   TextEditingController successMoyenneChildController = TextEditingController();
   TextEditingController successMoyenneAdultController = TextEditingController();
   TextEditingController maxAdultController = TextEditingController();
@@ -55,7 +55,7 @@ class _AddCompetitionScreenState extends State<AddCompetitionScreen> {
       return;
     }
     if (widget.competition == null) {
-      String competitionVersion = competitionVirsionController.text.trim();
+      String competitionVersion = competitionVersionController.text.trim();
 
       if (competitionVersion.isNotEmpty) {
         bool hasActiveCompetition =
@@ -76,7 +76,7 @@ class _AddCompetitionScreenState extends State<AddCompetitionScreen> {
             DateTime.now().isBefore(selectedEndDate);
 
         Competition competition = Competition(
-          competitionVirsion: competitionVersion,
+          competitionVersion: competitionVersion,
           startDate: selectedStartDate,
           successMoyenneChild: double.parse(successMoyenneChildController.text),
           successMoyenneAdult: double.parse(successMoyenneAdultController.text),
@@ -114,7 +114,7 @@ class _AddCompetitionScreenState extends State<AddCompetitionScreen> {
           ScaffoldMessenger.of(context).showSnackBar(successSnackBar);
         });
 
-        competitionVirsionController.clear();
+        competitionVersionController.clear();
         setState(() {
           selectedStartDate = DateTime.now();
           selectedEndDate = DateTime.now().add(const Duration(days: 1));
@@ -198,7 +198,7 @@ class _AddCompetitionScreenState extends State<AddCompetitionScreen> {
                     children: [
                       InputWidget(
                         label: "اسم النسخة",
-                        controller: competitionVirsionController,
+                        controller: competitionVersionController,
                         hint: "اسم النسخة",
                       ),
                       const SizedBox(

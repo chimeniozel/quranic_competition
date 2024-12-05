@@ -41,7 +41,7 @@ class _CompetitionResultsClientState extends State<CompetitionResultsClient> {
         return Scaffold(
           appBar: AppBar(
             backgroundColor: AppColors.primaryColor,
-            title: Text('نتائج ${provider.competition!.competitionVirsion}'),
+            title: Text('نتائج ${provider.competition!.competitionVersion}'),
           ),
           body: Padding(
             padding: const EdgeInsets.all(8.0),
@@ -218,7 +218,7 @@ class _CompetitionResultsClientState extends State<CompetitionResultsClient> {
                       competitionRound: selectedRound!,
                       query: query,
                       version:
-                          provider.competition!.competitionVirsion.toString(),
+                          provider.competition!.competitionVersion.toString(),
                     ),
                     builder: (context, snapshotInscription) {
                       if (snapshotInscription.connectionState ==
