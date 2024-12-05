@@ -113,19 +113,19 @@ class AuthService {
   // check if all constraints have notes and return result and list of constraints
 
   static Future<Map<String, dynamic>> checkAllNotes(
-      {required String version,
+      {required String competitionId,
       required String cometionType,
       required String userID,
       required String competitionRound}) async {
     CollectionReference inscriptionCollection = FirebaseFirestore.instance
         .collection('inscriptions')
-        .doc(version)
+        .doc(competitionId)
         .collection(cometionType);
 
     QuerySnapshot<Map<String, dynamic>> juryInscriptionAdult =
         await FirebaseFirestore.instance
             .collection('inscriptions')
-            .doc(version)
+            .doc(competitionId)
             .collection("jurysInscriptions")
             .where("idJury", isEqualTo: userID)
             .where("isAdult", isEqualTo: true)
@@ -133,7 +133,7 @@ class AuthService {
     QuerySnapshot<Map<String, dynamic>> juryInscriptionChild =
         await FirebaseFirestore.instance
             .collection('inscriptions')
-            .doc(version)
+            .doc(competitionId)
             .collection("jurysInscriptions")
             .where("idJury", isEqualTo: userID)
             .where("isAdult", isEqualTo: false)

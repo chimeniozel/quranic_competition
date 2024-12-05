@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:provider/provider.dart';
 import 'package:quranic_competition/constants/colors.dart';
-import 'package:quranic_competition/models/archive_entry.dart';
+import 'package:quranic_competition/models/tajweed_video_model.dart';
 import 'package:quranic_competition/providers/auth_provider.dart';
 import 'package:quranic_competition/screens/admin/tajweed/video/add_tajweed_video_screen.dart';
 import 'package:quranic_competition/screens/admin/tajweed/video/edit_tajweed_video_screen.dart';
@@ -44,7 +44,7 @@ class _TajweedVideoScreenState extends State<TajweedVideoScreen> {
         padding: const EdgeInsets.all(
           8.0,
         ),
-        child: StreamBuilder<List<VideoEntry>>(
+        child: StreamBuilder<List<TajweedVideoModel>>(
           stream: CompetitionService.getTajweedVideoEntries(),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
@@ -61,12 +61,12 @@ class _TajweedVideoScreenState extends State<TajweedVideoScreen> {
               ); // Handle empty data case
             }
 
-            List<VideoEntry>? videoEntry = snapshot.data;
+            List<TajweedVideoModel>? tajweedVideoModel = snapshot.data;
 
             return ListView.builder(
-              itemCount: videoEntry!.length,
+              itemCount: tajweedVideoModel!.length,
               itemBuilder: (context, index) {
-                VideoEntry video = videoEntry[index];
+                TajweedVideoModel video = tajweedVideoModel[index];
                 return GestureDetector(
                   onTap: () {
                     _launchURL(video.url!);
@@ -132,7 +132,7 @@ class _TajweedVideoScreenState extends State<TajweedVideoScreen> {
                                     context,
                                     MaterialPageRoute(
                                       builder: (context) => EditTajweedVideoScreen(
-                                        videoEntry: video,
+                                        tajweedVideoModel: video,
                                       ),
                                     ),
                                   );

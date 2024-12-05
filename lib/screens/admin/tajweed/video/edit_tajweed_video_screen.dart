@@ -3,11 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:quranic_competition/constants/colors.dart';
 import 'package:quranic_competition/models/archive_entry.dart';
+import 'package:quranic_competition/models/tajweed_video_model.dart';
 import 'package:quranic_competition/widgets/input_widget.dart';
 
 class EditTajweedVideoScreen extends StatefulWidget {
-  final VideoEntry videoEntry;
-  const EditTajweedVideoScreen({super.key, required this.videoEntry});
+  final TajweedVideoModel tajweedVideoModel;
+  const EditTajweedVideoScreen({super.key, required this.tajweedVideoModel});
 
   @override
   State<EditTajweedVideoScreen> createState() => _EditTajweedVideoScreenState();
@@ -19,8 +20,8 @@ class _EditTajweedVideoScreenState extends State<EditTajweedVideoScreen> {
 
   @override
   void initState() {
-    videoController.text = widget.videoEntry.url!;
-    titleController.text = widget.videoEntry.title!;
+    videoController.text = widget.tajweedVideoModel.url!;
+    titleController.text = widget.tajweedVideoModel.title!;
     super.initState();
   }
 
@@ -82,11 +83,11 @@ class _EditTajweedVideoScreenState extends State<EditTajweedVideoScreen> {
       floatingActionButton: FloatingActionButton(
         backgroundColor: AppColors.primaryColor,
         onPressed: () async {
-          widget.videoEntry.title = titleController.text;
-          widget.videoEntry.url = videoController.text;
+          widget.tajweedVideoModel.title = titleController.text;
+          widget.tajweedVideoModel.url = videoController.text;
           await FirebaseFirestore.instance
               .collection("ahkam_tajweed_videos")
-              .doc(widget.videoEntry.id)
+              .doc(widget.tajweedVideoModel.id)
               .update({
             "title": titleController.text,
             "url": videoController.text,

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:quranic_competition/constants/colors.dart';
 import 'package:quranic_competition/models/archive_entry.dart';
+import 'package:quranic_competition/models/tajweed_video_model.dart';
 import 'package:quranic_competition/widgets/input_widget.dart';
 
 class AddTajweedVideoScreen extends StatefulWidget {
@@ -140,14 +141,14 @@ class _AddTajweedVideoScreenState extends State<AddTajweedVideoScreen> {
                 _titleControllers.map((controller) => controller.text).toList();
             final videoUrls =
                 _videoControllers.map((controller) => controller.text).toList();
-            List<VideoEntry> videos = [];
+            List<TajweedVideoModel> videos = [];
             for (var i = 0; i < _titleControllers.length; i++) {
-              VideoEntry videoEntry = VideoEntry(
+              TajweedVideoModel tajweedVideoModel = TajweedVideoModel(
                 title: titleUrls[i],
                 url: videoUrls[i],
                 createdAt: DateTime.now(),
               );
-              videos.add(videoEntry);
+              videos.add(tajweedVideoModel);
             }
             for (var element in videos) {
               FirebaseFirestore.instance

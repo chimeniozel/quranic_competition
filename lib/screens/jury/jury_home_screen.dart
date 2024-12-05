@@ -607,8 +607,8 @@ class _JuryHomeScreenState extends State<JuryHomeScreen> {
                                 .competition!.firstRoundIsPublished!
                             ? "التصفيات النهائية"
                             : "التصفيات الأولى",
-                        version: competitionProvider
-                            .competition!.competitionVersion
+                        competitionId: competitionProvider
+                            .competition!.competitionId
                             .toString(),
                         userID: authProviders.currentJury!.userID!,
                       );

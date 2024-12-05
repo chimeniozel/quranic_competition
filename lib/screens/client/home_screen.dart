@@ -31,6 +31,7 @@ class _HomeScreenState extends State<HomeScreen> {
           'مسابقة أهل القرآن الواتسابية',
           style: TextStyle(color: Colors.white),
         ),
+        centerTitle: true,
       ),
       body: Consumer<CompetitionProvider>(builder: (context, provider, child) {
         return SingleChildScrollView(

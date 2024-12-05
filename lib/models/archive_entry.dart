@@ -55,26 +55,18 @@ class ArchiveEntry {
 }
 
 class VideoEntry {
-  final String? _id;
   final String? _url;
   final String? _title;
-  final DateTime? _createdAt;
 
   VideoEntry({
-    String? id,
     String? url,
     String? title,
-    DateTime? createdAt,
-  })  : _id = id,
-        _url = url,
-        _title = title,
-        _createdAt = createdAt;
+  })  : _url = url,
+        _title = title;
 
   // Getters
-  String? get id => _id;
   String? get url => _url;
   String? get title => _title;
-  DateTime? get createdAt => _createdAt;
 
   // Setters
   set id(String? id) {
@@ -96,22 +88,16 @@ class VideoEntry {
   // Convert VideoEntry to Map (for Firebase or other storage)
   Map<String, dynamic> toMap() {
     return {
-      'id': id,
       'url': url,
       'title': title,
-      'createdAt': createdAt?.toIso8601String(),
     };
   }
 
   // Factory method to create VideoEntry from Map
   factory VideoEntry.fromMap(Map<String, dynamic> map) {
     return VideoEntry(
-      id: map['id'] as String?,
       url: map['url'] as String?,
       title: map['title'] as String?,
-      createdAt: map['createdAt'] != null
-          ? DateTime.parse(map['createdAt'] as String)
-          : null,
     );
   }
 }

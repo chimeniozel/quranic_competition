@@ -10,6 +10,7 @@ import 'package:quranic_competition/models/jury.dart';
 import 'package:quranic_competition/models/note_model.dart';
 import 'package:quranic_competition/models/result_model.dart';
 import 'package:quranic_competition/models/tajweed_post_model.dart';
+import 'package:quranic_competition/models/tajweed_video_model.dart';
 
 class CompetitionService {
   // Reference to the competitions collection in Firestore
@@ -405,45 +406,34 @@ class CompetitionService {
     }
   }
 
-  // get videos archives as a stream
-  static Future<List<VideoEntry>> getVideosArchivesStream(
-    String competitionId, {
-    int limit = 15,
-    int? lastVideo,
-  }) async {
-    try {
-      // Fetch the document once using 'get()'
-      DocumentSnapshot<Map<String, dynamic>> snapshot = await FirebaseFirestore
-          .instance
-          .collection("competitions")
-          .doc(competitionId)
-          .get();
+  // Get videos archives as a stream
+  static Stream<List<VideoEntry>> getVideosArchivesStream(
+      String competitionId) {
+    return FirebaseFirestore.instance
+        .collection("competitions")
+        .doc(competitionId)
+        .snapshots()
+        .map((snapshot) {
+      if (snapshot.exists) {
+        try {
+          // Parse the competition data from the snapshot
+          Competition competition = Competition.fromMap(snapshot.data()!);
 
-      if (!snapshot.exists) {
-        return [];
+          // Retrieve the videos URL if available
+          List<VideoEntry>? videosURL = competition.archiveEntry?.videosURL;
+
+          // Return the list of video entries or an empty list
+          return videosURL ?? <VideoEntry>[];
+        } catch (error) {
+          print("Error parsing competition data: $error");
+          return <VideoEntry>[];
+        }
+      } else {
+        return <VideoEntry>[];
       }
-
-      // Parse the competition data from the snapshot
-      Competition competition = Competition.fromMap(snapshot.data()!);
-
-      // Retrieve the images URLs if available
-      List<VideoEntry>? videosURL = competition.archiveEntry?.videosURL;
-
-      if (videosURL == null || videosURL.isEmpty) {
-        return [];
-      }
-
-      // Apply pagination to images
-      int startIndex = lastVideo != 0 ? lastVideo! + 1 : 0;
-
-      List<VideoEntry> paginatedVideos =
-          videosURL.skip(startIndex).take(limit).toList();
-
-      return paginatedVideos;
-    } catch (error) {
-      print("Error fetching paginated archives: $error");
-      return [];
-    }
+    }).handleError((error) {
+      print("Error fetching archives stream: $error");
+    });
   }
 
   static Future<List<Map<String, dynamic>>> getResults({
@@ -802,13 +792,13 @@ class CompetitionService {
     }
   }
 
-  static Stream<List<VideoEntry>> getTajweedVideoEntries() {
+  static Stream<List<TajweedVideoModel>> getTajweedVideoEntries() {
     return FirebaseFirestore.instance
         .collection("ahkam_tajweed_videos")
         .snapshots()
         .map(
           (snapshot) => snapshot.docs
-              .map((doc) => VideoEntry.fromMap(doc.data()))
+              .map((doc) => TajweedVideoModel.fromMap(doc.data()))
               .toList(),
         );
   }
