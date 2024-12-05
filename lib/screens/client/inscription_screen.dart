@@ -592,60 +592,61 @@ class _InscriptionScreenState extends State<InscriptionScreen> {
                               backgroundColor: AppColors.yellowColor,
                             ),
                           );
-                        }
-                        if ((provider.competition!.adultNumber !=
-                                    provider.competition!.adultNumberMax ||
-                                provider.competition!.childNumber !=
-                                    provider.competition!.childNumberMax) &&
-                            !provider.competition!.firstRoundIsPublished! &&
-                            provider.competition!.isInscriptionOpen!) {
-                          setState(() {
-                            isLoading = true;
-                          });
-                          Inscription inscription = Inscription(
-                            fullName: fullNameController.text,
-                            phoneNumber: phoneNumberController,
-                            birthDate: _selectedDate,
-                            residencePlace: selectedResudence,
-                            howMuchYouMemorize: howMuchYouMemorize,
-                            haveYouIhaza: haveYouIhaza,
-                            gender: gender,
-                            haveYouParticipatedInACompetition:
-                                haveYouParticipatedInACompetition,
-                            haveYouEverWon1stTo2ndPlace:
-                                haveYouEverWon1stTo2ndPlace,
-                            resultFirstRound: 0,
-                            resultLastRound: 0,
-                            isPassedFirstRound: false,
-                            howMuchRiwayaYouHave: howMuchRiwayaYouHave,
-                          );
-                          await InscriptionService.sendToFirebase(
-                            inscription,
-                            context,
-                            Provider.of<CompetitionProvider>(context,
-                                    listen: false)
-                                .competition!,
-                          ).whenComplete(() {
-                            fullNameController.clear();
-                            phoneController.clear();
-                            phoneNumberController = "";
-                          });
                         } else {
-                          setState(() {
-                            isLoading = false;
-                          });
-                          final failureSnackBar = SnackBar(
-                            content:
-                                const Text("تم قفل باب التسجيل في المسابقة"),
-                            action: SnackBarAction(
-                              label: 'تراجع',
-                              onPressed: () {},
-                            ),
-                            backgroundColor: AppColors.yellowColor,
-                          );
-                          ScaffoldMessenger.of(context)
-                              .showSnackBar(failureSnackBar);
-                          Navigator.pop(context);
+                          if ((provider.competition!.adultNumber !=
+                                      provider.competition!.adultNumberMax ||
+                                  provider.competition!.childNumber !=
+                                      provider.competition!.childNumberMax) &&
+                              !provider.competition!.firstRoundIsPublished! &&
+                              provider.competition!.isInscriptionOpen!) {
+                            setState(() {
+                              isLoading = true;
+                            });
+                            Inscription inscription = Inscription(
+                              fullName: fullNameController.text,
+                              phoneNumber: phoneNumberController,
+                              birthDate: _selectedDate,
+                              residencePlace: selectedResudence,
+                              howMuchYouMemorize: howMuchYouMemorize,
+                              haveYouIhaza: haveYouIhaza,
+                              gender: gender,
+                              haveYouParticipatedInACompetition:
+                                  haveYouParticipatedInACompetition,
+                              haveYouEverWon1stTo2ndPlace:
+                                  haveYouEverWon1stTo2ndPlace,
+                              resultFirstRound: 0,
+                              resultLastRound: 0,
+                              isPassedFirstRound: false,
+                              howMuchRiwayaYouHave: howMuchRiwayaYouHave,
+                            );
+                            await InscriptionService.sendToFirebase(
+                              inscription,
+                              context,
+                              Provider.of<CompetitionProvider>(context,
+                                      listen: false)
+                                  .competition!,
+                            ).whenComplete(() {
+                              fullNameController.clear();
+                              phoneController.clear();
+                              phoneNumberController = "";
+                            });
+                          } else {
+                            setState(() {
+                              isLoading = false;
+                            });
+                            final failureSnackBar = SnackBar(
+                              content:
+                                  const Text("تم قفل باب التسجيل في المسابقة"),
+                              action: SnackBarAction(
+                                label: 'تراجع',
+                                onPressed: () {},
+                              ),
+                              backgroundColor: AppColors.yellowColor,
+                            );
+                            ScaffoldMessenger.of(context)
+                                .showSnackBar(failureSnackBar);
+                            Navigator.pop(context);
+                          }
                         }
 
                         // // Navigate to otp verification screen

@@ -108,6 +108,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     icon: Iconsax.call,
                     onTap: () {},
                     onChanged: (value) {},
+                    maxLength: 8,
                   ),
                   const SizedBox(height: 10.0),
                   InputWidget(
@@ -118,6 +119,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     controller: passwordController,
                     hint: "كلمة السر",
                     icon: IconlyLight.password,
+                    maxLength: 8,
                     suffixIcon: IconButton(
                       onPressed: () {
                         setState(() {
@@ -142,6 +144,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     controller: confirmPasswordController,
                     hint: "إعادة كلمة السر",
                     icon: Iconsax.password_check,
+                    maxLength: 8,
                     suffixIcon: IconButton(
                       onPressed: () {
                         setState(() {

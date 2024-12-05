@@ -1,23 +1,20 @@
 class AboutUsModel {
-  final String? _idAboutUs;
   String? _description;
   String? _facebookUrl;
   String? _youtubeUrl;
   String? _whatsappPhoneNumber;
   AboutUsModel({
-    String? idAboutUs,
     String? description,
     String? facebookUrl,
     String? youtubeUrl,
     String? whatsappPhoneNumber,
-  })  : _idAboutUs = idAboutUs,
+  })  :
         _description = description,
         _facebookUrl = facebookUrl,
         _youtubeUrl = youtubeUrl,
         _whatsappPhoneNumber = whatsappPhoneNumber;
 
   // Getters
-  String? get idAboutUs => _idAboutUs;
   String? get description => _description;
   String? get facebookUrl => _facebookUrl;
   String? get youtubeUrl => _youtubeUrl;
@@ -43,7 +40,6 @@ class AboutUsModel {
   // to Map
   Map<String, dynamic> toMap() {
     return {
-      'idAboutUs': _idAboutUs,
       'description': _description,
       'facebookUrl': _facebookUrl,
       'youtubeUrl': _youtubeUrl,
@@ -54,7 +50,6 @@ class AboutUsModel {
   // from map
   static AboutUsModel fromMap(Map<String, dynamic> map) {
     return AboutUsModel(
-      idAboutUs: map['idAboutUs'],
       description: map['description'],
       facebookUrl: map['facebookUrl'],
       youtubeUrl: map['youtubeUrl'],
