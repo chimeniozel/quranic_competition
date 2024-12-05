@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:provider/provider.dart';
@@ -425,7 +427,9 @@ class CompetitionResultsState extends State<CompetitionResults> {
           ? StatefulBuilder(builder: (context, setState) {
               return Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                margin: const EdgeInsets.only(bottom: 33),
+                margin: Platform.isAndroid
+                    ? const EdgeInsets.only(bottom: 10)
+                    : const EdgeInsets.only(bottom: 33),
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.primaryColor,

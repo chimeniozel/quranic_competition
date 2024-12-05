@@ -1,5 +1,4 @@
 import 'dart:typed_data';
-import 'package:path_provider/path_provider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:excel/excel.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -11,9 +10,6 @@ import 'package:quranic_competition/models/jury.dart';
 import 'package:quranic_competition/models/jurys_inscription.dart';
 import 'package:quranic_competition/models/note_model.dart';
 import 'package:quranic_competition/models/result_model.dart';
-import 'dart:io';
-import 'package:permission_handler/permission_handler.dart';
-import 'package:open_filex/open_filex.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class InscriptionService {

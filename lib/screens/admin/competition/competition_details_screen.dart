@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:quranic_competition/constants/colors.dart';
@@ -423,171 +425,178 @@ class _CompetitionDetailsScreenState extends State<CompetitionDetailsScreen> {
             const SizedBox(
               height: 5.0,
             ),
-            Row(
-              children: [
-                Expanded(
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.primaryColor,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10.0),
+            Container(
+              margin: Platform.isAndroid
+                  ? const EdgeInsets.only(bottom: 10)
+                  : const EdgeInsets.only(bottom: 33),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.primaryColor,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10.0),
+                        ),
+                        padding: const EdgeInsets.all(10.0),
+                        minimumSize: const Size(double.infinity, 50.0),
                       ),
-                      padding: const EdgeInsets.all(10.0),
-                      minimumSize: const Size(double.infinity, 50.0),
-                    ),
-                    onPressed: () {
-                      // Navigate to the results screen
-                      if (widget.competition.firstRoundIsPublished! == true ||
-                          widget.competition.isActive! == false) {
-                        final failureSnackBar = SnackBar(
-                          content: const Text(
-                              "لا يمكنك التعديل على النسخة بعد نشر النتائج الأولية"),
-                          action: SnackBarAction(
-                            label: 'تراجع',
-                            onPressed: () {},
+                      onPressed: () {
+                        // Navigate to the results screen
+                        if (widget.competition.firstRoundIsPublished! == true) {
+                          final failureSnackBar = SnackBar(
+                            content: const Text(
+                                "لا يمكنك التعديل على النسخة بعد نشر النتائج الأولية"),
+                            action: SnackBarAction(
+                              label: 'تراجع',
+                              onPressed: () {},
+                            ),
+                            backgroundColor: AppColors.pinkColor,
+                          );
+                          ScaffoldMessenger.of(context)
+                              .showSnackBar(failureSnackBar);
+                        } else {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => AddCompetitionScreen(
+                                competition: competition,
+                              ),
+                            ),
+                          );
+                        }
+                      },
+                      child: const Column(
+                        children: [
+                          Icon(
+                            Iconsax.edit,
+                            color: AppColors.whiteColor,
                           ),
-                          backgroundColor: AppColors.pinkColor,
-                        );
-                        ScaffoldMessenger.of(context)
-                            .showSnackBar(failureSnackBar);
-                      } else {
+                          SizedBox(
+                            height: 4.0,
+                          ),
+                          Text(
+                            "تعديل الإعدادات",
+                            style: TextStyle(
+                              fontSize: 12.0,
+                              color: AppColors.whiteColor,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(
+                    width: 10.0,
+                  ),
+                  Expanded(
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.primaryColor,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10.0),
+                        ),
+                        padding: const EdgeInsets.all(10.0),
+                        minimumSize: const Size(double.infinity, 50.0),
+                      ),
+                      onPressed: () {
+                        // Navigate to the results screen
+
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => AddCompetitionScreen(
+                            builder: (context) => CompetitionResults(
                               competition: competition,
                             ),
                           ),
                         );
-                      }
+                      },
+                      child: Column(
+                        children: [
+                          const Icon(
+                            Iconsax.trend_up,
+                            color: AppColors.whiteColor,
+                          ),
+                          const SizedBox(
+                            height: 4.0,
+                          ),
+                          Text(
+                            competition.isActive!
+                                ? "نشر نتائج المسابقة"
+                                : "نتائج المسابقة",
+                            style: const TextStyle(
+                              fontSize: 12.0,
+                              color: AppColors.whiteColor,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(
+                    width: 10.0,
+                  ),
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.grayColor,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10.0),
+                      ),
+                      padding: const EdgeInsets.all(10.0),
+                    ),
+                    onPressed: () async {
+                      setState(() {
+                        isloading = true;
+                      });
+                      await InscriptionService.fetchContestants(
+                        competition: competition,
+                        competitionType: selectedType!,
+                        query: query,
+                      ).then((inscriptions) {
+                        if (inscriptions.isNotEmpty) {
+                          InscriptionService.exportInscriptionsAsXlsx(
+                              inscriptions,
+                              competition,
+                              selectedType!,
+                              context);
+                        } else {
+                          final failureSnackBar = SnackBar(
+                            content: const Text("لا يوجد مترشحون"),
+                            action: SnackBarAction(
+                              label: 'تراجع',
+                              onPressed: () {},
+                            ),
+                            backgroundColor: AppColors.yellowColor,
+                          );
+                          ScaffoldMessenger.of(context)
+                              .showSnackBar(failureSnackBar);
+                        }
+                      });
+                      setState(() {
+                        isloading = false;
+                      });
                     },
                     child: const Column(
                       children: [
                         Icon(
-                          Iconsax.edit,
+                          Iconsax.export_1,
                           color: AppColors.whiteColor,
                         ),
                         SizedBox(
                           height: 4.0,
                         ),
                         Text(
-                          "تعديل الإعدادات",
+                          "استخراج",
                           style: TextStyle(
                             fontSize: 12.0,
                             color: AppColors.whiteColor,
                           ),
-                        ),
+                        )
                       ],
                     ),
                   ),
-                ),
-                const SizedBox(
-                  width: 10.0,
-                ),
-                Expanded(
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.primaryColor,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10.0),
-                      ),
-                      padding: const EdgeInsets.all(10.0),
-                      minimumSize: const Size(double.infinity, 50.0),
-                    ),
-                    onPressed: () {
-                      // Navigate to the results screen
-
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => CompetitionResults(
-                            competition: competition,
-                          ),
-                        ),
-                      );
-                    },
-                    child: Column(
-                      children: [
-                        const Icon(
-                          Iconsax.trend_up,
-                          color: AppColors.whiteColor,
-                        ),
-                        const SizedBox(
-                          height: 4.0,
-                        ),
-                        Text(
-                          competition.isActive!
-                              ? "نشر نتائج المسابقة"
-                              : "نتائج المسابقة",
-                          style: const TextStyle(
-                            fontSize: 12.0,
-                            color: AppColors.whiteColor,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                const SizedBox(
-                  width: 10.0,
-                ),
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.grayColor,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10.0),
-                    ),
-                    padding: const EdgeInsets.all(10.0),
-                  ),
-                  onPressed: () async {
-                    setState(() {
-                      isloading = true;
-                    });
-                    await InscriptionService.fetchContestants(
-                      competition: competition,
-                      competitionType: selectedType!,
-                      query: query,
-                    ).then((inscriptions) {
-                      if (inscriptions.isNotEmpty) {
-                        InscriptionService.exportInscriptionsAsXlsx(
-                            inscriptions, competition, selectedType!, context);
-                      } else {
-                        final failureSnackBar = SnackBar(
-                          content: const Text("لا يوجد مترشحون"),
-                          action: SnackBarAction(
-                            label: 'تراجع',
-                            onPressed: () {},
-                          ),
-                          backgroundColor: AppColors.yellowColor,
-                        );
-                        ScaffoldMessenger.of(context)
-                            .showSnackBar(failureSnackBar);
-                      }
-                    });
-                    setState(() {
-                      isloading = false;
-                    });
-                  },
-                  child: const Column(
-                    children: [
-                      Icon(
-                        Iconsax.export_1,
-                        color: AppColors.whiteColor,
-                      ),
-                      SizedBox(
-                        height: 4.0,
-                      ),
-                      Text(
-                        "استخراج",
-                        style: TextStyle(
-                          fontSize: 12.0,
-                          color: AppColors.whiteColor,
-                        ),
-                      )
-                    ],
-                  ),
-                ),
-              ],
+                ],
+              ),
             ),
           ],
         ),

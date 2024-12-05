@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:intl/intl.dart';
@@ -557,100 +559,116 @@ class _InscriptionScreenState extends State<InscriptionScreen> {
                     ],
                   ),
                   const SizedBox(height: 10.0),
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      foregroundColor: AppColors.whiteColor,
-                      backgroundColor: AppColors.primaryColor,
-                      elevation: 0,
-                      minimumSize: const Size(double.infinity, 40),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
+                  Container(
+                    margin: Platform.isAndroid
+                        ? const EdgeInsets.only(bottom: 10)
+                        : const EdgeInsets.only(bottom: 33),
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        foregroundColor: AppColors.whiteColor,
+                        backgroundColor: AppColors.primaryColor,
+                        elevation: 0,
+                        minimumSize: const Size(double.infinity, 40),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        side: BorderSide(
+                          color: Colors.black.withOpacity(.3),
+                          width: 1,
+                        ),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 10.0, vertical: 13.0),
                       ),
-                      side: BorderSide(
-                        color: Colors.black.withOpacity(.3),
-                        width: 1,
-                      ),
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 10.0, vertical: 13.0),
-                    ),
-                    onPressed: () async {
-                      if (!_fromKey.currentState!.validate()) {
-                        return;
-                      }
-                      if ((provider.competition!.adultNumber !=
-                                  provider.competition!.adultNumberMax ||
-                              provider.competition!.childNumber !=
-                                  provider.competition!.childNumberMax) &&
-                          !provider.competition!.firstRoundIsPublished! &&
-                          provider.competition!.isInscriptionOpen!) {
-                        setState(() {
-                          isLoading = true;
-                        });
-                        Inscription inscription = Inscription(
-                          fullName: fullNameController.text,
-                          phoneNumber: phoneNumberController,
-                          birthDate: _selectedDate,
-                          residencePlace: selectedResudence,
-                          howMuchYouMemorize: howMuchYouMemorize,
-                          haveYouIhaza: haveYouIhaza,
-                          gender: gender,
-                          haveYouParticipatedInACompetition:
-                              haveYouParticipatedInACompetition,
-                          haveYouEverWon1stTo2ndPlace:
-                              haveYouEverWon1stTo2ndPlace,
-                          resultFirstRound: 0,
-                          resultLastRound: 0,
-                          isPassedFirstRound: false,
-                          howMuchRiwayaYouHave: howMuchRiwayaYouHave,
-                        );
-                        await InscriptionService.sendToFirebase(
-                          inscription,
-                          context,
-                          Provider.of<CompetitionProvider>(context,
-                                  listen: false)
-                              .competition!,
-                        ).whenComplete(() {
-                          fullNameController.clear();
-                          phoneController.clear();
-                          phoneNumberController = "";
-                        });
-                      } else {
+                      onPressed: () async {
+                        if (!_fromKey.currentState!.validate()) {
+                          return;
+                        }
+                        if (phoneController.text.isEmpty) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text(
+                                'لا يمكن أن يكون رقم الهاتف فارغا.',
+                              ),
+                              backgroundColor: AppColors.yellowColor,
+                            ),
+                          );
+                        }
+                        if ((provider.competition!.adultNumber !=
+                                    provider.competition!.adultNumberMax ||
+                                provider.competition!.childNumber !=
+                                    provider.competition!.childNumberMax) &&
+                            !provider.competition!.firstRoundIsPublished! &&
+                            provider.competition!.isInscriptionOpen!) {
+                          setState(() {
+                            isLoading = true;
+                          });
+                          Inscription inscription = Inscription(
+                            fullName: fullNameController.text,
+                            phoneNumber: phoneNumberController,
+                            birthDate: _selectedDate,
+                            residencePlace: selectedResudence,
+                            howMuchYouMemorize: howMuchYouMemorize,
+                            haveYouIhaza: haveYouIhaza,
+                            gender: gender,
+                            haveYouParticipatedInACompetition:
+                                haveYouParticipatedInACompetition,
+                            haveYouEverWon1stTo2ndPlace:
+                                haveYouEverWon1stTo2ndPlace,
+                            resultFirstRound: 0,
+                            resultLastRound: 0,
+                            isPassedFirstRound: false,
+                            howMuchRiwayaYouHave: howMuchRiwayaYouHave,
+                          );
+                          await InscriptionService.sendToFirebase(
+                            inscription,
+                            context,
+                            Provider.of<CompetitionProvider>(context,
+                                    listen: false)
+                                .competition!,
+                          ).whenComplete(() {
+                            fullNameController.clear();
+                            phoneController.clear();
+                            phoneNumberController = "";
+                          });
+                        } else {
+                          setState(() {
+                            isLoading = false;
+                          });
+                          final failureSnackBar = SnackBar(
+                            content:
+                                const Text("تم قفل باب التسجيل في المسابقة"),
+                            action: SnackBarAction(
+                              label: 'تراجع',
+                              onPressed: () {},
+                            ),
+                            backgroundColor: AppColors.yellowColor,
+                          );
+                          ScaffoldMessenger.of(context)
+                              .showSnackBar(failureSnackBar);
+                          Navigator.pop(context);
+                        }
+
+                        // // Navigate to otp verification screen
+                        // Navigator.push(
+                        //   context,
+                        //   MaterialPageRoute(
+                        //     builder: (context) => OtpVerificationScreen(
+                        //       inscription: inscription,
+                        //       phoneNumber: phoneNumberController,
+                        //     ),
+                        //   ),
+                        // );
                         setState(() {
                           isLoading = false;
                         });
-                        final failureSnackBar = SnackBar(
-                          content: const Text("تم قفل باب التسجيل في المسابقة"),
-                          action: SnackBarAction(
-                            label: 'تراجع',
-                            onPressed: () {},
-                          ),
-                          backgroundColor: AppColors.yellowColor,
-                        );
-                        ScaffoldMessenger.of(context)
-                            .showSnackBar(failureSnackBar);
-                        Navigator.pop(context);
-                      }
-
-                      // // Navigate to otp verification screen
-                      // Navigator.push(
-                      //   context,
-                      //   MaterialPageRoute(
-                      //     builder: (context) => OtpVerificationScreen(
-                      //       inscription: inscription,
-                      //       phoneNumber: phoneNumberController,
-                      //     ),
-                      //   ),
-                      // );
-                      setState(() {
-                        isLoading = false;
-                      });
-                    },
-                    child: isLoading
-                        ? const CircularProgressIndicator(
-                            color: AppColors.whiteColor,
-                            strokeWidth: 2.0,
-                          )
-                        : const Text("إرسال المعلومات"),
+                      },
+                      child: isLoading
+                          ? const CircularProgressIndicator(
+                              color: AppColors.whiteColor,
+                              strokeWidth: 2.0,
+                            )
+                          : const Text("إرسال المعلومات"),
+                    ),
                   ),
                 ],
               ),

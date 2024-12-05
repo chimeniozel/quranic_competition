@@ -14,7 +14,7 @@ class ImagesArchiveScreen extends StatefulWidget {
 }
 
 class _ImagesArchiveScreenState extends State<ImagesArchiveScreen> {
-  List<String> _images = [];
+  final List<String> _images = [];
   bool _isLoading = false;
   bool _hasMore = true; // Track if more images are available
   int lastImage = 0;
@@ -95,6 +95,52 @@ class _ImagesArchiveScreenState extends State<ImagesArchiveScreen> {
 
                     var archive = _images[index];
                     return GestureDetector(
+                      onLongPress: () {
+                        showDialog(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return AlertDialog(
+                              title: const Text("تأكيد الحذف"),
+                              content: const Text(
+                                  "هل أنت متأكد أنك تريد حذف هذا العنصر؟"),
+                              actions: <Widget>[
+                                TextButton(
+                                  onPressed: () {
+                                    Navigator.of(context)
+                                        .pop(); // Close the dialog
+                                  },
+                                  child: const Text("إلغاء"),
+                                ),
+                                TextButton(
+                                  onPressed: () async {
+                                    // Add your delete action here
+                                    FirebaseFirestore.instance
+                                        .collection("competitions")
+                                        .doc(widget.competition.competitionId)
+                                        .update({
+                                      "archiveEntry.imagesURL":
+                                          FieldValue.arrayRemove(
+                                        [archive],
+                                      ),
+                                    }).whenComplete(
+                                      () {
+                                        _images.remove(archive);
+                                        _loadImages();
+                                        setState(() {});
+                                      },
+                                    );
+                                    Navigator.of(context).pop();
+                                  },
+                                  child: const Text(
+                                    "حذف",
+                                    style: TextStyle(color: Colors.red),
+                                  ),
+                                ),
+                              ],
+                            );
+                          },
+                        );
+                      },
                       onTap: () {
                         Navigator.push(
                           context,
@@ -103,7 +149,6 @@ class _ImagesArchiveScreenState extends State<ImagesArchiveScreen> {
                               itemUrl: archive,
                               competitionId:
                                   widget.competition.competitionId.toString(),
-                              isImage: true,
                             ),
                           ),
                         );
@@ -135,13 +180,15 @@ class _ImagesArchiveScreenState extends State<ImagesArchiveScreen> {
                                 return child;
                               }
                               return frame == null
-                                  ? const SizedBox(
-                                      height: 70,
-                                      width: 70,
-                                      child: Center(
-                                        child: CircularProgressIndicator(
-                                          color: AppColors.primaryColor,
-                                          strokeWidth: 2.0,
+                                  ? const Center(
+                                      child: SizedBox(
+                                        height: 70,
+                                        width: 70,
+                                        child: Center(
+                                          child: CircularProgressIndicator(
+                                            color: AppColors.primaryColor,
+                                            strokeWidth: 2.0,
+                                          ),
                                         ),
                                       ),
                                     )

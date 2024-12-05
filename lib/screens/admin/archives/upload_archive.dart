@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:iconly/iconly.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -27,8 +28,6 @@ class UploadArchiveState extends State<UploadArchive> {
   final List<FlickManager> _flickManagers = [];
   bool isLoading = false;
   final FirebaseStorage _storage = FirebaseStorage.instance;
-  double? imagesProgress = 0.0;
-  double? videosProgress = 0.0;
 
   // Select multiple images
   Future<void> _selectImages() async {
@@ -54,10 +53,6 @@ class UploadArchiveState extends State<UploadArchive> {
 
         // Listen to the upload progress
         uploadTask.snapshotEvents.listen((TaskSnapshot snapshot) {
-          double progress = snapshot.bytesTransferred / snapshot.totalBytes;
-          setState(() {
-            imagesProgress = progress;
-          });
           // int percentage = (progress * 100).round();
         });
 
@@ -68,11 +63,7 @@ class UploadArchiveState extends State<UploadArchive> {
         String downloadURL = await completedTask.ref.getDownloadURL();
         imageUrls.add(downloadURL); // Add the URL to the list
       } catch (e) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Error uploading: $e'),
-          ),
-        );
+        debugPrint('Error uploading: $e');
       }
     }
 
@@ -88,6 +79,33 @@ class UploadArchiveState extends State<UploadArchive> {
         backgroundColor: AppColors.greenColor,
       ),
     );
+  }
+
+  Future<void> _uploadVideos() async {
+    if (_videoControllers.isNotEmpty) {
+      if (!_formKey.currentState!.validate()) {
+        // Validation failed
+        return;
+      }
+      final titleUrls =
+          _titleControllers.map((controller) => controller.text).toList();
+      final videoUrls =
+          _videoControllers.map((controller) => controller.text).toList();
+      List<VideoEntry> videos = [];
+      for (var i = 0; i < _titleControllers.length; i++) {
+        VideoEntry videoEntry = VideoEntry(
+          title: titleUrls[i],
+          url: videoUrls[i],
+        );
+        videos.add(videoEntry);
+      }
+      CompetitionService.updateVideosURL(context, widget.competition, videos)
+          .whenComplete(() {})
+          .whenComplete(() {
+        _videoControllers.clear();
+        _titleControllers.clear();
+      });
+    }
   }
 
   final List<TextEditingController> _videoControllers = [];
@@ -114,41 +132,17 @@ class UploadArchiveState extends State<UploadArchive> {
     setState(() {
       isLoading = true;
     });
-    if (_selectedImages.isNotEmpty) {
+    if (_selectedImages.isNotEmpty && _videoControllers.isNotEmpty) {
       await _uploadImages(context, widget.competition);
-    }
-    if (_videoControllers.isNotEmpty) {
-      if (!_formKey.currentState!.validate()) {
-        // Validation failed
-        setState(() {
-          isLoading = false;
-        });
-        return;
-      }
-      final titleUrls =
-          _titleControllers.map((controller) => controller.text).toList();
-      final videoUrls =
-          _videoControllers.map((controller) => controller.text).toList();
-      List<VideoEntry> videos = [];
-      for (var i = 0; i < _titleControllers.length; i++) {
-        VideoEntry videoEntry = VideoEntry(
-          title: titleUrls[i],
-          url: videoUrls[i],
-        );
-        videos.add(videoEntry);
-      }
-      CompetitionService.updateVideosURL(context, widget.competition, videos)
-          .whenComplete(() {
-        setState(() {
-          isLoading = false;
-        });
-      }).whenComplete(() {
-        _videoControllers.clear();
-        _titleControllers.clear();
-        Navigator.pop(context);
-      });
-    }
-    if (_selectedImages.isEmpty && _videoControllers.isEmpty) {
+      await _uploadVideos();
+      Navigator.pop(context);
+    } else if (_selectedImages.isNotEmpty) {
+      await _uploadImages(context, widget.competition);
+      Navigator.pop(context);
+    } else if (_videoControllers.isNotEmpty) {
+      await _uploadVideos();
+      Navigator.pop(context);
+    } else {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('قم بتحميل ملفات'),
@@ -308,12 +302,15 @@ class UploadArchiveState extends State<UploadArchive> {
           ),
         ),
       ),
-      bottomNavigationBar: Padding(
+      bottomNavigationBar: Container(
         padding: const EdgeInsets.all(8.0),
+        margin: Platform.isAndroid
+            ? const EdgeInsets.only(bottom: 10)
+            : const EdgeInsets.only(bottom: 33),
         child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
-            ElevatedButton.icon(
+            ElevatedButton(
               style: ElevatedButton.styleFrom(
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10.0),
@@ -321,10 +318,9 @@ class UploadArchiveState extends State<UploadArchive> {
                 backgroundColor: AppColors.grayLigthColor,
               ),
               onPressed: _selectImages,
-              icon: const Icon(Iconsax.image4),
-              label: const Text("اختر صور"),
+              child: const Icon(IconlyLight.image_2),
             ),
-            ElevatedButton.icon(
+            ElevatedButton(
               style: ElevatedButton.styleFrom(
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10.0),
@@ -332,8 +328,7 @@ class UploadArchiveState extends State<UploadArchive> {
                 backgroundColor: AppColors.grayLigthColor,
               ),
               onPressed: _addVideoUrlField,
-              icon: const Icon(Iconsax.video),
-              label: const Text("إضافة رابط"),
+              child: const Icon(Iconsax.video),
             ),
             ElevatedButton(
               style: ElevatedButton.styleFrom(
@@ -343,77 +338,15 @@ class UploadArchiveState extends State<UploadArchive> {
                 backgroundColor: AppColors.grayLigthColor,
               ),
               onPressed: _submitUrls,
-              child: const Text("حفظ الروابط"),
+              child: isLoading
+                  ? const CircularProgressIndicator(
+                      strokeCap: StrokeCap.butt,
+                    )
+                  : const Text("حفظ"),
             ),
           ],
         ),
       ),
-      // Padding(
-      //   padding: const EdgeInsets.all(8.0),
-      //   child: ElevatedButton(
-      //     style: ElevatedButton.styleFrom(
-      //       backgroundColor: AppColors.primaryColor,
-      //       shape: RoundedRectangleBorder(
-      //         borderRadius: BorderRadius.circular(10.0),
-      //       ),
-      //       minimumSize: const Size(
-      //         double.infinity,
-      //         50.0,
-      //       ),
-      //     ),
-      //     onPressed: () async {
-      //       setState(() {
-      //         isLoading = true;
-      //       });
-      //       if (_selectedImages.isNotEmpty) {
-      //         await _uploadImages(context, widget.competition);
-      //       }
-      //       if (videoUrlController.text.isNotEmpty) {
-      //         if (!_formKey.currentState!.validate()) {
-      //           // Validation failed
-      //           setState(() {
-      //             isLoading = false;
-      //           });
-      //           return;
-      //         }
-      //         CompetitionService.updateVideosURL(
-      //                 context, widget.competition, [videoUrlController.text])
-      //             .whenComplete(() {
-      //           setState(() {
-      //             isLoading = false;
-      //           });
-      //         });
-      //       }
-      //       if (_selectedImages.isEmpty && videoUrlController.text.isEmpty) {
-      //         ScaffoldMessenger.of(context).showSnackBar(
-      //           const SnackBar(
-      //             content: Text('قم بتحميل ملفات'),
-      //           ),
-      //         );
-      //         setState(() {
-      //           isLoading = false;
-      //         });
-      //       }
-      //       setState(() {
-      //         isLoading = false;
-      //       });
-      //     },
-      //     child: isLoading
-      //         ? CircularProgressIndicator(
-      //             value: _selectedImages.isNotEmpty
-      //                 ? imagesProgress
-      //                 : videosProgress, // Bind the progress value
-      //             backgroundColor: AppColors.whiteColor,
-      //             color: AppColors.greenColor,
-      //           )
-      //         : const Text(
-      //             "حفظ",
-      //             style: TextStyle(
-      //               color: Colors.white,
-      //             ),
-      //           ),
-      //   ),
-      // ),
     );
   }
 }

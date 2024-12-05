@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:provider/provider.dart';
@@ -586,8 +588,11 @@ class _JuryHomeScreenState extends State<JuryHomeScreen> {
                           ],
                         ),
                 ),
-                bottomNavigationBar: Padding(
-                  padding: const EdgeInsets.all(8.0),
+                bottomNavigationBar: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                  margin: Platform.isAndroid
+                      ? const EdgeInsets.only(bottom: 10)
+                      : const EdgeInsets.only(bottom: 33),
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.primaryColor,
