@@ -27,7 +27,7 @@ class _CompetitionJurysState extends State<CompetitionJurys> {
       setState(() {
         jurys = jurysFetching;
       });
-      print("====================== ${jurys}");
+      print("====================== $jurys");
     } catch (e) {
       print(e);
     }

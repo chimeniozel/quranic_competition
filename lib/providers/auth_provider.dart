@@ -6,7 +6,6 @@ import 'package:quranic_competition/models/admin.dart';
 import 'package:quranic_competition/models/jury.dart';
 import 'package:quranic_competition/models/users.dart';
 import 'package:quranic_competition/services/auth_service.dart';
-import 'package:quranic_competition/services/competion_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthProviders extends ChangeNotifier {

@@ -1,7 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:quranic_competition/constants/colors.dart';
 import 'package:quranic_competition/models/competition.dart';
+import 'package:quranic_competition/providers/auth_provider.dart';
 import 'package:quranic_competition/screens/admin/archives/review_competion.dart';
 import 'package:quranic_competition/services/competion_service.dart';
 
@@ -59,6 +61,8 @@ class _ImagesArchiveScreenState extends State<ImagesArchiveScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final AuthProviders authProvider =
+        Provider.of<AuthProviders>(context, listen: false);
     return Scaffold(
       appBar: AppBar(
         backgroundColor: AppColors.primaryColor,
@@ -95,52 +99,55 @@ class _ImagesArchiveScreenState extends State<ImagesArchiveScreen> {
 
                     var archive = _images[index];
                     return GestureDetector(
-                      onLongPress: () {
-                        showDialog(
-                          context: context,
-                          builder: (BuildContext context) {
-                            return AlertDialog(
-                              title: const Text("تأكيد الحذف"),
-                              content: const Text(
-                                  "هل أنت متأكد أنك تريد حذف هذا العنصر؟"),
-                              actions: <Widget>[
-                                TextButton(
-                                  onPressed: () {
-                                    Navigator.of(context)
-                                        .pop(); // Close the dialog
-                                  },
-                                  child: const Text("إلغاء"),
-                                ),
-                                TextButton(
-                                  onPressed: () async {
-                                    // Add your delete action here
-                                    FirebaseFirestore.instance
-                                        .collection("competitions")
-                                        .doc(widget.competition.competitionId)
-                                        .update({
-                                      "archiveEntry.imagesURL":
-                                          FieldValue.arrayRemove(
-                                        [archive],
+                      onLongPress: authProvider.currentAdmin == null
+                          ? null
+                          : () {
+                              showDialog(
+                                context: context,
+                                builder: (BuildContext context) {
+                                  return AlertDialog(
+                                    title: const Text("تأكيد الحذف"),
+                                    content: const Text(
+                                        "هل أنت متأكد أنك تريد حذف هذا العنصر؟"),
+                                    actions: <Widget>[
+                                      TextButton(
+                                        onPressed: () {
+                                          Navigator.of(context)
+                                              .pop(); // Close the dialog
+                                        },
+                                        child: const Text("إلغاء"),
                                       ),
-                                    }).whenComplete(
-                                      () {
-                                        _images.remove(archive);
-                                        _loadImages();
-                                        setState(() {});
-                                      },
-                                    );
-                                    Navigator.of(context).pop();
-                                  },
-                                  child: const Text(
-                                    "حذف",
-                                    style: TextStyle(color: Colors.red),
-                                  ),
-                                ),
-                              ],
-                            );
-                          },
-                        );
-                      },
+                                      TextButton(
+                                        onPressed: () async {
+                                          // Add your delete action here
+                                          FirebaseFirestore.instance
+                                              .collection("competitions")
+                                              .doc(widget
+                                                  .competition.competitionId)
+                                              .update({
+                                            "archiveEntry.imagesURL":
+                                                FieldValue.arrayRemove(
+                                              [archive],
+                                            ),
+                                          }).whenComplete(
+                                            () {
+                                              _images.remove(archive);
+                                              _loadImages();
+                                              setState(() {});
+                                            },
+                                          );
+                                          Navigator.of(context).pop();
+                                        },
+                                        child: const Text(
+                                          "حذف",
+                                          style: TextStyle(color: Colors.red),
+                                        ),
+                                      ),
+                                    ],
+                                  );
+                                },
+                              );
+                            },
                       onTap: () {
                         Navigator.push(
                           context,
