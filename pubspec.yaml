@@ -77,10 +77,11 @@ dev_dependencies:
   flutter_lints: ^3.0.0
 
 
-flutter_icons:
-  image_path: "assets/images/logos/logo.png"
+flutter_launcher_icons:
   android: true
   ios: true
+  image_path_android: "assets/images/logos/android_logo.png"
+  image_path_ios: "assets/images/logos/ios_logo.png"
   remove_alpha_ios : true
   
 
